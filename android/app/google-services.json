@@ -1,0 +1,38 @@
+{
+  "project_info": {
+    "project_number": "736402354749",
+    "project_id": "tentapp-951ed",
+    "storage_bucket": "tentapp-951ed.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:736402354749:android:e5dd69a35cbdfb415a7054",
+        "android_client_info": {
+          "package_name": "com.example.tent_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "736402354749-vguggbuamro3klau9tn8b2m1ujmrqgig.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.tent_app",
+            "certificate_hash": "e7f24dbb4c526e10049c6c3f8ed1da72b2c5d633"
+          }
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7GihbaBHGTpldR6-z-kQd-hqzutUXwOc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
