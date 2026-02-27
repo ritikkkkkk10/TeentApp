@@ -129,9 +129,104 @@ class _ItemDetailScreenState
     );
   }
 
-  /// ===============================
-  /// UI
-  /// ===============================
+  void _adjustStock(bool isAdding) {
+
+  TextEditingController qty =
+      TextEditingController();
+
+  showDialog(
+    context: context,
+    builder: (_) {
+
+      return AlertDialog(
+        title: Text(
+          isAdding
+              ? "Add Stock"
+              : "Remove Stock",
+        ),
+
+        content: TextField(
+          controller: qty,
+          keyboardType:
+              TextInputType.number,
+          decoration:
+              const InputDecoration(
+            labelText: "Quantity",
+          ),
+        ),
+
+        actions: [
+
+          TextButton(
+            onPressed: () =>
+                Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
+
+          TextButton(
+            onPressed: () async {
+
+              int change =
+                  int.parse(qty.text);
+
+              if (!isAdding) {
+                change = -change;
+              }
+
+              Navigator.pop(context); // close dialog FIRST
+
+              await Future.delayed(
+                  const Duration(milliseconds: 100));
+
+              await _updateQuantity(change);
+            },
+            child: const Text("Save"),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+  Future<void> _updateQuantity(
+    int change) async {
+
+  String businessId =
+      await getBusinessId();
+
+  DocumentReference doc =
+      FirebaseFirestore.instance
+          .collection('businesses')
+          .doc(businessId)
+          .collection(
+              'inventoryNodes')
+          .doc(widget.itemId);
+
+  await FirebaseFirestore
+      .instance
+      .runTransaction(
+    (transaction) async {
+
+      final snapshot =
+          await transaction.get(doc);
+
+      int current =
+          snapshot['quantity'];
+
+      int updated =
+          current + change;
+
+      if (updated < 0) {
+        updated = 0;
+      }
+
+      transaction.update(doc, {
+        'quantity': updated,
+      });
+    },
+  );
+}
+
   @override
   Widget build(BuildContext context) {
 
@@ -199,8 +294,30 @@ class _ItemDetailScreenState
                         fontSize: 18),
               ),
 
-              const SizedBox(
-                  height: 10),
+              const SizedBox(height: 20),
+
+Row(
+  mainAxisAlignment:
+      MainAxisAlignment.spaceEvenly,
+  children: [
+
+    ElevatedButton.icon(
+      onPressed: () {
+        _adjustStock(true);
+      },
+      icon: const Icon(Icons.add),
+      label: const Text("Add"),
+    ),
+
+    ElevatedButton.icon(
+      onPressed: () {
+        _adjustStock(false);
+      },
+      icon: const Icon(Icons.remove),
+      label: const Text("Remove"),
+    ),
+  ],
+),
 
               Text(
                 "Rent Price: ₹"
