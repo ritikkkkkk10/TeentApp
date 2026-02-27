@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'signup_screen.dart';
-import 'home_screen.dart';
+import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+
+import 'home_screen.dart';
+import 'signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -46,27 +47,39 @@ class _LoginScreenState extends State<LoginScreen> {
   /// GOOGLE LOGIN
   Future<void> googleLogin() async {
 
-    final googleUser =
-        await GoogleSignIn().signIn();
+  final GoogleSignIn googleSignIn =
+      GoogleSignIn();
 
-    final googleAuth =
-        await googleUser!.authentication;
+  /// ✅ CLEAR FIREBASE SESSION
+  await FirebaseAuth.instance.signOut();
 
-    final credential =
-        GoogleAuthProvider.credential(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
-    );
+  /// ✅ CLEAR GOOGLE SESSION
+  await googleSignIn.signOut();
 
-    await FirebaseAuth.instance
-        .signInWithCredential(credential);
+  /// NOW SHOW ACCOUNT PICKER
+  final GoogleSignInAccount? googleUser =
+      await googleSignIn.signIn();
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-          builder: (_) => const HomeScreen()),
-    );
-  }
+  if (googleUser == null) return;
+
+  final googleAuth =
+      await googleUser.authentication;
+
+  final credential =
+      GoogleAuthProvider.credential(
+    accessToken: googleAuth.accessToken,
+    idToken: googleAuth.idToken,
+  );
+
+  await FirebaseAuth.instance
+      .signInWithCredential(credential);
+
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(
+        builder: (_) => const HomeScreen()),
+  );
+}
 
   @override
 Widget build(BuildContext context) {

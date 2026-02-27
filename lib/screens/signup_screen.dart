@@ -71,32 +71,42 @@ class _SignupScreenState extends State<SignupScreen> {
 }
 
   /// ================= GOOGLE SIGNUP =================
-  Future<void> googleSignup() async {
+Future<void> googleSignup() async {
 
-    final googleUser =
-        await GoogleSignIn().signIn();
+  final GoogleSignIn googleSignIn =
+      GoogleSignIn();
 
-    if (googleUser == null) return;
+  /// ✅ clear firebase login
+  await FirebaseAuth.instance.signOut();
 
-    final googleAuth =
-        await googleUser.authentication;
+  /// ✅ clear previous google account
+  await googleSignIn.signOut();
 
-    final credential =
-        GoogleAuthProvider.credential(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
-    );
+  /// show account chooser
+  final GoogleSignInAccount? googleUser =
+      await googleSignIn.signIn();
 
-    await FirebaseAuth.instance
-        .signInWithCredential(credential);
+  if (googleUser == null) return;
 
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(
-          builder: (_) => const HomeScreen()),
-      (_) => false,
-    );
-  }
+  final googleAuth =
+      await googleUser.authentication;
+
+  final credential =
+      GoogleAuthProvider.credential(
+    accessToken: googleAuth.accessToken,
+    idToken: googleAuth.idToken,
+  );
+
+  await FirebaseAuth.instance
+      .signInWithCredential(credential);
+
+  Navigator.pushAndRemoveUntil(
+    context,
+    MaterialPageRoute(
+        builder: (_) => const HomeScreen()),
+    (_) => false,
+  );
+}
 
   /// ================= UI =================
   @override
