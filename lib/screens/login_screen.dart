@@ -17,6 +17,9 @@ class _LoginScreenState extends State<LoginScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
+  bool canSendReset = true;
+  int resetCooldown = 30;
+
   Future<void> login() async {
 
     UserCredential credential =
@@ -78,6 +81,97 @@ class _LoginScreenState extends State<LoginScreen> {
     context,
     MaterialPageRoute(
         builder: (_) => const HomeScreen()),
+  );
+}
+
+Future<void> showResetPasswordDialog() async {
+
+  final resetEmailController =
+      TextEditingController();
+
+  showDialog(
+    context: context,
+    builder: (context) {
+
+      return AlertDialog(
+        title: const Text("Reset Password"),
+
+        content: TextField(
+          controller: resetEmailController,
+          decoration: const InputDecoration(
+            hintText: "Enter your email",
+          ),
+        ),
+
+        actions: [
+
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text("Cancel"),
+          ),
+
+          StatefulBuilder(
+  builder: (context, setStateDialog) {
+
+    return ElevatedButton(
+      onPressed: canSendReset
+          ? () async {
+
+              final email =
+                  resetEmailController.text.trim();
+
+              if (email.isEmpty) return;
+
+              await FirebaseAuth.instance
+                  .sendPasswordResetEmail(
+                      email: email);
+
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(
+                const SnackBar(
+                  content: Text(
+                      "Password reset link sent ✅"),
+                ),
+              );
+
+              /// START COOLDOWN
+              canSendReset = false;
+resetCooldown = 30;
+
+Future.doWhile(() async {
+
+  await Future.delayed(
+      const Duration(seconds: 1));
+
+  resetCooldown--;
+
+  setStateDialog(() {});
+
+  if (resetCooldown <= 0) {
+    canSendReset = true;
+    setStateDialog(() {});
+    return false;
+  }
+
+  return true;
+});
+
+            }
+          : null,
+
+      child: Text(
+        canSendReset
+            ? "Send"
+            : "Wait ${resetCooldown}s",
+      ),
+    );
+  },
+),
+        ],
+      );
+    },
   );
 }
 
@@ -223,7 +317,7 @@ Widget build(BuildContext context) {
     Align(
       alignment: Alignment.centerRight,
       child: TextButton(
-        onPressed: () {},
+        onPressed: showResetPasswordDialog,
         child:
             const Text("Forgot password?"),
       ),
