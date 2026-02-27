@@ -20,6 +20,125 @@ class InventoryScreen extends StatefulWidget {
 
 class _InventoryScreenState extends State<InventoryScreen> {
 
+  void _showAddOptions(BuildContext context) {
+
+    showModalBottomSheet(
+      context: context,
+      builder: (_) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+
+              ListTile(
+                leading: const Icon(Icons.create_new_folder),
+                title: const Text("Add Category"),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showAddCategoryDialog(context);
+                },
+              ),
+
+              ListTile(
+                leading: const Icon(Icons.inventory),
+                title: const Text("Add Item"),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showAddItemDialog(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+
+
+
+  void _showAddItemDialog(BuildContext context) {
+
+    TextEditingController name = TextEditingController();
+    TextEditingController qty = TextEditingController();
+    TextEditingController rent = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          title: const Text("New Item"),
+
+          content: SingleChildScrollView(
+            child: Column(
+              children: [
+
+                TextField(
+                  controller: name,
+                  decoration:
+                      const InputDecoration(
+                          labelText: "Item Name"),
+                ),
+
+                TextField(
+                  controller: qty,
+                  keyboardType:
+                      TextInputType.number,
+                  decoration:
+                      const InputDecoration(
+                          labelText: "Quantity"),
+                ),
+
+                TextField(
+                  controller: rent,
+                  keyboardType:
+                      TextInputType.number,
+                  decoration:
+                      const InputDecoration(
+                          labelText: "Rent Price"),
+                ),
+              ],
+            ),
+          ),
+
+          actions: [
+
+            TextButton(
+              onPressed: () =>
+                  Navigator.pop(context),
+              child: const Text("Cancel"),
+            ),
+
+            TextButton(
+              onPressed: () async {
+
+                final service =
+                    InventoryService();
+
+                await service.addItem(
+                  name: name.text,
+                  quantity:
+                      int.parse(qty.text),
+                  rentPrice:
+                      double.parse(rent.text),
+                  parentId:
+                      widget.parentId,
+                );
+
+                Navigator.pop(context);
+              },
+              child: const Text("Save"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
+
+  
+
   void _showAddCategoryDialog(BuildContext context) {
 
   TextEditingController controller =
@@ -77,11 +196,11 @@ class _InventoryScreenState extends State<InventoryScreen> {
       ),
 
       floatingActionButton: FloatingActionButton(
-  onPressed: () {
-    _showAddCategoryDialog(context);
-  },
-  child: const Icon(Icons.create_new_folder),
-),
+        onPressed: () {
+          _showAddOptions(context);
+        },
+        child: const Icon(Icons.add),
+      ),
 
       body: FutureBuilder(
         future: getBusinessId(),
