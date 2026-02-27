@@ -69,56 +69,272 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
+Widget build(BuildContext context) {
+  return Scaffold(
+    backgroundColor: Colors.grey.shade200,
 
-    return Scaffold(
-      appBar: AppBar(title: const Text("Login")),
-
-      body: Padding(
-        padding: const EdgeInsets.all(20),
+    body: SafeArea(
+      child: SingleChildScrollView(
         child: Column(
           children: [
 
-            TextField(
-              controller: emailController,
-              decoration:
-                  const InputDecoration(labelText: "Email"),
-            ),
+            /// TOP BLUE HEADER
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(
+                  vertical: 40),
+              decoration: const BoxDecoration(
+                color: Color(0xff1E4FA3),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(30),
+                  bottomRight: Radius.circular(30),
+                ),
+              ),
+              child: const Column(
+                children: [
+                  Icon(Icons.celebration,
+                      color: Colors.white,
+                      size: 60),
 
-            TextField(
-              controller: passwordController,
-              obscureText: true,
-              decoration:
-                  const InputDecoration(labelText: "Password"),
-            ),
+                  SizedBox(height: 10),
 
-            ElevatedButton(
-              onPressed: login,
-              child: const Text("Login"),
-            ),
-
-            ElevatedButton(
-              onPressed: googleLogin,
-              child:
-                  const Text("Login with Google"),
-            ),
-
-            TextButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) =>
-                        const SignupScreen(),
+                  Text(
+                    "Event Rental Management",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                );
-              },
-              child:
-                  const Text("Create Account"),
+
+                  Text(
+                    "App for Tent & Event Rental Businesses",
+                    style: TextStyle(
+                      color: Colors.white70,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 30),
+
+            /// LOGIN CARD
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(
+                      horizontal: 20),
+              child: Container(
+                padding:
+                    const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius:
+                      BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color:
+                          Colors.black12,
+                      blurRadius: 10,
+                      offset:
+                          Offset(0, 4),
+                    )
+                  ],
+                ),
+
+                /// KEEP OLD CONTENT HERE (NEXT STEP)
+                child: Column(
+  crossAxisAlignment: CrossAxisAlignment.stretch,
+  children: [
+
+    const Center(
+      child: Text(
+        "Login",
+        style: TextStyle(
+          fontSize: 22,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    ),
+
+    const SizedBox(height: 25),
+
+    /// EMAIL FIELD
+    TextField(
+      controller: emailController,
+      decoration: InputDecoration(
+        prefixIcon:
+            const Icon(Icons.email_outlined),
+
+        hintText: "Enter your email",
+
+        filled: true,
+        fillColor: Colors.grey.shade100,
+
+        border: OutlineInputBorder(
+          borderRadius:
+              BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+      ),
+    ),
+
+    const SizedBox(height: 15),
+
+    /// PASSWORD FIELD
+    TextField(
+      controller: passwordController,
+      obscureText: true,
+      decoration: InputDecoration(
+        prefixIcon:
+            const Icon(Icons.lock_outline),
+
+        suffixIcon:
+            const Icon(Icons.visibility_off),
+
+        hintText: "Enter your password",
+
+        filled: true,
+        fillColor: Colors.grey.shade100,
+
+        border: OutlineInputBorder(
+          borderRadius:
+              BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+      ),
+    ),
+
+    const SizedBox(height: 10),
+
+    Align(
+      alignment: Alignment.centerRight,
+      child: TextButton(
+        onPressed: () {},
+        child:
+            const Text("Forgot password?"),
+      ),
+    ),
+
+const SizedBox(height: 10),
+
+SizedBox(
+  width: double.infinity,
+  height: 50,
+  child: ElevatedButton(
+    onPressed: login, // ✅ BACKEND RECONNECTED
+    style: ElevatedButton.styleFrom(
+      backgroundColor: const Color(0xff1E4FA3),
+      shape: RoundedRectangleBorder(
+        borderRadius:
+            BorderRadius.circular(12),
+      ),
+    ),
+    child: const Text(
+      "Login",
+      style: TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+  ),
+),
+
+const SizedBox(height: 20),
+
+/// OR DIVIDER
+Row(
+  children: [
+    Expanded(
+      child: Divider(
+        color: Colors.grey,
+      ),
+    ),
+
+    const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 10),
+      child: Text("OR"),
+    ),
+
+    Expanded(
+      child: Divider(
+        color: Colors.grey,
+      ),
+    ),
+  ],
+),
+
+const SizedBox(height: 20),
+
+/// GOOGLE LOGIN
+SizedBox(
+  width: double.infinity,
+  height: 50,
+  child: OutlinedButton.icon(
+    onPressed: googleLogin,
+    icon: Image.asset(
+      "assets/google.png",
+      height: 22,
+    ),
+    label: const Text(
+      "Login with Google",
+      style: TextStyle(
+        fontSize: 16,
+        color: Colors.black87,
+        fontWeight: FontWeight.w500,
+      ),
+    ),
+    style: OutlinedButton.styleFrom(
+      backgroundColor: Colors.white,
+      side: BorderSide(color: Colors.grey.shade300),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+    ),
+  ),
+),
+
+const SizedBox(height: 25),
+
+Row(
+  mainAxisAlignment: MainAxisAlignment.center,
+  children: [
+
+    const Text(
+      "Don't have an account?",
+      style: TextStyle(color: Colors.black54),
+    ),
+
+    TextButton(
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) =>
+                const SignupScreen(),
+          ),
+        );
+      },
+      child: const Text(
+        "Create Account",
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          color: Color(0xff1E4FA3),
+        ),
+      ),
+    ),
+  ],
+),
+
+
+  ],
+),
+              ),
             ),
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
