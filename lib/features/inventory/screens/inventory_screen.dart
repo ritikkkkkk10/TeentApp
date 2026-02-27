@@ -3,8 +3,22 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../core/config/app_config.dart';
 import '../services/inventory_service.dart';
 
-class InventoryScreen extends StatelessWidget {
-  const InventoryScreen({super.key});
+class InventoryScreen extends StatefulWidget {
+  final String? parentId;
+  final String title;
+
+  const InventoryScreen({
+    super.key,
+    this.parentId,
+    this.title = "Inventory",
+  });
+
+  @override
+  State<InventoryScreen> createState() =>
+      _InventoryScreenState();
+}
+
+class _InventoryScreenState extends State<InventoryScreen> {
 
   void _showAddCategoryDialog(BuildContext context) {
 
@@ -40,6 +54,7 @@ class InventoryScreen extends StatelessWidget {
 
               await service.addCategory(
                 name: controller.text,
+                parentId: widget.parentId,
               );
 
               Navigator.pop(context);
@@ -51,6 +66,7 @@ class InventoryScreen extends StatelessWidget {
     },
   );
 }
+
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +100,10 @@ class InventoryScreen extends StatelessWidget {
                 .collection('businesses')
                 .doc(businessId)
                 .collection('inventoryNodes')
-                .where('parentId', isEqualTo: null)
+                .where(
+                  'parentId',
+                  isEqualTo: widget.parentId ?? null,
+                )
                 .snapshots(),
 
             builder: (context, snap) {
@@ -93,12 +112,23 @@ class InventoryScreen extends StatelessWidget {
                 return const SizedBox();
               }
 
-              final docs = snap.data!.docs;
+              final docs = snap.data!.docs.where((doc) {
+
+                final data = doc.data();
+
+                if (widget.parentId == null) {
+                  return !data.containsKey('parentId') ||
+                      data['parentId'] == null;
+                }
+
+                return data['parentId'] == widget.parentId;
+
+              }).toList();
 
               if (docs.isEmpty) {
                 return const Center(
                   child: Text(
-                    "No Inventory Yet\nAdd Category First",
+                    "No Inventory Yet",
                     textAlign: TextAlign.center,
                   ),
                 );
@@ -108,7 +138,7 @@ class InventoryScreen extends StatelessWidget {
                 itemCount: docs.length,
                 itemBuilder: (_, index) {
 
-                  final data = docs[index];
+                  final data = docs[index].data();
 
                   return ListTile(
                     leading: Icon(
@@ -116,7 +146,25 @@ class InventoryScreen extends StatelessWidget {
                           ? Icons.folder
                           : Icons.inventory,
                     ),
+
                     title: Text(data['name']),
+
+                    onTap: () {
+
+                      if (data['type'] == 'category') {
+
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => InventoryScreen(
+                              parentId: docs[index].id,
+                              title: data['name'],
+                            ),
+                          ),
+                        );
+
+                      }
+                    },
                   );
                 },
               );
@@ -127,3 +175,4 @@ class InventoryScreen extends StatelessWidget {
     );
   }
 }
+
