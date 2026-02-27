@@ -1,7 +1,10 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../core/config/app_config.dart';
 import '../services/inventory_service.dart';
+import 'item_detail_screen.dart';
 
 class InventoryScreen extends StatefulWidget {
   final String? parentId;
@@ -62,6 +65,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
     TextEditingController name = TextEditingController();
     TextEditingController qty = TextEditingController();
     TextEditingController rent = TextEditingController();
+    TextEditingController description = TextEditingController();
 
     showDialog(
       context: context,
@@ -97,6 +101,13 @@ class _InventoryScreenState extends State<InventoryScreen> {
                       const InputDecoration(
                           labelText: "Rent Price"),
                 ),
+
+                TextField(
+                  controller: description,
+                  decoration: const InputDecoration(
+                    labelText: "Description",
+                  ),
+                ),
               ],
             ),
           ),
@@ -123,6 +134,8 @@ class _InventoryScreenState extends State<InventoryScreen> {
                       double.parse(rent.text),
                   parentId:
                       widget.parentId,
+                  description:
+                      description.text,
                 );
 
                 Navigator.pop(context);
@@ -137,7 +150,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
 
 
 
-  
+
 
   void _showAddCategoryDialog(BuildContext context) {
 
@@ -282,6 +295,18 @@ class _InventoryScreenState extends State<InventoryScreen> {
                           ),
                         );
 
+                      } else {
+
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                ItemDetailScreen(
+                                  itemData: data,
+                                  itemId: docs[index].id,
+                                ),
+                          ),
+                        );
                       }
                     },
                   );
