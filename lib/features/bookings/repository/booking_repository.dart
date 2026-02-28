@@ -21,17 +21,56 @@ class BookingRepository {
   }
 
   Future<void> addBookedItem({
-    required String bookingId,
-    required BookedItemModel item,
-  }) async {
+  required String bookingId,
+  required BookedItemModel item,
+}) async {
 
-    await _firestore
-        .collection("businesses")
-        .doc(businessId)
-        .collection("bookings")
-        .doc(bookingId)
-        .collection("bookedItems")
+  final bookedItemsRef = _firestore
+      .collection("businesses")
+      .doc(businessId)
+      .collection("bookings")
+      .doc(bookingId)
+      .collection("bookedItems");
+
+  /// 🔎 Check if item already exists
+  final existing = await bookedItemsRef
+      .where(
+        "inventoryItemId",
+        isEqualTo: item.inventoryItemId,
+      )
+      .get();
+
+  /// ===============================
+  /// ITEM EXISTS → UPDATE
+  /// ===============================
+  if (existing.docs.isNotEmpty) {
+
+    final doc = existing.docs.first;
+
+    int oldQty =
+        doc["requestedQuantity"];
+
+    int oldShortage =
+        doc["shortageQuantity"];
+
+    await doc.reference.update({
+      "requestedQuantity":
+          oldQty + item.requestedQuantity,
+
+      "shortageQuantity":
+          oldShortage +
+              item.shortageQuantity,
+    });
+
+  }
+  /// ===============================
+  /// NEW ITEM → CREATE
+  /// ===============================
+  else {
+
+    await bookedItemsRef
         .doc(item.id)
         .set(item.toMap());
   }
+}
 }
