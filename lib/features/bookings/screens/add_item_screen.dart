@@ -18,7 +18,8 @@
         _AddItemScreenState();
     }
 
-    class _AddItemScreenState extends State<AddItemScreen> {
+    class _AddItemScreenState
+        extends State<AddItemScreen> {
 
     final String businessId = "demo_business";
     final BookingRepository repo =
@@ -37,7 +38,6 @@
     }
 
     Future<void> loadBookingDates() async {
-
         final bookingDoc =
             await FirebaseFirestore.instance
                 .collection("businesses")
@@ -58,149 +58,147 @@
     }
 
     /// ===============================
-    /// CALCULATE BOOKED QTY (OVERLAP)
+    /// DATE OVERLAP AVAILABILITY STREAM
     /// ===============================
-    Future<int> calculateBookedQuantity(
-        String inventoryItemId) async {
+    Stream<int> bookedQuantityStream(
+        String inventoryItemId) {
 
-        if (startDate == null ||
-            endDate == null) {
-        return 0;
-        }
-
-        QuerySnapshot bookings =
-            await FirebaseFirestore.instance
-                .collection("businesses")
-                .doc(businessId)
-                .collection("bookings")
-                .get();
+        return FirebaseFirestore.instance
+            .collection("businesses")
+            .doc(businessId)
+            .collection("bookings")
+            .snapshots()
+            .asyncMap((bookingSnapshot) async {
 
         int totalBooked = 0;
 
-        for (var booking in bookings.docs) {
+        for (var booking
+            in bookingSnapshot.docs) {
 
-        DateTime otherStart =
-            (booking["startDate"]
-                    as Timestamp)
-                .toDate();
+            DateTime otherStart =
+                (booking["startDate"]
+                        as Timestamp)
+                    .toDate();
 
-        DateTime otherEnd =
-            (booking["endDate"]
-                    as Timestamp)
-                .toDate();
+            DateTime otherEnd =
+                (booking["endDate"]
+                        as Timestamp)
+                    .toDate();
 
-        /// DATE OVERLAP CHECK
-        bool overlap =
-            !(otherEnd.isBefore(startDate!) ||
-                otherStart
-                    .isAfter(endDate!));
+            /// overlap check
+            bool overlap =
+                !(otherEnd.isBefore(startDate!) ||
+                    otherStart
+                        .isAfter(endDate!));
 
-        if (!overlap) continue;
+            if (!overlap) continue;
 
-        var items = await booking.reference
-            .collection("bookedItems")
-            .where(
+            var items = await booking
+                .reference
+                .collection("bookedItems")
+                .where(
                 "inventoryItemId",
-                isEqualTo: inventoryItemId,
-            )
-            .get();
+                isEqualTo:
+                    inventoryItemId,
+                )
+                .get();
 
-        for (var item in items.docs) {
+            for (var item
+                in items.docs) {
             totalBooked +=
-                item["requestedQuantity"]
-                    as int;
-        }
+    (item["requestedQuantity"] as num).toInt();
+            }
         }
 
         return totalBooked;
+        });
     }
 
     /// ===============================
-    /// ADD ITEM TO BOOKING
+    /// ADD ITEM
     /// ===============================
     void addItem(
         BuildContext context,
-        DocumentSnapshot item) {
+        DocumentSnapshot item,
+        int available) {
 
-        TextEditingController qtyController =
+        TextEditingController controller =
             TextEditingController();
 
         showDialog(
         context: context,
-        builder: (_) {
-            return AlertDialog(
+        builder: (_) => AlertDialog(
             title: Text(item["name"]),
             content: TextField(
-                controller: qtyController,
-                keyboardType:
-                    TextInputType.number,
-                decoration:
-                    const InputDecoration(
-                        labelText:
-                            "Quantity"),
+            controller: controller,
+            keyboardType:
+                TextInputType.number,
+            decoration:
+                const InputDecoration(
+                    labelText:
+                        "Quantity"),
             ),
             actions: [
-                TextButton(
-                child: const Text("Add"),
+            TextButton(
+                child:
+                    const Text("Add"),
                 onPressed: () async {
 
-                    int requested =
-                        int.parse(
-                            qtyController.text);
+                int requested =
+                    int.parse(
+                        controller.text);
 
-                    int totalQty =
-                        item["quantity"];
+                int shortage =
+                    requested >
+                            available
+                        ? requested -
+                            available
+                        : 0;
 
-                    int alreadyBooked =
-    await calculateBookedQuantity(item.id);
-                    int available = totalQty - alreadyBooked;
+                /// SHORTAGE WARNING
+                if (shortage > 0) {
 
-                    int shortage =
-                        requested > available
-                            ? requested - available
-                            : 0;
-
-                    /// ===============================
-                    /// ⭐ SHORTAGE WARNING HERE
-                    /// ===============================
-
-
-                    if (shortage > 0) {
-
-                    bool proceed =
-                        await showDialog(
-                        context: context,
-                        builder: (_) => AlertDialog(
-                        title:
-                            const Text("Stock Shortage"),
+                    bool? proceed =
+                        await showDialog<
+                            bool>(
+                    context: context,
+                    builder: (_) =>
+                        AlertDialog(
+                        title: const Text(
+                            "Stock Shortage"),
                         content: Text(
-                            "Short by $shortage items.\nContinue booking?"),
+                            "Only $available available.\n"
+                            "Short by $shortage items.\n\n"
+                            "Continue booking?"),
                         actions: [
-                            TextButton(
+                        TextButton(
                             onPressed: () =>
                                 Navigator.pop(
                                     context,
                                     false),
                             child:
-                                const Text("Cancel"),
-                            ),
-                            TextButton(
+                                const Text(
+                                    "Cancel"),
+                        ),
+                        TextButton(
                             onPressed: () =>
                                 Navigator.pop(
                                     context,
                                     true),
                             child:
-                                const Text("Proceed"),
-                            ),
-                        ],
+                                const Text(
+                                    "Proceed"),
                         ),
+                        ],
+                    ),
                     );
 
-                    if (proceed != true) return;
-                    }
+                    if (proceed != true)
+                    return;
+                }
 
-                    BookedItemModel booked =
-                        BookedItemModel(
+                BookedItemModel booked =
+                    BookedItemModel(
                     id:
                         const Uuid().v4(),
                     inventoryItemId:
@@ -210,7 +208,7 @@
                     requestedQuantity:
                         requested,
                     availableQuantityAtBooking:
-                        totalQty,
+                        available,
                     shortageQuantity:
                         shortage,
                     rentPriceSnapshot:
@@ -218,22 +216,21 @@
                             .toDouble(),
                     createdAt:
                         Timestamp.now(),
-                    );
+                );
 
-                    await repo
-                        .addBookedItem(
+                await repo
+                    .addBookedItem(
                     bookingId:
                         widget.bookingId,
                     item: booked,
-                    );
+                );
 
-                    Navigator.pop(context);
-                    Navigator.pop(context);
+                Navigator.pop(context);
+                Navigator.pop(context);
                 },
-                )
+            )
             ],
-            );
-        },
+        ),
         );
     }
 
@@ -242,6 +239,14 @@
     /// ===============================
     @override
     Widget build(BuildContext context) {
+
+        if (startDate == null) {
+        return const Scaffold(
+            body: Center(
+                child:
+                    CircularProgressIndicator()),
+        );
+        }
 
         return Scaffold(
         appBar: AppBar(
@@ -264,9 +269,8 @@
 
             if (!snapshot.hasData) {
                 return const Center(
-                child:
-                    CircularProgressIndicator(),
-                );
+                    child:
+                        CircularProgressIndicator());
             }
 
             var items =
@@ -281,46 +285,45 @@
                 var item =
                     items[index];
 
-                return ListTile(
-                    title:
-                        Text(item["name"]),
-
-                    /// ⭐ REAL AVAILABILITY
-                    subtitle:
-                        FutureBuilder<int>(
-                    future:
-                        calculateBookedQuantity(
+                return StreamBuilder<
+                    int>(
+                    stream:
+                        bookedQuantityStream(
                             item.id),
                     builder:
                         (context,
-                            snap) {
+                            bookedSnap) {
 
-                        if (!snap
-                            .hasData) {
-                        return const Text(
-                            "Checking...");
-                        }
+                    if (!bookedSnap
+                        .hasData) {
+                        return const ListTile(
+                            title: Text(
+                                "Checking..."));
+                    }
 
-                        int booked =
-                            snap.data!;
-                        int total =
-                            item[
-                                "quantity"];
+                    int booked =
+                        bookedSnap.data!;
+                    int total =
+                        item[
+                            "quantity"];
 
-                        int available =
-                            total -
-                                booked;
+                    int available =
+                        total -
+                            booked;
 
-                        return Text(
-                        "Available: $available / $total",
-                        );
+                    return ListTile(
+                        title: Text(
+                            item["name"]),
+                        subtitle: Text(
+                            "Available: $available / $total"),
+                        onTap: () =>
+                            addItem(
+                        context,
+                        item,
+                        available,
+                        ),
+                    );
                     },
-                    ),
-
-                    onTap: () =>
-                        addItem(
-                            context,
-                            item),
                 );
                 },
             );
