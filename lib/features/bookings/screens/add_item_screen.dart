@@ -1,157 +1,331 @@
-import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:uuid/uuid.dart';
+    import 'package:flutter/material.dart';
+    import 'package:cloud_firestore/cloud_firestore.dart';
+    import 'package:uuid/uuid.dart';
 
-import '../repository/booking_repository.dart';
-import '../models/booked_item_model.dart';
+    import '../repository/booking_repository.dart';
+    import '../models/booked_item_model.dart';
 
-class AddItemScreen extends StatelessWidget {
+    class AddItemScreen extends StatefulWidget {
+    final String bookingId;
 
-  final String bookingId;
+    const AddItemScreen({
+        super.key,
+        required this.bookingId,
+    });
 
-  AddItemScreen(
-      {super.key,
-      required this.bookingId});
+    @override
+    State<AddItemScreen> createState() =>
+        _AddItemScreenState();
+    }
 
-  final String businessId =
-      "demo_business";
+    class _AddItemScreenState extends State<AddItemScreen> {
 
-  final BookingRepository repo =
-      BookingRepository();
+    final String businessId = "demo_business";
+    final BookingRepository repo =
+        BookingRepository();
 
-  void addItem(
-      BuildContext context,
-      DocumentSnapshot item) async {
+    DateTime? startDate;
+    DateTime? endDate;
 
-    TextEditingController qtyController =
-        TextEditingController();
+    /// ===============================
+    /// LOAD BOOKING DATES
+    /// ===============================
+    @override
+    void initState() {
+        super.initState();
+        loadBookingDates();
+    }
 
-    showDialog(
-      context: context,
-      builder: (_) {
-        return AlertDialog(
-          title:
-              Text(item["name"]),
-          content: TextField(
-            controller: qtyController,
-            keyboardType:
-                TextInputType.number,
-            decoration:
-                const InputDecoration(
-                    labelText:
-                        "Quantity"),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () async {
+    Future<void> loadBookingDates() async {
 
-                int requested =
-                    int.parse(
-                        qtyController.text);
+        final bookingDoc =
+            await FirebaseFirestore.instance
+                .collection("businesses")
+                .doc(businessId)
+                .collection("bookings")
+                .doc(widget.bookingId)
+                .get();
 
-                int totalQty =
-                    item["quantity"];
+        startDate =
+            (bookingDoc["startDate"] as Timestamp)
+                .toDate();
 
-                int shortage =
-                    requested >
-                            totalQty
-                        ? requested -
-                            totalQty
-                        : 0;
+        endDate =
+            (bookingDoc["endDate"] as Timestamp)
+                .toDate();
 
-                BookedItemModel booked =
-                    BookedItemModel(
-                  id: const Uuid().v4(),
-                  inventoryItemId:
-                      item.id,
-                  itemName:
-                      item["name"],
-                  requestedQuantity:
-                      requested,
-                  availableQuantityAtBooking:
-                      totalQty,
-                  shortageQuantity:
-                      shortage,
-                  rentPriceSnapshot:
-                      item["rentPrice"]
-                          .toDouble(),
-                  createdAt:
-                      Timestamp.now(),
-                );
+        setState(() {});
+    }
 
-                await repo.addBookedItem(
-                  bookingId:
-                      bookingId,
-                  item: booked,
-                );
+    /// ===============================
+    /// CALCULATE BOOKED QTY (OVERLAP)
+    /// ===============================
+    Future<int> calculateBookedQuantity(
+        String inventoryItemId) async {
 
-                Navigator.pop(context);
-                Navigator.pop(context);
-              },
-              child:
-                  const Text("Add"),
+        if (startDate == null ||
+            endDate == null) {
+        return 0;
+        }
+
+        QuerySnapshot bookings =
+            await FirebaseFirestore.instance
+                .collection("businesses")
+                .doc(businessId)
+                .collection("bookings")
+                .get();
+
+        int totalBooked = 0;
+
+        for (var booking in bookings.docs) {
+
+        DateTime otherStart =
+            (booking["startDate"]
+                    as Timestamp)
+                .toDate();
+
+        DateTime otherEnd =
+            (booking["endDate"]
+                    as Timestamp)
+                .toDate();
+
+        /// DATE OVERLAP CHECK
+        bool overlap =
+            !(otherEnd.isBefore(startDate!) ||
+                otherStart
+                    .isAfter(endDate!));
+
+        if (!overlap) continue;
+
+        var items = await booking.reference
+            .collection("bookedItems")
+            .where(
+                "inventoryItemId",
+                isEqualTo: inventoryItemId,
             )
-          ],
-        );
-      },
-    );
-  }
+            .get();
 
-  @override
-  Widget build(BuildContext context) {
+        for (var item in items.docs) {
+            totalBooked +=
+                item["requestedQuantity"]
+                    as int;
+        }
+        }
 
-    return Scaffold(
-      appBar:
-          AppBar(title:
-              const Text("Select Item")),
+        return totalBooked;
+    }
 
-      body: StreamBuilder(
-        stream: FirebaseFirestore
-            .instance
-            .collection(
-                "businesses")
-            .doc(businessId)
-            .collection(
-                "inventoryNodes")
-            .where("type",
-                isEqualTo:
-                    "item")
-            .snapshots(),
-        builder:
-            (context, snapshot) {
+    /// ===============================
+    /// ADD ITEM TO BOOKING
+    /// ===============================
+    void addItem(
+        BuildContext context,
+        DocumentSnapshot item) {
 
-          if (!snapshot.hasData) {
-            return const Center(
-                child:
-                    CircularProgressIndicator());
-          }
+        TextEditingController qtyController =
+            TextEditingController();
 
-          var items =
-              snapshot.data!.docs;
+        showDialog(
+        context: context,
+        builder: (_) {
+            return AlertDialog(
+            title: Text(item["name"]),
+            content: TextField(
+                controller: qtyController,
+                keyboardType:
+                    TextInputType.number,
+                decoration:
+                    const InputDecoration(
+                        labelText:
+                            "Quantity"),
+            ),
+            actions: [
+                TextButton(
+                child: const Text("Add"),
+                onPressed: () async {
 
-          return ListView.builder(
-            itemCount:
-                items.length,
-            itemBuilder:
-                (context, index) {
+                    int requested =
+                        int.parse(
+                            qtyController.text);
 
-              var item =
-                  items[index];
+                    int totalQty =
+                        item["quantity"];
 
-              return ListTile(
-                title:
-                    Text(item["name"]),
-                subtitle: Text(
-                    "Qty: ${item["quantity"]}"),
-                onTap: () =>
-                    addItem(
-                        context,
-                        item),
-              );
-            },
-          );
+                    int alreadyBooked =
+    await calculateBookedQuantity(item.id);
+                    int available = totalQty - alreadyBooked;
+
+                    int shortage =
+                        requested > available
+                            ? requested - available
+                            : 0;
+
+                    /// ===============================
+                    /// ⭐ SHORTAGE WARNING HERE
+                    /// ===============================
+
+
+                    if (shortage > 0) {
+
+                    bool proceed =
+                        await showDialog(
+                        context: context,
+                        builder: (_) => AlertDialog(
+                        title:
+                            const Text("Stock Shortage"),
+                        content: Text(
+                            "Short by $shortage items.\nContinue booking?"),
+                        actions: [
+                            TextButton(
+                            onPressed: () =>
+                                Navigator.pop(
+                                    context,
+                                    false),
+                            child:
+                                const Text("Cancel"),
+                            ),
+                            TextButton(
+                            onPressed: () =>
+                                Navigator.pop(
+                                    context,
+                                    true),
+                            child:
+                                const Text("Proceed"),
+                            ),
+                        ],
+                        ),
+                    );
+
+                    if (proceed != true) return;
+                    }
+
+                    BookedItemModel booked =
+                        BookedItemModel(
+                    id:
+                        const Uuid().v4(),
+                    inventoryItemId:
+                        item.id,
+                    itemName:
+                        item["name"],
+                    requestedQuantity:
+                        requested,
+                    availableQuantityAtBooking:
+                        totalQty,
+                    shortageQuantity:
+                        shortage,
+                    rentPriceSnapshot:
+                        item["rentPrice"]
+                            .toDouble(),
+                    createdAt:
+                        Timestamp.now(),
+                    );
+
+                    await repo
+                        .addBookedItem(
+                    bookingId:
+                        widget.bookingId,
+                    item: booked,
+                    );
+
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                },
+                )
+            ],
+            );
         },
-      ),
-    );
-  }
-}
+        );
+    }
+
+    /// ===============================
+    /// UI
+    /// ===============================
+    @override
+    Widget build(BuildContext context) {
+
+        return Scaffold(
+        appBar: AppBar(
+            title:
+                const Text("Select Item")),
+
+        body: StreamBuilder(
+            stream: FirebaseFirestore
+                .instance
+                .collection(
+                    "businesses")
+                .doc(businessId)
+                .collection(
+                    "inventoryNodes")
+                .where("type",
+                    isEqualTo: "item")
+                .snapshots(),
+            builder:
+                (context, snapshot) {
+
+            if (!snapshot.hasData) {
+                return const Center(
+                child:
+                    CircularProgressIndicator(),
+                );
+            }
+
+            var items =
+                snapshot.data!.docs;
+
+            return ListView.builder(
+                itemCount:
+                    items.length,
+                itemBuilder:
+                    (context, index) {
+
+                var item =
+                    items[index];
+
+                return ListTile(
+                    title:
+                        Text(item["name"]),
+
+                    /// ⭐ REAL AVAILABILITY
+                    subtitle:
+                        FutureBuilder<int>(
+                    future:
+                        calculateBookedQuantity(
+                            item.id),
+                    builder:
+                        (context,
+                            snap) {
+
+                        if (!snap
+                            .hasData) {
+                        return const Text(
+                            "Checking...");
+                        }
+
+                        int booked =
+                            snap.data!;
+                        int total =
+                            item[
+                                "quantity"];
+
+                        int available =
+                            total -
+                                booked;
+
+                        return Text(
+                        "Available: $available / $total",
+                        );
+                    },
+                    ),
+
+                    onTap: () =>
+                        addItem(
+                            context,
+                            item),
+                );
+                },
+            );
+            },
+        ),
+        );
+    }
+    }
