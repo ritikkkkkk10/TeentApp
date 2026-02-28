@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:tent_app/core/config/app_config.dart';
 
 /// ===============================
 /// APP RUNNING MODE

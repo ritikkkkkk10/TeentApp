@@ -3,6 +3,7 @@ import 'package:tent_app/features/bookings/screens/create_booking_screen.dart';
 
 import '../features/inventory/screens/inventory_screen.dart';
 import 'package:tent_app/features/bookings/screens/create_booking_screen.dart';
+import 'package:tent_app/features/bookings/screens/bookings_list_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -16,11 +17,11 @@ class HomeScreen extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => const CreateBookingScreen(),
+              builder: (_) => const BookingsListScreen(),
             ),
           );
         },
-        child: const Text("Create booking"),
+        child: const Text("Bookings"),
   ),
 ),
     );

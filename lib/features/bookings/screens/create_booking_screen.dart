@@ -76,24 +76,6 @@ class _CreateBookingScreenState
 
     await repository.createBooking(booking);
 
-    String bookedItemId = const Uuid().v4();
-
-    BookedItemModel testItem = BookedItemModel(
-      id: bookedItemId,
-      inventoryItemId: "chair_001",
-      itemName: "Plastic Chair",
-      requestedQuantity: 50,
-      availableQuantityAtBooking: 30,
-      shortageQuantity: 20,
-      rentPriceSnapshot: 10,
-      createdAt: Timestamp.now(),
-    );
-
-    await repository.addBookedItem(
-      bookingId: bookingId,
-      item: testItem,
-    );
-
     Navigator.pop(context);
   }
 
