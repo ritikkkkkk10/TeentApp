@@ -49,23 +49,43 @@ class BookingsListScreen extends StatelessWidget {
 
               var booking = bookings[index];
 
-              return ListTile(
-                title:
-                    Text(booking["eventName"]),
-                subtitle:
-                    Text(booking["customerName"]),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) =>
-                          BookingDetailScreen(
-                              bookingId:
-                                  booking.id),
-                    ),
-                  );
-                },
-              );
+              DateTime start =
+    (booking["startDate"]
+            as Timestamp)
+        .toDate();
+
+return ListTile(
+  title:
+      Text(booking["eventName"]),
+
+  subtitle: Column(
+    crossAxisAlignment:
+        CrossAxisAlignment.start,
+    children: [
+
+      Text(
+          booking["customerName"]),
+
+      Text(
+        "Start: "
+        "${start.day}/${start.month}/${start.year}",
+      ),
+    ],
+  ),
+
+  onTap: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) =>
+            BookingDetailScreen(
+          bookingId:
+              booking.id,
+        ),
+      ),
+    );
+  },
+);
             },
           );
         },

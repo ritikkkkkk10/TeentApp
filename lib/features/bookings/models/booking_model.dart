@@ -9,6 +9,7 @@ class BookingModel {
   final DateTime endDate;
   final String status;
   final Timestamp createdAt;
+  final String customerAddress;
 
   BookingModel({
     required this.id,
@@ -19,6 +20,7 @@ class BookingModel {
     required this.endDate,
     required this.status,
     required this.createdAt,
+    required this.customerAddress,
   });
 
   Map<String, dynamic> toMap() {
@@ -30,6 +32,7 @@ class BookingModel {
       "endDate": Timestamp.fromDate(endDate),
       "status": status,
       "createdAt": createdAt,
+      "customerAddress": customerAddress,
     };
   }
 }

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tent_app/core/config/app_config.dart';
 import 'add_item_screen.dart';
+import 'select_items_screen.dart';
+import 'inventory_picker_screen.dart';
 
 class BookingDetailScreen extends StatefulWidget {
 
@@ -101,8 +103,10 @@ class _BookingDetailScreenState
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => AddItemScreen(
-                bookingId: widget.bookingId,
+              builder: (_) =>
+                  InventoryPickerScreen(
+                bookingId:
+                    widget.bookingId,
               ),
             ),
           );
