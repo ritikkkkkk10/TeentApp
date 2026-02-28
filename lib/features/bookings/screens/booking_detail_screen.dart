@@ -20,6 +20,72 @@ class BookingDetailScreen extends StatefulWidget {
 class _BookingDetailScreenState
     extends State<BookingDetailScreen> {
 
+      void editQuantity(
+    BuildContext context,
+    DocumentSnapshot item) {
+
+  TextEditingController controller =
+      TextEditingController(
+    text:
+        item["requestedQuantity"]
+            .toString(),
+  );
+
+  showDialog(
+    context: context,
+    builder: (_) {
+      return AlertDialog(
+        title:
+            Text(item["itemName"]),
+        content: TextField(
+          controller: controller,
+          keyboardType:
+              TextInputType.number,
+          decoration:
+              const InputDecoration(
+                  labelText:
+                      "Quantity"),
+        ),
+        actions: [
+
+          /// DELETE OPTION
+          TextButton(
+            child:
+                const Text("Remove"),
+            onPressed: () async {
+
+              await item.reference
+                  .delete();
+
+              Navigator.pop(context);
+            },
+          ),
+
+          /// UPDATE
+          TextButton(
+            child:
+                const Text("Update"),
+            onPressed: () async {
+
+              int newQty =
+                  int.parse(
+                      controller.text);
+
+              await item.reference
+                  .update({
+                "requestedQuantity":
+                    newQty,
+              });
+
+              Navigator.pop(context);
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
   @override
   Widget build(BuildContext context) {
 
@@ -78,6 +144,8 @@ class _BookingDetailScreenState
                 title: Text(item["itemName"]),
                 subtitle: Text(
                     "Qty: ${item["requestedQuantity"]}"),
+                    onTap: () =>
+                        editQuantity(context, item),
                 trailing:
                     item["shortageQuantity"] > 0
                         ? Text(
