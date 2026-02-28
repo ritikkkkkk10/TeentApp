@@ -12,6 +12,9 @@ class BookedItemModel {
   final double rentPriceSnapshot;
   final Timestamp createdAt;
 
+  final DateTime bookingStartDate;
+  final DateTime bookingEndDate;
+
   BookedItemModel({
     required this.id,
     required this.inventoryItemId,
@@ -21,6 +24,8 @@ class BookedItemModel {
     required this.shortageQuantity,
     required this.rentPriceSnapshot,
     required this.createdAt,
+    required this.bookingStartDate,
+    required this.bookingEndDate,
   });
 
   Map<String, dynamic> toMap() {
@@ -33,6 +38,11 @@ class BookedItemModel {
       "shortageQuantity": shortageQuantity,
       "rentPriceSnapshot": rentPriceSnapshot,
       "createdAt": createdAt,
-    };
+      "bookingStartDate":
+    Timestamp.fromDate(bookingStartDate),
+
+      "bookingEndDate":
+          Timestamp.fromDate(bookingEndDate),
+          };
   }
 }

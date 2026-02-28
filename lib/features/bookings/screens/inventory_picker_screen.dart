@@ -57,83 +57,87 @@ class _InventoryPickerScreenState
             .get();
 
     startDate =
-        (bookingDoc["startDate"]
-                as Timestamp)
+        (bookingDoc["startDate"] as Timestamp)
             .toDate();
 
     endDate =
-        (bookingDoc["endDate"]
-                as Timestamp)
+        (bookingDoc["endDate"] as Timestamp)
             .toDate();
 
     setState(() {});
   }
 
   /// =====================================================
-  /// DATE AWARE AVAILABILITY ENGINE ⭐
+  /// ✅ FAST DATE-AWARE AVAILABILITY STREAM
   /// =====================================================
   Stream<Map<String, int>>
-dateAwareBookedItemsStream() {
+      dateAwareBookedItemsStream() {
 
-  if (startDate == null ||
-      endDate == null) {
-    return const Stream.empty();
-  }
-
-  return FirebaseFirestore.instance
-      .collectionGroup("bookedItems")
-      .snapshots()
-      .asyncMap((snapshot) async {
-
-    Map<String, int> bookedMap = {};
-
-    for (var doc in snapshot.docs) {
-
-      /// parent booking reference
-      DocumentReference bookingRef =
-          doc.reference.parent.parent!;
-
-      var booking =
-          await bookingRef.get();
-
-      DateTime otherStart =
-          (booking["startDate"]
-                  as Timestamp)
-              .toDate();
-
-      DateTime otherEnd =
-          (booking["endDate"]
-                  as Timestamp)
-              .toDate();
-
-      /// DATE OVERLAP
-      bool overlap =
-          !(otherEnd.isBefore(startDate!) ||
-            otherStart.isAfter(endDate!));
-
-      if (!overlap) continue;
-
-      String itemId =
-          doc["inventoryItemId"];
-
-      int qty =
-          (doc["requestedQuantity"]
-                  as num)
-              .toInt();
-
-      bookedMap[itemId] =
-          (bookedMap[itemId] ?? 0) + qty;
-    }
-
-    return bookedMap;
-  });
+    if (startDate == null ||
+    endDate == null) {
+  return Stream.value({});
 }
+
+    return FirebaseFirestore.instance
+        .collectionGroup("bookedItems")
+        .snapshots()
+        .map((snapshot) {
+
+      Map<String, int> bookedMap = {};
+
+      for (var doc in snapshot.docs) {
+
+        if (!doc.data().containsKey("bookingStartDate")) {
+          continue;
+        }
+
+        /// ✅ dates already stored in bookedItems
+        DateTime otherStart =
+            (doc["bookingStartDate"]
+                    as Timestamp)
+                .toDate();
+
+        DateTime otherEnd =
+            (doc["bookingEndDate"]
+                    as Timestamp)
+                .toDate();
+
+        /// DATE OVERLAP CHECK
+        bool overlap =
+            !(otherEnd.isBefore(startDate!) ||
+              otherStart.isAfter(endDate!));
+
+        if (!overlap) continue;
+
+        String itemId =
+            doc["inventoryItemId"];
+
+        int qty =
+            (doc["requestedQuantity"]
+                    as num)
+                .toInt();
+
+        bookedMap[itemId] =
+            (bookedMap[itemId] ?? 0) + qty;
+      }
+
+      return bookedMap;
+    });
+  }
 
   /// =====================================================
   /// UI
   /// =====================================================
   @override
   Widget build(BuildContext context) {
+
+    if (startDate == null || endDate == null) {
+  return const Scaffold(
+    body: Center(
+      child: CircularProgressIndicator(),
+    ),
+  );
+}
 
     Query query = FirebaseFirestore.instance
         .collection("businesses")
@@ -152,8 +156,8 @@ dateAwareBookedItemsStream() {
     }
 
     return Scaffold(
-      appBar: AppBar(
-          title:
+      appBar:
+          AppBar(title:
               const Text("Select Item")),
 
       body: StreamBuilder(
@@ -179,14 +183,8 @@ dateAwareBookedItemsStream() {
             builder:
                 (context, bookedSnap) {
 
-              if (!bookedSnap.hasData) {
-                return const Center(
-                    child:
-                        CircularProgressIndicator());
-              }
-
               final bookedMap =
-                  bookedSnap.data!;
+      bookedSnap.data ?? {};
 
               return ListView.builder(
                 itemCount:
@@ -197,7 +195,9 @@ dateAwareBookedItemsStream() {
                   var node =
                       nodes[index];
 
+                  /// =====================
                   /// CATEGORY
+                  /// =====================
                   if (node["type"] ==
                       "category") {
 
@@ -229,7 +229,9 @@ dateAwareBookedItemsStream() {
                     );
                   }
 
+                  /// =====================
                   /// ITEM
+                  /// =====================
                   int total =
                       (node["quantity"]
                               as num)
@@ -282,8 +284,7 @@ dateAwareBookedItemsStream() {
       builder: (_) => AlertDialog(
         title:
             Text(item["name"]),
-        content:
-            TextField(
+        content: TextField(
           controller:
               controller,
           keyboardType:
@@ -303,6 +304,8 @@ dateAwareBookedItemsStream() {
                   int.parse(
                       controller.text);
 
+              /// ✅ IMPORTANT:
+              /// booking dates saved inside bookedItems
               BookedItemModel booked =
                   BookedItemModel(
                 id:
@@ -325,6 +328,11 @@ dateAwareBookedItemsStream() {
                         .toDouble(),
                 createdAt:
                     Timestamp.now(),
+
+                bookingStartDate:
+                    startDate!,
+                bookingEndDate:
+                    endDate!,
               );
 
               await repo.addBookedItem(

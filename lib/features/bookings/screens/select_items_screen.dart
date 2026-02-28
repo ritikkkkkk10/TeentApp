@@ -23,6 +23,9 @@ class SelectItemsScreen extends StatefulWidget {
 class _SelectItemsScreenState
     extends State<SelectItemsScreen> {
 
+      DateTime? startDate;
+DateTime? endDate;
+
   final String businessId = "demo_business";
   final BookingRepository repo =
       BookingRepository();
@@ -136,6 +139,10 @@ class _SelectItemsScreenState
               item.rentPrice,
           createdAt:
               Timestamp.now(),
+
+              /// ✅ ADD THESE
+  bookingStartDate: startDate!,
+  bookingEndDate: endDate!,
         ),
       );
     }

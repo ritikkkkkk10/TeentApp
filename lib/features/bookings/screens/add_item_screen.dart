@@ -216,6 +216,10 @@
                             .toDouble(),
                     createdAt:
                         Timestamp.now(),
+
+                        /// ✅ ADD THESE
+                    bookingStartDate: startDate!,
+                    bookingEndDate: endDate!,
                 );
 
                 await repo
