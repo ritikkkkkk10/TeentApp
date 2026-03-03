@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../core/config/app_config.dart';
 import '../services/inventory_service.dart';
 import 'item_detail_screen.dart';
+import 'package:tent_app/features/bookings/screens/add_service_screen.dart';
 
 class InventoryScreen extends StatefulWidget {
   final String? parentId;
@@ -117,13 +118,21 @@ class _InventoryScreenState extends State<InventoryScreen> {
               ),
 
               ListTile(
-                leading: const Icon(Icons.miscellaneous_services),
-                title: const Text("Add Service"),
-                onTap: () {
-                  Navigator.pop(context);
-                  _showAddServiceDialog(context);
-                },
-              ),
+  leading: const Icon(Icons.miscellaneous_services),
+  title: const Text("Add Service"),
+  onTap: () {
+    Navigator.pop(context);
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => AddServiceScreen(
+          parentId: widget.parentId,
+        ),
+      ),
+    );
+  },
+),
             ],
           ),
         );
