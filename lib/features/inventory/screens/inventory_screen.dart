@@ -1,5 +1,5 @@
 import 'dart:developer';
-
+import 'service_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../core/config/app_config.dart';
@@ -394,17 +394,13 @@ class _InventoryScreenState extends State<InventoryScreen> {
 
 } else if (data['type'] == 'service') {
 
-  showDialog(
-    context: context,
-    builder: (_) => AlertDialog(
-      title: Text(data['name']),
-      content: Text(data['description'] ?? ""),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text("Close"),
-        )
-      ],
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) => ServiceDetailScreen(
+        serviceData: data,
+        serviceId: docs[index].id,
+      ),
     ),
   );
 }
