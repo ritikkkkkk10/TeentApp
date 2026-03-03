@@ -23,6 +23,71 @@ class InventoryScreen extends StatefulWidget {
 
 class _InventoryScreenState extends State<InventoryScreen> {
 
+  void _showAddServiceDialog(BuildContext context) {
+
+  TextEditingController name = TextEditingController();
+  TextEditingController price = TextEditingController();
+  TextEditingController description = TextEditingController();
+
+  showDialog(
+    context: context,
+    builder: (_) {
+      return AlertDialog(
+        title: const Text("New Service"),
+        content: SingleChildScrollView(
+          child: Column(
+            children: [
+
+              TextField(
+                controller: name,
+                decoration:
+                    const InputDecoration(labelText: "Service Name"),
+              ),
+
+              TextField(
+                controller: price,
+                keyboardType: TextInputType.number,
+                decoration:
+                    const InputDecoration(labelText: "Price"),
+              ),
+
+              TextField(
+                controller: description,
+                decoration:
+                    const InputDecoration(labelText: "Description"),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
+
+          TextButton(
+            onPressed: () async {
+
+              final service = InventoryService();
+
+              await service.addService(
+                name: name.text,
+                price: double.parse(price.text),
+                description: description.text,
+                parentId: widget.parentId,
+              );
+
+              Navigator.pop(context);
+            },
+            child: const Text("Save"),
+          ),
+        ],
+      );
+    },
+  );
+}
+
   void _showAddOptions(BuildContext context) {
 
     showModalBottomSheet(
@@ -48,6 +113,15 @@ class _InventoryScreenState extends State<InventoryScreen> {
                 onTap: () {
                   Navigator.pop(context);
                   _showAddItemDialog(context);
+                },
+              ),
+
+              ListTile(
+                leading: const Icon(Icons.miscellaneous_services),
+                title: const Text("Add Service"),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showAddServiceDialog(context);
                 },
               ),
             ],
@@ -274,10 +348,12 @@ class _InventoryScreenState extends State<InventoryScreen> {
 
                   return ListTile(
                     leading: Icon(
-                      data['type'] == 'category'
-                          ? Icons.folder
-                          : Icons.inventory,
-                    ),
+                    data['type'] == 'category'
+                        ? Icons.folder
+                        : data['type'] == 'service'
+                            ? Icons.miscellaneous_services
+                            : Icons.inventory,
+                  ),
 
                     title: Text(data['name']),
 
@@ -285,29 +361,44 @@ class _InventoryScreenState extends State<InventoryScreen> {
 
                       if (data['type'] == 'category') {
 
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => InventoryScreen(
-                              parentId: docs[index].id,
-                              title: data['name'],
-                            ),
-                          ),
-                        );
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) => InventoryScreen(
+        parentId: docs[index].id,
+        title: data['name'],
+      ),
+    ),
+  );
 
-                      } else {
+} else if (data['type'] == 'item') {
 
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                ItemDetailScreen(
-                                  itemData: data,
-                                  itemId: docs[index].id,
-                                ),
-                          ),
-                        );
-                      }
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) => ItemDetailScreen(
+        itemData: data,
+        itemId: docs[index].id,
+      ),
+    ),
+  );
+
+} else if (data['type'] == 'service') {
+
+  showDialog(
+    context: context,
+    builder: (_) => AlertDialog(
+      title: Text(data['name']),
+      content: Text(data['description'] ?? ""),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text("Close"),
+        )
+      ],
+    ),
+  );
+}
                     },
                   );
                 },

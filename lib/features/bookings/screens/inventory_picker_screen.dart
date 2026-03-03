@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
-
+import '../models/booking_service_model.dart';
 import '../repository/booking_repository.dart';
 import '../models/booked_item_model.dart';
 
@@ -97,7 +97,7 @@ class _InventoryPickerScreenState
                     as Timestamp)
                 .toDate();
 
-        DateTime otherEnd =
+        DateTime otherEnd = 
             (doc["bookingEndDate"]
                     as Timestamp)
                 .toDate();
@@ -140,25 +140,20 @@ class _InventoryPickerScreenState
 }
 
     Query query = FirebaseFirestore.instance
-        .collection("businesses")
-        .doc(businessId)
-        .collection("inventoryNodes");
+    .collection("businesses")
+    .doc(businessId)
+    .collection("inventoryNodes");
 
-    if (widget.parentId == null) {
-      query =
-          query.where("parentId",
-              isNull: true);
-    } else {
-      query =
-          query.where("parentId",
-              isEqualTo:
-                  widget.parentId);
-    }
+if (widget.parentId == null) {
+  query = query.where("parentId", isNull: true);
+} else {
+  query = query.where("parentId", isEqualTo: widget.parentId);
+}
 
     return Scaffold(
-      appBar:
-          AppBar(title:
-              const Text("Select Item")),
+     appBar: AppBar(
+  title: const Text("Select"),
+),
 
       body: StreamBuilder(
         stream: query.snapshots(),
@@ -189,78 +184,90 @@ class _InventoryPickerScreenState
               return ListView.builder(
                 itemCount:
                     nodes.length,
-                itemBuilder:
-                    (context, index) {
+                    /////////////////////////////////
+                itemBuilder: (context, index) {
 
-                  var node =
-                      nodes[index];
+  var node = nodes[index];
+  final type = node["type"];
 
-                  /// =====================
-                  /// CATEGORY
-                  /// =====================
-                  if (node["type"] ==
-                      "category") {
+  /// =====================
+  /// CATEGORY
+  /// =====================
+  if (type == "category") {
+    return ListTile(
+      leading: const Icon(Icons.folder),
+      title: Text(node["name"]),
+      trailing: const Icon(Icons.arrow_forward),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => InventoryPickerScreen(
+              bookingId: widget.bookingId,
+              parentId: node.id,
+            ),
+          ),
+        );
+      },
+    );
+  }
 
-                    return ListTile(
-                      leading:
-                          const Icon(
-                              Icons.folder),
-                      title:
-                          Text(
-                              node["name"]),
-                      trailing:
-                          const Icon(
-                              Icons.arrow_forward),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                InventoryPickerScreen(
-                              bookingId:
-                                  widget
-                                      .bookingId,
-                              parentId:
-                                  node.id,
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  }
+  /// =====================
+  /// SERVICE
+  /// =====================
+  if (type == "service") {
+  return ListTile(
+    leading: const Icon(Icons.miscellaneous_services),
+    title: Text(node["name"]),
+    subtitle: Text("₹ ${(node["price"] as num?)?.toDouble() ?? 0}"),
+    onTap: () async {
 
-                  /// =====================
-                  /// ITEM
-                  /// =====================
-                  int total =
-                      (node["quantity"]
-                              as num)
-                          .toInt();
+      final service = BookingServiceModel(
+        id: const Uuid().v4(),
+        serviceId: node.id,
+        serviceName: node["name"],
+        priceSnapshot:
+            (node["price"] as num?)?.toDouble() ?? 0,
+        createdAt: Timestamp.now(),
+      );
 
-                  int booked =
-                      bookedMap[
-                              node.id] ??
-                          0;
+      await repo.addBookingService(
+        bookingId: widget.bookingId,
+        service: service,
+      );
 
-                  int available =
-                      total - booked;
+      // No pop here
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Service Added")),
+      );
+    },
+  );
+}
 
-                  return ListTile(
-                    leading:
-                        const Icon(
-                            Icons.inventory),
-                    title:
-                        Text(
-                            node["name"]),
-                    subtitle: Text(
-                        "Available: $available"),
+  /// =====================
+  /// ITEM
+  /// =====================
+  if (type == "item") {
 
-                    onTap: () =>
-                        openQtyDialog(
-                            context,
-                            node),
-                  );
-                },
+    int total =
+    (node["quantity"] as num?)?.toInt() ?? 0;
+
+    int booked = bookedMap[node.id] ?? 0;
+    int available = total - booked;
+
+    return ListTile(
+      leading: const Icon(Icons.inventory),
+      title: Text(node["name"]),
+      subtitle: Text("Available: $available"),
+      onTap: () => openQtyDialog(context, node),
+    );
+  }
+
+  /// =====================
+  /// FALLBACK
+  /// =====================
+  return const SizedBox();
+},
               );
             },
           );

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/booking_model.dart';
 import '../models/booked_item_model.dart';
+import '../models/booking_service_model.dart';
 
 class BookingRepository {
 
@@ -72,5 +73,33 @@ class BookingRepository {
         .doc(item.id)
         .set(item.toMap());
   }
+}
+
+Future<void> addBookingService({
+  required String bookingId,
+  required BookingServiceModel service,
+}) async {
+
+  final serviceRef = _firestore
+      .collection("businesses")
+      .doc(businessId)
+      .collection("bookings")
+      .doc(bookingId)
+      .collection("bookingServices");
+
+  /// 🔎 Check if service already exists
+  final existing = await serviceRef
+      .where("serviceId", isEqualTo: service.serviceId)
+      .get();
+
+  /// If already exists → do nothing
+  if (existing.docs.isNotEmpty) {
+    return;
+  }
+
+  /// Else → create
+  await serviceRef
+      .doc(service.id)
+      .set(service.toMap());
 }
 }

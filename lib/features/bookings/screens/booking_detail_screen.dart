@@ -113,56 +113,97 @@ class _BookingDetailScreenState
         },
       ),
 
-      body: StreamBuilder(
+body: Column(
+  children: [
+
+    /// =========================
+    /// BOOKED ITEMS
+    /// =========================
+    Expanded(
+      child: StreamBuilder(
         stream: FirebaseFirestore.instance
             .collection("businesses")
-            .doc("demo_business") // ✅ TEMP SAFE
+            .doc("demo_business")
             .collection("bookings")
             .doc(widget.bookingId)
             .collection("bookedItems")
             .snapshots(),
+        builder: (context, itemSnapshot) {
 
-        builder: (context, snapshot) {
-
-          if (!snapshot.hasData) {
+          if (!itemSnapshot.hasData) {
             return const Center(
               child: CircularProgressIndicator(),
             );
           }
 
-          var items = snapshot.data!.docs;
+          var items = itemSnapshot.data!.docs;
 
-          if (items.isEmpty) {
-            return const Center(
-              child: Text("No items added"),
-            );
-          }
+          return ListView(
+            children: [
 
-          return ListView.builder(
-            itemCount: items.length,
-            itemBuilder: (context, index) {
+              /// ITEMS
+              ...items.map((item) {
+                return ListTile(
+                  leading: const Icon(Icons.inventory),
+                  title: Text(item["itemName"]),
+                  subtitle: Text(
+                      "Qty: ${item["requestedQuantity"]}"),
+                  onTap: () =>
+                      editQuantity(context, item),
+                  trailing:
+                      item["shortageQuantity"] > 0
+                          ? Text(
+                              "Shortage: ${item["shortageQuantity"]}",
+                              style: const TextStyle(
+                                  color: Colors.red),
+                            )
+                          : null,
+                );
+              }),
 
-              var item = items[index];
+              /// =========================
+              /// SERVICES
+              /// =========================
+              StreamBuilder(
+                stream: FirebaseFirestore.instance
+                    .collection("businesses")
+                    .doc("demo_business")
+                    .collection("bookings")
+                    .doc(widget.bookingId)
+                    .collection("bookingServices")
+                    .snapshots(),
+                builder: (context, serviceSnapshot) {
 
-              return ListTile(
-                title: Text(item["itemName"]),
-                subtitle: Text(
-                    "Qty: ${item["requestedQuantity"]}"),
-                    onTap: () =>
-                        editQuantity(context, item),
-                trailing:
-                    item["shortageQuantity"] > 0
-                        ? Text(
-                            "Shortage: ${item["shortageQuantity"]}",
-                            style: const TextStyle(
-                                color: Colors.red),
-                          )
-                        : null,
-              );
-            },
+                  if (!serviceSnapshot.hasData) {
+                    return const SizedBox();
+                  }
+
+                  var services =
+                      serviceSnapshot.data!.docs;
+
+                  return Column(
+                    children: services.map((service) {
+                      return ListTile(
+                        leading: const Icon(
+                            Icons.miscellaneous_services),
+                        title:
+                            Text(service["serviceName"]),
+                        subtitle: Text(
+                            "₹ ${service["priceSnapshot"]}"),
+                      );
+                    }).toList(),
+                  );
+                },
+              ),
+            ],
           );
         },
       ),
+    ),
+  ],
+),
+
+      
     );
   }
 }

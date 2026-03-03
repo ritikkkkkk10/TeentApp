@@ -52,4 +52,28 @@ class InventoryService {
       'createdAt': Timestamp.now(),
     });
   }
+
+  /// ADD SERVICE
+Future<void> addService({
+  required String name,
+  required double price,
+  required String description,
+  String? parentId,
+}) async {
+
+  String businessId = await getBusinessId();
+
+  await _firestore
+      .collection('businesses')
+      .doc(businessId)
+      .collection('inventoryNodes')
+      .add({
+    'name': name,
+    'type': 'service',
+    'parentId': parentId,
+    'price': price,
+    'description': description,
+    'createdAt': Timestamp.now(),
+  });
+}
 }
