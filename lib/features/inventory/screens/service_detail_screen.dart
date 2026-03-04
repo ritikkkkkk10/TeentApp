@@ -26,6 +26,7 @@ class _ServiceDetailScreenState
     extends State<ServiceDetailScreen> {
 
       final ImagePicker _picker = ImagePicker();
+      int currentImageIndex = 0;
 
   List<String> imageUrls = [];
   List<File> newImages = [];
@@ -88,24 +89,27 @@ void initState() {
 
   Future<void> pickImage() async {
 
-  if (imageUrls.length + newImages.length >= 5) {
-    return;
-  }
+  int remaining = 5 - (imageUrls.length + newImages.length);
 
-  final XFile? picked =
-      await _picker.pickImage(source: ImageSource.gallery);
+  if (remaining <= 0) return;
 
-  if (picked == null) return;
+  final List<XFile> picked =
+      await _picker.pickMultiImage();
 
-  File file = File(picked.path);
+  if (picked.isEmpty) return;
 
-  File? compressed = await compressImage(file);
+  for (var img in picked.take(remaining)) {
 
-  if (compressed != null) {
-    setState(() {
+    File file = File(img.path);
+
+    File? compressed = await compressImage(file);
+
+    if (compressed != null) {
       newImages.add(compressed);
-    });
+    }
   }
+
+  setState(() {});
 }
 
   Future<void> deleteService() async {
@@ -165,9 +169,13 @@ if (imageUrls.isNotEmpty || newImages.isNotEmpty)
 SizedBox(
   height: 220,
   child: PageView(
+    onPageChanged: (index) {
+      setState(() {
+        currentImageIndex = index;
+      });
+    },
     children: [
 
-      /// Existing images
       ...imageUrls.map((url) {
         return Stack(
           children: [
@@ -183,10 +191,8 @@ SizedBox(
               top: 10,
               right: 10,
               child: IconButton(
-                icon: const Icon(
-                  Icons.delete,
-                  color: Colors.red,
-                ),
+                icon: const Icon(Icons.delete,
+                    color: Colors.red),
                 onPressed: () {
                   setState(() {
                     imageUrls.remove(url);
@@ -198,7 +204,6 @@ SizedBox(
         );
       }),
 
-      /// Newly added images
       ...newImages.map((file) {
         return Stack(
           children: [
@@ -214,10 +219,8 @@ SizedBox(
               top: 10,
               right: 10,
               child: IconButton(
-                icon: const Icon(
-                  Icons.delete,
-                  color: Colors.red,
-                ),
+                icon: const Icon(Icons.delete,
+                    color: Colors.red),
                 onPressed: () {
                   setState(() {
                     newImages.remove(file);
@@ -232,11 +235,33 @@ SizedBox(
   ),
 ),
 
+/// STEP 4 → DOT INDICATOR
+Row(
+  mainAxisAlignment: MainAxisAlignment.center,
+  children: List.generate(
+    imageUrls.length + newImages.length,
+    (index) => Container(
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      width: currentImageIndex == index ? 10 : 6,
+      height: currentImageIndex == index ? 10 : 6,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: currentImageIndex == index
+            ? Colors.blue
+            : Colors.grey,
+      ),
+    ),
+  ),
+),
+
 const SizedBox(height: 16),
 
-ElevatedButton(
+ElevatedButton.icon(
   onPressed: pickImage,
-  child: const Text("Add Photo"),
+  icon: const Icon(Icons.photo_library),
+  label: Text(
+    "Add Photos (${imageUrls.length + newImages.length}/5)",
+  ),
 ),
 
 const SizedBox(height: 24),
