@@ -373,15 +373,46 @@ return StreamBuilder(
                 final data = docs[index].data() as Map<String, dynamic>;
 
                 return ListTile(
-                  leading: Icon(
-                    data['type'] == 'category'
-                        ? Icons.folder
-                        : data['type'] == 'service'
-                            ? Icons.miscellaneous_services
-                            : Icons.inventory,
-                  ),
+  leading: Icon(
+    data['type'] == 'category'
+        ? Icons.folder
+        : data['type'] == 'service'
+            ? Icons.miscellaneous_services
+            : Icons.inventory,
+  ),
+  title: Text(data['name']),
 
-                  title: Text(data['name']),
+  onLongPress: () async {
+
+    bool confirm = await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Delete"),
+        content: const Text("Delete this item?"),
+        actions: [
+
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context,false);
+            },
+            child: const Text("Cancel"),
+          ),
+
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context,true);
+            },
+            child: const Text("Delete"),
+          ),
+
+        ],
+      ),
+    ) ?? false;
+
+    if(!confirm) return;
+
+    await deleteNodeRecursive(docs[index].id);
+  },
 
                   onTap: () {
 
@@ -430,5 +461,31 @@ return StreamBuilder(
       },
     ),
   );
+}
+Future<void> deleteNodeRecursive(String nodeId) async {
+
+  String businessId = await getBusinessId();
+
+  final nodeRef = FirebaseFirestore.instance
+      .collection('businesses')
+      .doc(businessId)
+      .collection('inventoryNodes')
+      .doc(nodeId);
+
+  /// find children
+  final children = await FirebaseFirestore.instance
+      .collection('businesses')
+      .doc(businessId)
+      .collection('inventoryNodes')
+      .where("parentId", isEqualTo: nodeId)
+      .get();
+
+  /// delete children first
+  for (var child in children.docs) {
+    await deleteNodeRecursive(child.id);
+  }
+
+  /// delete this node
+  await nodeRef.delete();
 }
 }
