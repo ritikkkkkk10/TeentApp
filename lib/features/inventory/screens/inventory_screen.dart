@@ -154,6 +154,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
     TextEditingController qty = TextEditingController();
     TextEditingController rent = TextEditingController();
     TextEditingController description = TextEditingController();
+    File? selectedImage;
 
     showDialog(
       context: context,
@@ -196,6 +197,35 @@ class _InventoryScreenState extends State<InventoryScreen> {
                     labelText: "Description",
                   ),
                 ),
+
+                const SizedBox(height: 10),
+
+ElevatedButton.icon(
+  icon: const Icon(Icons.image),
+  label: const Text("Select Image"),
+  onPressed: () async {
+
+    final picker = ImagePicker();
+
+    final picked = await picker.pickImage(
+      source: ImageSource.gallery,
+    );
+
+    if (picked != null) {
+      setState(() {
+  selectedImage = File(picked.path);
+});
+    }
+  },
+),
+if (selectedImage != null)
+  Padding(
+    padding: const EdgeInsets.only(top: 10),
+    child: Image.file(
+      selectedImage!,
+      height: 100,
+    ),
+  ),
               ],
             ),
           ),
@@ -209,27 +239,34 @@ class _InventoryScreenState extends State<InventoryScreen> {
             ),
 
             TextButton(
-              onPressed: () async {
+  onPressed: () async {
 
-                final service =
-                    InventoryService();
+    final service = InventoryService();
 
-                await service.addItem(
-                  name: name.text,
-                  quantity:
-                      int.parse(qty.text),
-                  rentPrice:
-                      double.parse(rent.text),
-                  parentId:
-                      widget.parentId,
-                  description:
-                      description.text,
-                );
+    String? imageUrl;
 
-                Navigator.pop(context);
-              },
-              child: const Text("Save"),
-            ),
+    if (selectedImage != null) {
+      final compressed = await compressImage(selectedImage!);
+
+      if (compressed != null) {
+        imageUrl =
+            await CloudinaryService.uploadImage(compressed);
+      }
+    }
+
+    await service.addItem(
+      name: name.text,
+      quantity: int.parse(qty.text),
+      rentPrice: double.parse(rent.text),
+      parentId: widget.parentId,
+      description: description.text,
+      imageUrl: imageUrl,
+    );
+
+    Navigator.pop(context);
+  },
+  child: const Text("Save"),
+),
           ],
         );
       },

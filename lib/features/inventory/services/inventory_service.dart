@@ -29,12 +29,13 @@ class InventoryService {
 
   /// ADD ITEM
   Future<void> addItem({
-    required String name,
-    required int quantity,
-    required double rentPrice,
-    String? parentId,
-    String? description,
-  }) async {
+  required String name,
+  required int quantity,
+  required double rentPrice,
+  String? parentId,
+  String? description,
+  String? imageUrl,
+}) async {
 
     String businessId = await getBusinessId();
 
@@ -49,6 +50,7 @@ class InventoryService {
       'quantity': quantity,
       'rentPrice': rentPrice,
       'description': description,
+      'imageUrl': imageUrl,
       'createdAt': Timestamp.now(),
     });
   }
