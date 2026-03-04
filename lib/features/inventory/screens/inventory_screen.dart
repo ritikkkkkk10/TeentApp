@@ -6,6 +6,10 @@ import '../../../core/config/app_config.dart';
 import '../services/inventory_service.dart';
 import 'item_detail_screen.dart';
 import 'package:tent_app/features/bookings/screens/add_service_screen.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import '../../../core/services/cloudinary_service.dart';
+import '../../../core/utils/image_compressor.dart';
 
 class InventoryScreen extends StatefulWidget {
   final String? parentId;
@@ -76,6 +80,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                 name: name.text,
                 price: double.parse(price.text),
                 description: description.text,
+                imageUrls: [],
                 parentId: widget.parentId,
               );
 

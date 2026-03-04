@@ -24,22 +24,26 @@ class _ServiceDetailScreenState
   late TextEditingController nameController;
   late TextEditingController priceController;
   late TextEditingController descController;
+  List<String> imageUrls = [];
 
   @override
-  void initState() {
-    super.initState();
+void initState() {
+  super.initState();
 
-    nameController =
-        TextEditingController(text: widget.serviceData["name"]);
+  nameController =
+      TextEditingController(text: widget.serviceData["name"]);
 
-    priceController =
-        TextEditingController(
-            text: widget.serviceData["price"].toString());
+  priceController =
+      TextEditingController(
+          text: widget.serviceData["price"].toString());
 
-    descController =
-        TextEditingController(
-            text: widget.serviceData["description"] ?? "");
-  }
+  descController =
+      TextEditingController(
+          text: widget.serviceData["description"] ?? "");
+
+  imageUrls = List<String>.from(
+      widget.serviceData["imageUrls"] ?? []);
+}
 
   Future<void> updateService() async {
 
@@ -109,7 +113,31 @@ class _ServiceDetailScreenState
                   const InputDecoration(labelText: "Description"),
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
+
+/// IMAGE PREVIEW
+if (imageUrls.isNotEmpty)
+SizedBox(
+  height: 220,
+  child: PageView.builder(
+    itemCount: imageUrls.length,
+    itemBuilder: (context, index) {
+
+      return Padding(
+        padding: const EdgeInsets.all(8),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: Image.network(
+            imageUrls[index],
+            fit: BoxFit.cover,
+          ),
+        ),
+      );
+    },
+  ),
+),
+
+const SizedBox(height: 24),
 
             ElevatedButton(
               onPressed: updateService,

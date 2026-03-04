@@ -58,6 +58,7 @@ Future<void> addService({
   required String name,
   required double price,
   required String description,
+  required List<String> imageUrls,
   String? parentId,
 }) async {
 
@@ -73,6 +74,7 @@ Future<void> addService({
     'parentId': parentId,
     'price': price,
     'description': description,
+    'imageUrls': imageUrls,
     'createdAt': Timestamp.now(),
   });
 }
