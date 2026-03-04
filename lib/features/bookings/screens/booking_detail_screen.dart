@@ -6,7 +6,6 @@ import 'select_items_screen.dart';
 import 'inventory_picker_screen.dart';
 
 class BookingDetailScreen extends StatefulWidget {
-
   final String bookingId;
 
   const BookingDetailScreen({
@@ -15,195 +14,180 @@ class BookingDetailScreen extends StatefulWidget {
   });
 
   @override
-  State<BookingDetailScreen> createState() =>
-      _BookingDetailScreenState();
+  State<BookingDetailScreen> createState() => _BookingDetailScreenState();
 }
 
-class _BookingDetailScreenState
-    extends State<BookingDetailScreen> {
+class _BookingDetailScreenState extends State<BookingDetailScreen> {
+  void editQuantity(BuildContext context, DocumentSnapshot item) {
+    TextEditingController controller = TextEditingController(
+      text: item["requestedQuantity"].toString(),
+    );
 
-      void editQuantity(
-    BuildContext context,
-    DocumentSnapshot item) {
-
-  TextEditingController controller =
-      TextEditingController(
-    text:
-        item["requestedQuantity"]
-            .toString(),
-  );
-
-  showDialog(
-    context: context,
-    builder: (_) {
-      return AlertDialog(
-        title:
-            Text(item["itemName"]),
-        content: TextField(
-          controller: controller,
-          keyboardType:
-              TextInputType.number,
-          decoration:
-              const InputDecoration(
-                  labelText:
-                      "Quantity"),
-        ),
-        actions: [
-
-          /// DELETE OPTION
-          TextButton(
-            child:
-                const Text("Remove"),
-            onPressed: () async {
-
-              await item.reference
-                  .delete();
-
-              Navigator.pop(context);
-            },
+    showDialog(
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          title: Text(item["itemName"]),
+          content: TextField(
+            controller: controller,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(labelText: "Quantity"),
           ),
+          actions: [
+            /// DELETE OPTION
+            TextButton(
+              child: const Text("Remove"),
+              onPressed: () async {
+                await item.reference.delete();
 
-          /// UPDATE
-          TextButton(
-            child:
-                const Text("Update"),
-            onPressed: () async {
+                Navigator.pop(context);
+              },
+            ),
 
-              int newQty =
-                  int.parse(
-                      controller.text);
+            /// UPDATE
+            TextButton(
+              child: const Text("Update"),
+              onPressed: () async {
+                int newQty = int.parse(controller.text);
 
-              await item.reference
-                  .update({
-                "requestedQuantity":
-                    newQty,
-              });
+                await item.reference.update({
+                  "requestedQuantity": newQty,
+                });
 
-              Navigator.pop(context);
-            },
-          ),
-        ],
-      );
-    },
-  );
-}
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         title: const Text("Booking"),
       ),
-
-      floatingActionButton:
-          FloatingActionButton(
+      floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: () {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) =>
-                  InventoryPickerScreen(
-                bookingId:
-                    widget.bookingId,
+              builder: (_) => InventoryPickerScreen(
+                bookingId: widget.bookingId,
               ),
             ),
           );
         },
       ),
-
-body: Column(
-  children: [
-
-    /// =========================
-    /// BOOKED ITEMS
-    /// =========================
-    Expanded(
-      child: StreamBuilder(
-        stream: FirebaseFirestore.instance
-            .collection("businesses")
-            .doc("demo_business")
-            .collection("bookings")
-            .doc(widget.bookingId)
-            .collection("bookedItems")
-            .snapshots(),
-        builder: (context, itemSnapshot) {
-
-          if (!itemSnapshot.hasData) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-
-          var items = itemSnapshot.data!.docs;
-
-          return ListView(
-            children: [
-
-              /// ITEMS
-              ...items.map((item) {
-                return ListTile(
-                  leading: const Icon(Icons.inventory),
-                  title: Text(item["itemName"]),
-                  subtitle: Text(
-                      "Qty: ${item["requestedQuantity"]}"),
-                  onTap: () =>
-                      editQuantity(context, item),
-                  trailing:
-                      item["shortageQuantity"] > 0
-                          ? Text(
-                              "Shortage: ${item["shortageQuantity"]}",
-                              style: const TextStyle(
-                                  color: Colors.red),
-                            )
-                          : null,
-                );
-              }),
-
-              /// =========================
-              /// SERVICES
-              /// =========================
-              StreamBuilder(
-                stream: FirebaseFirestore.instance
-                    .collection("businesses")
-                    .doc("demo_business")
-                    .collection("bookings")
-                    .doc(widget.bookingId)
-                    .collection("bookingServices")
-                    .snapshots(),
-                builder: (context, serviceSnapshot) {
-
-                  if (!serviceSnapshot.hasData) {
-                    return const SizedBox();
-                  }
-
-                  var services =
-                      serviceSnapshot.data!.docs;
-
-                  return Column(
-                    children: services.map((service) {
-                      return ListTile(
-                        leading: const Icon(
-                            Icons.miscellaneous_services),
-                        title:
-                            Text(service["serviceName"]),
-                        subtitle: Text(
-                            "₹ ${service["priceSnapshot"]}"),
-                      );
-                    }).toList(),
+      body: Column(
+        children: [
+          /// =========================
+          /// BOOKED ITEMS
+          /// =========================
+          Expanded(
+            child: StreamBuilder(
+              stream: FirebaseFirestore.instance
+                  .collection("businesses")
+                  .doc("demo_business")
+                  .collection("bookings")
+                  .doc(widget.bookingId)
+                  .collection("bookedItems")
+                  .snapshots(),
+              builder: (context, itemSnapshot) {
+                if (!itemSnapshot.hasData) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
                   );
-                },
-              ),
-            ],
-          );
-        },
-      ),
-    ),
-  ],
-),
+                }
 
-      
+                var items = itemSnapshot.data!.docs;
+
+                return ListView(
+                  children: [
+                    /// ITEMS
+                    ...items.map((item) {
+                      return ListTile(
+                        leading: const Icon(Icons.inventory),
+                        title: Text(item["itemName"]),
+                        subtitle: Text("Qty: ${item["requestedQuantity"]}"),
+                        onTap: () => editQuantity(context, item),
+                        trailing: item["shortageQuantity"] > 0
+                            ? Text(
+                                "Shortage: ${item["shortageQuantity"]}",
+                                style: const TextStyle(color: Colors.red),
+                              )
+                            : null,
+                      );
+                    }),
+
+                    /// =========================
+                    /// SERVICES
+                    /// =========================
+                    StreamBuilder(
+                      stream: FirebaseFirestore.instance
+                          .collection("businesses")
+                          .doc("demo_business")
+                          .collection("bookings")
+                          .doc(widget.bookingId)
+                          .collection("bookingServices")
+                          .snapshots(),
+                      builder: (context, serviceSnapshot) {
+                        if (!serviceSnapshot.hasData) {
+                          return const SizedBox();
+                        }
+
+                        var services = serviceSnapshot.data!.docs;
+
+                        return Column(
+                          children: services.map((service) {
+                            return ListTile(
+                              leading: const Icon(Icons.miscellaneous_services),
+                              title: Text(service["serviceName"]),
+                              subtitle: Text("₹ ${service["priceSnapshot"]}"),
+                              onLongPress: () async {
+                                bool confirm = await showDialog(
+                                      context: context,
+                                      builder: (_) => AlertDialog(
+                                        title: const Text("Remove Service"),
+                                        content: const Text(
+                                            "Delete this service from booking?"),
+                                        actions: [
+                                          TextButton(
+                                            child: const Text("Cancel"),
+                                            onPressed: () {
+                                              Navigator.pop(context, false);
+                                            },
+                                          ),
+                                          TextButton(
+                                            child: const Text("Delete"),
+                                            onPressed: () {
+                                              Navigator.pop(context, true);
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    ) ??
+                                    false;
+
+                                if (confirm) {
+                                  await service.reference.delete();
+                                }
+                              },
+                            );
+                          }).toList(),
+                        );
+                      },
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

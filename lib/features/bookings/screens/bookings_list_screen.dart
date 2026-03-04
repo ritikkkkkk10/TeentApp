@@ -30,10 +30,11 @@ class BookingsListScreen extends StatelessWidget {
 
         body: StreamBuilder(
         stream: FirebaseFirestore.instance
-            .collection("businesses")
-            .doc(businessId)
-            .collection("bookings")
-            .snapshots(),
+    .collection("businesses")
+    .doc(businessId)
+    .collection("bookings")
+    .orderBy("startDate", descending: true)
+    .snapshots(),
         builder: (context, snapshot) {
 
           if (!snapshot.hasData) {
