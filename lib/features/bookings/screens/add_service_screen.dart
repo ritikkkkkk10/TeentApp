@@ -23,6 +23,7 @@ class _AddServiceScreenState
     extends State<AddServiceScreen> {
 
   final ImagePicker _picker = ImagePicker();
+  int currentImageIndex = 0;
 
   List<File> selectedImages = [];
   List<String> uploadedUrls = [];
@@ -41,24 +42,27 @@ class _AddServiceScreenState
 
   Future<void> pickImage() async {
 
-  if (selectedImages.length >= 5) return;
+  int remaining = 5 - selectedImages.length;
 
-  final XFile? picked =
-      await _picker.pickImage(source: ImageSource.gallery);
+  if (remaining <= 0) return;
 
-  if (picked == null) return;
+  final List<XFile> picked =
+      await _picker.pickMultiImage();
 
-  File file = File(picked.path);
+  if (picked.isEmpty) return;
 
-  File? compressed = await compressImage(file);
+  for (var img in picked.take(remaining)) {
 
-  if (compressed != null) {
+    File file = File(img.path);
 
-    setState(() {
+    File? compressed = await compressImage(file);
+
+    if (compressed != null) {
       selectedImages.add(compressed);
-    });
-
+    }
   }
+
+  setState(() {});
 }
 
 Future<void> uploadImages() async {
@@ -145,33 +149,67 @@ Future<void> uploadImages() async {
 const SizedBox(height: 16),
 
 /// ADD PHOTO BUTTON
-ElevatedButton(
+ElevatedButton.icon(
   onPressed: pickImage,
-  child: const Text("Add Photo (Max 5)"),
+  icon: const Icon(Icons.photo_library),
+  label: Text(
+    "Add Photos (${selectedImages.length}/5)",
+  ),
 ),
 
 const SizedBox(height: 16),
 
 /// IMAGE PREVIEW SLIDER
 if (selectedImages.isNotEmpty)
-SizedBox(
-  height: 200,
-  child: PageView.builder(
-    itemCount: selectedImages.length,
-    itemBuilder: (context, index) {
+Column(
+  children: [
 
-      return Padding(
-        padding: const EdgeInsets.all(8),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(10),
-          child: Image.file(
-            selectedImages[index],
-            fit: BoxFit.cover,
+    SizedBox(
+      height: 200,
+      child: PageView.builder(
+        itemCount: selectedImages.length,
+        onPageChanged: (index) {
+          setState(() {
+            currentImageIndex = index;
+          });
+        },
+        itemBuilder: (context, index) {
+
+          return Padding(
+            padding: const EdgeInsets.all(8),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Image.file(
+                selectedImages[index],
+                fit: BoxFit.cover,
+              ),
+            ),
+          );
+        },
+      ),
+    ),
+
+    const SizedBox(height: 8),
+
+    /// DOT INDICATOR
+    Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(
+        selectedImages.length,
+        (index) => Container(
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          width: currentImageIndex == index ? 10 : 6,
+          height: currentImageIndex == index ? 10 : 6,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: currentImageIndex == index
+                ? Colors.blue
+                : Colors.grey,
           ),
         ),
-      );
-    },
-  ),
+      ),
+    ),
+  ],
 ),
 
 const SizedBox(height: 24),
