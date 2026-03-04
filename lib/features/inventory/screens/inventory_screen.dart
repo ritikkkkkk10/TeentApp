@@ -26,6 +26,8 @@ class InventoryScreen extends StatefulWidget {
 
 class _InventoryScreenState extends State<InventoryScreen> {
   String filterMode = "all";
+  String defaultItemImage =
+"https://placehold.co/400x300/png?text=No+Image";
 
 /// ADD OPTIONS
 void _showAddOptions(BuildContext context) {
@@ -177,7 +179,7 @@ void _showAddItemDialog(BuildContext context) {
 
                   final service = InventoryService();
 
-                  String? imageUrl;
+                  String? imageUrl = defaultItemImage;
 
                   if (selectedImage != null) {
                     final compressed =
