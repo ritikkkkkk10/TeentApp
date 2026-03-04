@@ -25,6 +25,7 @@ class InventoryScreen extends StatefulWidget {
 }
 
 class _InventoryScreenState extends State<InventoryScreen> {
+  String filterMode = "all";
 
 /// ADD OPTIONS
 void _showAddOptions(BuildContext context) {
@@ -260,8 +261,59 @@ Widget build(BuildContext context) {
 
   return Scaffold(
     appBar: AppBar(
-      title: Text(widget.title),
+  title: Text(widget.title),
+  actions: [
+
+    TextButton(
+      onPressed: () {
+        setState(() {
+          filterMode = "all";
+        });
+      },
+      child: const Text(
+        "All",
+        style: TextStyle(color: Colors.black),
+      ),
     ),
+
+    TextButton(
+      onPressed: () {
+        setState(() {
+          filterMode = "category";
+        });
+      },
+      child: const Text(
+        "Categories",
+        style: TextStyle(color: Colors.black),
+      ),
+    ),
+
+    TextButton(
+      onPressed: () {
+        setState(() {
+          filterMode = "item";
+        });
+      },
+      child: const Text(
+        "Items",
+        style: TextStyle(color: Colors.black),
+      ),
+    ),
+
+    TextButton(
+      onPressed: () {
+        setState(() {
+          filterMode = "service";
+        });
+      },
+      child: const Text(
+        "Services",
+        style: TextStyle(color: Colors.black),
+      ),
+    ),
+
+  ],
+),
 
     floatingActionButton: FloatingActionButton(
       onPressed: () {
@@ -282,16 +334,21 @@ Widget build(BuildContext context) {
 
         String businessId = snapshot.data.toString();
 
-        return StreamBuilder(
-          stream: FirebaseFirestore.instance
-              .collection('businesses')
-              .doc(businessId)
-              .collection('inventoryNodes')
-              .where(
-                'parentId',
-                isEqualTo: widget.parentId,
-              )
-              .snapshots(),
+        Query query = FirebaseFirestore.instance
+    .collection('businesses')
+    .doc(businessId)
+    .collection('inventoryNodes')
+    .where(
+      'parentId',
+      isEqualTo: widget.parentId,
+    );
+
+if (filterMode != "all") {
+  query = query.where('type', isEqualTo: filterMode);
+}
+
+return StreamBuilder(
+  stream: query.snapshots(),
 
           builder: (context, snap) {
 
@@ -311,7 +368,7 @@ Widget build(BuildContext context) {
               itemCount: docs.length,
               itemBuilder: (_, index) {
 
-                final data = docs[index].data();
+                final data = docs[index].data() as Map<String, dynamic>;
 
                 return ListTile(
                   leading: Icon(
