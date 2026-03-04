@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../core/config/app_config.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import '../../../core/services/cloudinary_service.dart';
+import '../../../core/utils/image_compressor.dart';
 
 class ItemDetailScreen extends StatefulWidget {
-
   final Map<String, dynamic> itemData;
   final String itemId;
 
@@ -14,107 +17,72 @@ class ItemDetailScreen extends StatefulWidget {
   });
 
   @override
-  State<ItemDetailScreen> createState()
-      => _ItemDetailScreenState();
+  State<ItemDetailScreen> createState() => _ItemDetailScreenState();
 }
 
-class _ItemDetailScreenState
-    extends State<ItemDetailScreen> {
-
+class _ItemDetailScreenState extends State<ItemDetailScreen> {
   /// ===============================
   /// EDIT ITEM DIALOG
   /// ===============================
   void _showEditDialog(BuildContext context) {
-
     TextEditingController qty =
-        TextEditingController(
-            text: widget.itemData['quantity']
-                .toString());
+        TextEditingController(text: widget.itemData['quantity'].toString());
 
     TextEditingController rent =
-        TextEditingController(
-            text: widget.itemData['rentPrice']
-                .toString());
+        TextEditingController(text: widget.itemData['rentPrice'].toString());
 
     TextEditingController desc =
-        TextEditingController(
-            text:
-                widget.itemData['description']
-                    ?? "");
+        TextEditingController(text: widget.itemData['description'] ?? "");
 
     showDialog(
       context: context,
       builder: (_) {
         return AlertDialog(
           title: const Text("Edit Item"),
-
           content: SingleChildScrollView(
             child: Column(
               children: [
-
                 TextField(
                   controller: qty,
-                  keyboardType:
-                      TextInputType.number,
-                  decoration:
-                      const InputDecoration(
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
                     labelText: "Quantity",
                   ),
                 ),
-
                 TextField(
                   controller: rent,
-                  keyboardType:
-                      TextInputType.number,
-                  decoration:
-                      const InputDecoration(
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
                     labelText: "Rent Price",
                   ),
                 ),
-
                 TextField(
                   controller: desc,
-                  decoration:
-                      const InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: "Description",
                   ),
                 ),
               ],
             ),
           ),
-
           actions: [
-
             TextButton(
-              onPressed: () =>
-                  Navigator.pop(context),
+              onPressed: () => Navigator.pop(context),
               child: const Text("Cancel"),
             ),
-
             TextButton(
               onPressed: () async {
+                String businessId = await getBusinessId();
 
-                String businessId =
-                    await getBusinessId();
-
-                await FirebaseFirestore
-                    .instance
-                    .collection(
-                        'businesses')
+                await FirebaseFirestore.instance
+                    .collection('businesses')
                     .doc(businessId)
-                    .collection(
-                        'inventoryNodes')
+                    .collection('inventoryNodes')
                     .doc(widget.itemId)
                     .update({
-
-                  'quantity':
-                      int.parse(qty.text),
-
-                  'rentPrice':
-                      double.parse(rent.text),
-
-                  'description':
-                      desc.text,
+                  'quantity': int.parse(qty.text),
+                  'rentPrice': double.parse(rent.text),
+                  'description': desc.text,
                 });
 
                 Navigator.pop(context);
@@ -130,225 +98,214 @@ class _ItemDetailScreenState
   }
 
   void _adjustStock(bool isAdding) {
+    TextEditingController qty = TextEditingController();
 
-  TextEditingController qty =
-      TextEditingController();
-
-  showDialog(
-    context: context,
-    builder: (_) {
-
-      return AlertDialog(
-        title: Text(
-          isAdding
-              ? "Add Stock"
-              : "Remove Stock",
-        ),
-
-        content: TextField(
-          controller: qty,
-          keyboardType:
-              TextInputType.number,
-          decoration:
-              const InputDecoration(
-            labelText: "Quantity",
+    showDialog(
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          title: Text(
+            isAdding ? "Add Stock" : "Remove Stock",
           ),
-        ),
-
-        actions: [
-
-          TextButton(
-            onPressed: () =>
-                Navigator.pop(context),
-            child: const Text("Cancel"),
+          content: TextField(
+            controller: qty,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(
+              labelText: "Quantity",
+            ),
           ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () async {
+                int change = int.parse(qty.text);
 
-          TextButton(
-            onPressed: () async {
+                if (!isAdding) {
+                  change = -change;
+                }
 
-              int change =
-                  int.parse(qty.text);
+                Navigator.pop(context); // close dialog FIRST
 
-              if (!isAdding) {
-                change = -change;
-              }
+                await Future.delayed(const Duration(milliseconds: 100));
 
-              Navigator.pop(context); // close dialog FIRST
+                await _updateQuantity(change);
+              },
+              child: const Text("Save"),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
-              await Future.delayed(
-                  const Duration(milliseconds: 100));
+  Future<void> _updateQuantity(int change) async {
+    String businessId = await getBusinessId();
 
-              await _updateQuantity(change);
-            },
-            child: const Text("Save"),
-          ),
-        ],
-      );
-    },
-  );
-}
+    DocumentReference doc = FirebaseFirestore.instance
+        .collection('businesses')
+        .doc(businessId)
+        .collection('inventoryNodes')
+        .doc(widget.itemId);
 
-  Future<void> _updateQuantity(
-    int change) async {
+    await FirebaseFirestore.instance.runTransaction(
+      (transaction) async {
+        final snapshot = await transaction.get(doc);
 
-  String businessId =
-      await getBusinessId();
+        int current = snapshot['quantity'];
 
-  DocumentReference doc =
-      FirebaseFirestore.instance
-          .collection('businesses')
-          .doc(businessId)
-          .collection(
-              'inventoryNodes')
-          .doc(widget.itemId);
+        int updated = current + change;
 
-  await FirebaseFirestore
-      .instance
-      .runTransaction(
-    (transaction) async {
+        if (updated < 0) {
+          updated = 0;
+        }
 
-      final snapshot =
-          await transaction.get(doc);
+        transaction.update(doc, {
+          'quantity': updated,
+        });
+      },
+    );
+  }
 
-      int current =
-          snapshot['quantity'];
+  Future<void> _changeItemImage() async {
+    final picker = ImagePicker();
 
-      int updated =
-          current + change;
+    final picked = await picker.pickImage(
+      source: ImageSource.gallery,
+    );
 
-      if (updated < 0) {
-        updated = 0;
-      }
+    if (picked == null) return;
 
-      transaction.update(doc, {
-        'quantity': updated,
-      });
-    },
-  );
-}
+    File image = File(picked.path);
+
+    final compressed = await compressImage(image);
+
+    if (compressed == null) return;
+
+    final imageUrl = await CloudinaryService.uploadImage(compressed);
+
+    String businessId = await getBusinessId();
+
+    await FirebaseFirestore.instance
+        .collection('businesses')
+        .doc(businessId)
+        .collection('inventoryNodes')
+        .doc(widget.itemId)
+        .update({
+      'imageUrl': imageUrl,
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
-        title:
-            Text(widget.itemData['name']),
+        title: Text(widget.itemData['name']),
         actions: [
           IconButton(
-            icon:
-                const Icon(Icons.edit),
+            icon: const Icon(Icons.edit),
             onPressed: () {
-              _showEditDialog(
-                  context);
+              _showEditDialog(context);
             },
           )
         ],
       ),
-
       body: FutureBuilder(
-  future: getBusinessId(),
-  builder: (context, snapshot) {
+        future: getBusinessId(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-    if (!snapshot.hasData) {
-      return const Center(
-          child:
-              CircularProgressIndicator());
-    }
+          String businessId = snapshot.data.toString();
 
-    String businessId =
-        snapshot.data.toString();
+          return StreamBuilder(
+            stream: FirebaseFirestore.instance
+                .collection('businesses')
+                .doc(businessId)
+                .collection('inventoryNodes')
+                .doc(widget.itemId)
+                .snapshots(),
+            builder: (context, snap) {
+              if (!snap.hasData) {
+                return const SizedBox();
+              }
 
-    return StreamBuilder(
-      stream: FirebaseFirestore
-          .instance
-          .collection('businesses')
-          .doc(businessId)
-          .collection(
-              'inventoryNodes')
-          .doc(widget.itemId)
-          .snapshots(),
+              final data = snap.data!.data()!;
 
-      builder: (context, snap) {
-
-        if (!snap.hasData) {
-          return const SizedBox();
-        }
-
-        final data =
-            snap.data!.data()!;
-
-        return Padding(
-          padding:
-              const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
-            children: [
-
-              Text(
-                "Total Quantity: "
-                "${data['quantity']}",
-                style:
-                    const TextStyle(
-                        fontSize: 18),
-              ),
-
-              const SizedBox(height: 20),
-
-Row(
-  mainAxisAlignment:
-      MainAxisAlignment.spaceEvenly,
-  children: [
-
-    ElevatedButton.icon(
-      onPressed: () {
-        _adjustStock(true);
-      },
-      icon: const Icon(Icons.add),
-      label: const Text("Add"),
-    ),
-
-    ElevatedButton.icon(
-      onPressed: () {
-        _adjustStock(false);
-      },
-      icon: const Icon(Icons.remove),
-      label: const Text("Remove"),
-    ),
-  ],
-),
-
-              Text(
-                "Rent Price: ₹"
-                "${data['rentPrice']}",
-                style:
-                    const TextStyle(
-                        fontSize: 18),
-              ),
-
-              const SizedBox(
-                  height: 20),
-
-              const Text(
-                "Description:",
-                style: TextStyle(
-                    fontWeight:
-                        FontWeight.bold),
-              ),
-
-              Text(
-                data['description']
-                        ??
-                    "-",
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  },
-),
+              return Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (data['imageUrl'] != null)
+                      Center(
+                        child: Column(
+                          children: [
+                            Image.network(
+                              data['imageUrl'],
+                              height: 180,
+                              fit: BoxFit.cover,
+                            ),
+                            const SizedBox(height: 10),
+                            ElevatedButton.icon(
+                              icon: const Icon(Icons.image),
+                              label: const Text("Change Image"),
+                              onPressed: () {
+                                _changeItemImage();
+                              },
+                            ),
+                            const SizedBox(height: 20),
+                          ],
+                        ),
+                      ),
+                    Text(
+                      "Total Quantity: "
+                      "${data['quantity']}",
+                      style: const TextStyle(fontSize: 18),
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            _adjustStock(true);
+                          },
+                          icon: const Icon(Icons.add),
+                          label: const Text("Add"),
+                        ),
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            _adjustStock(false);
+                          },
+                          icon: const Icon(Icons.remove),
+                          label: const Text("Remove"),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      "Rent Price: ₹"
+                      "${data['rentPrice']}",
+                      style: const TextStyle(fontSize: 18),
+                    ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      "Description:",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      data['description'] ?? "-",
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }
