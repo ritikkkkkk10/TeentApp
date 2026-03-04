@@ -36,6 +36,7 @@ class _InventoryPickerScreenState
 
   DateTime? startDate;
   DateTime? endDate;
+  bool showAllItems = false;
 
   /// =====================================================
   /// LOAD BOOKING DATES
@@ -79,8 +80,9 @@ class _InventoryPickerScreenState
 }
 
     return FirebaseFirestore.instance
-        .collectionGroup("bookedItems")
-        .snapshots()
+    .collectionGroup("bookedItems")
+    .where("businessId", isEqualTo: businessId)
+    .snapshots()
         .map((snapshot) {
 
       Map<String, int> bookedMap = {};
@@ -144,15 +146,44 @@ class _InventoryPickerScreenState
     .doc(businessId)
     .collection("inventoryNodes");
 
-if (widget.parentId == null) {
-  query = query.where("parentId", isNull: true);
-} else {
-  query = query.where("parentId", isEqualTo: widget.parentId);
+if (!showAllItems) {
+  if (widget.parentId == null) {
+    query = query.where("parentId", isNull: true);
+  } else {
+    query = query.where("parentId", isEqualTo: widget.parentId);
+  }
 }
 
     return Scaffold(
      appBar: AppBar(
   title: const Text("Select"),
+  actions: [
+
+    TextButton(
+      onPressed: () {
+        setState(() {
+          showAllItems = true;
+        });
+      },
+      child: const Text(
+        "All",
+        style: TextStyle(color: Colors.white),
+      ),
+    ),
+
+    TextButton(
+      onPressed: () {
+        setState(() {
+          showAllItems = false;
+        });
+      },
+      child: const Text(
+        "Category",
+        style: TextStyle(color: Colors.white),
+      ),
+    ),
+
+  ],
 ),
 
       body: StreamBuilder(
@@ -194,23 +225,29 @@ if (widget.parentId == null) {
   /// CATEGORY
   /// =====================
   if (type == "category") {
-    return ListTile(
-      leading: const Icon(Icons.folder),
-      title: Text(node["name"]),
-      trailing: const Icon(Icons.arrow_forward),
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => InventoryPickerScreen(
-              bookingId: widget.bookingId,
-              parentId: node.id,
-            ),
-          ),
-        );
-      },
-    );
+
+  /// hide folders in ALL ITEMS mode
+  if (showAllItems) {
+    return const SizedBox();
   }
+
+  return ListTile(
+    leading: const Icon(Icons.folder),
+    title: Text(node["name"]),
+    trailing: const Icon(Icons.arrow_forward),
+    onTap: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => InventoryPickerScreen(
+            bookingId: widget.bookingId,
+            parentId: node.id,
+          ),
+        ),
+      );
+    },
+  );
+}
 
   /// =====================
   /// SERVICE

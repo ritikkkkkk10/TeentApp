@@ -15,18 +15,21 @@ class BookedItemModel {
   final DateTime bookingStartDate;
   final DateTime bookingEndDate;
 
-  BookedItemModel({
-    required this.id,
-    required this.inventoryItemId,
-    required this.itemName,
-    required this.requestedQuantity,
-    required this.availableQuantityAtBooking,
-    required this.shortageQuantity,
-    required this.rentPriceSnapshot,
-    required this.createdAt,
-    required this.bookingStartDate,
-    required this.bookingEndDate,
-  });
+  final String? businessId;
+
+BookedItemModel({
+  required this.id,
+  required this.inventoryItemId,
+  required this.itemName,
+  required this.requestedQuantity,
+  required this.availableQuantityAtBooking,
+  required this.shortageQuantity,
+  required this.rentPriceSnapshot,
+  required this.createdAt,
+  required this.bookingStartDate,
+  required this.bookingEndDate,
+  this.businessId,
+});
 
   Map<String, dynamic> toMap() {
     return {
