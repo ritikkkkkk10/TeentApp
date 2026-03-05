@@ -10,38 +10,28 @@ class CreateBookingScreen extends StatefulWidget {
   const CreateBookingScreen({super.key});
 
   @override
-  State<CreateBookingScreen> createState()
-      => _CreateBookingScreenState();
+  State<CreateBookingScreen> createState() => _CreateBookingScreenState();
 }
 
-class _CreateBookingScreenState
-    extends State<CreateBookingScreen> {
+class _CreateBookingScreenState extends State<CreateBookingScreen> {
+  final TextEditingController eventController = TextEditingController();
 
-  final TextEditingController eventController =
-      TextEditingController();
+  final TextEditingController customerController = TextEditingController();
 
-  final TextEditingController customerController =
-      TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
 
-  final TextEditingController phoneController =
-      TextEditingController();
-
-  final TextEditingController addressController =
-      TextEditingController();
+  final TextEditingController addressController = TextEditingController();
 
   DateTime? startDate;
   DateTime? endDate;
 
-  final BookingRepository repository =
-      BookingRepository();
+  final BookingRepository repository = BookingRepository();
 
   /// ===============================
   /// DATE PICKER
   /// ===============================
   Future<void> pickDate(bool isStart) async {
-
-    DateTime? picked =
-        await showDatePicker(
+    DateTime? picked = await showDatePicker(
       context: context,
       firstDate: DateTime.now(),
       lastDate: DateTime(2030),
@@ -63,54 +53,36 @@ class _CreateBookingScreenState
   /// SAVE BOOKING + OPEN ITEMS
   /// ===============================
   Future<void> saveBooking() async {
-
-    if (startDate == null ||
-        endDate == null) {
-
-      ScaffoldMessenger.of(context)
-          .showSnackBar(
-        const SnackBar(
-            content:
-                Text("Select dates")),
+    if (startDate == null || endDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Select dates")),
       );
       return;
     }
 
-    String bookingId =
-        const Uuid().v4();
+    String bookingId = const Uuid().v4();
 
-    BookingModel booking =
-        BookingModel(
+    BookingModel booking = BookingModel(
       id: bookingId,
-      eventName:
-          eventController.text,
-      customerName:
-          customerController.text,
-      customerPhone:
-          phoneController.text,
-      customerAddress:
-          addressController.text,
-      startDate:
-          startDate!,
-      endDate:
-          endDate!,
+      eventName: eventController.text,
+      customerName: customerController.text,
+      customerPhone: phoneController.text,
+      customerAddress: addressController.text,
+      startDate: startDate!,
+      endDate: endDate!,
       status: "confirmed",
-      createdAt:
-          Timestamp.now(),
+      createdAt: Timestamp.now(),
     );
 
     /// CREATE BOOKING
-    await repository
-        .createBooking(booking);
+    await repository.createBooking(booking);
 
     /// OPEN ITEM PICKER
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (_) =>
-            InventoryPickerScreen(
-          bookingId:
-              bookingId,
+        builder: (_) => InventoryPickerScreen(
+          bookingId: bookingId,
         ),
       ),
     );
@@ -121,97 +93,59 @@ class _CreateBookingScreenState
   /// ===============================
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
-        title:
-            const Text("Create Booking"),
+        title: const Text("Create Booking"),
       ),
       body: Padding(
-        padding:
-            const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: ListView(
           children: [
-
             TextField(
-              controller:
-                  eventController,
-              decoration:
-                  const InputDecoration(
-                labelText:
-                    "Event Name",
+              controller: eventController,
+              decoration: const InputDecoration(
+                labelText: "Event Name",
               ),
             ),
-
             TextField(
-              controller:
-                  customerController,
-              decoration:
-                  const InputDecoration(
-                labelText:
-                    "Customer Name",
+              controller: customerController,
+              decoration: const InputDecoration(
+                labelText: "Customer Name",
               ),
             ),
-
             TextField(
-              controller:
-                  phoneController,
-              decoration:
-                  const InputDecoration(
-                labelText:
-                    "Phone",
+              controller: phoneController,
+              decoration: const InputDecoration(
+                labelText: "Phone",
               ),
             ),
-
             TextField(
-              controller:
-                  addressController,
-              decoration:
-                  const InputDecoration(
-                labelText:
-                    "Customer Address",
+              controller: addressController,
+              decoration: const InputDecoration(
+                labelText: "Customer Address",
               ),
             ),
-
-            const SizedBox(
-                height: 20),
-
+            const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () =>
-                  pickDate(true),
+              onPressed: () => pickDate(true),
               child: Text(
                 startDate == null
                     ? "Select Start Date"
-                    : startDate!
-                        .toLocal()
-                        .toString()
-                        .split(
-                            " ")[0],
+                    : startDate!.toLocal().toString().split(" ")[0],
               ),
             ),
-
             ElevatedButton(
-              onPressed: () =>
-                  pickDate(false),
+              onPressed: () => pickDate(false),
               child: Text(
                 endDate == null
                     ? "Select End Date"
-                    : endDate!
-                        .toLocal()
-                        .toString()
-                        .split(
-                            " ")[0],
+                    : endDate!.toLocal().toString().split(" ")[0],
               ),
             ),
-
-            const SizedBox(
-                height: 30),
-
+            const SizedBox(height: 30),
             ElevatedButton(
-              onPressed:
-                  saveBooking,
-              child: const Text(
-                  "Save & Add Items"),
+              onPressed: saveBooking,
+              child: const Text("Save & Add Items"),
             ),
           ],
         ),

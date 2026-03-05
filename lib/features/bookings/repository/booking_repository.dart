@@ -4,15 +4,11 @@ import '../models/booked_item_model.dart';
 import '../models/booking_service_model.dart';
 
 class BookingRepository {
-
-  final FirebaseFirestore _firestore =
-      FirebaseFirestore.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   final String businessId = "demo_business";
 
-  Future<void> createBooking(
-      BookingModel booking) async {
-
+  Future<void> createBooking(BookingModel booking) async {
     await _firestore
         .collection("businesses")
         .doc(businessId)
@@ -22,84 +18,69 @@ class BookingRepository {
   }
 
   Future<void> addBookedItem({
-  required String bookingId,
-  required BookedItemModel item,
-}) async {
+    required String bookingId,
+    required BookedItemModel item,
+  }) async {
+    final bookedItemsRef = _firestore
+        .collection("businesses")
+        .doc(businessId)
+        .collection("bookings")
+        .doc(bookingId)
+        .collection("bookedItems");
 
-  final bookedItemsRef = _firestore
-      .collection("businesses")
-      .doc(businessId)
-      .collection("bookings")
-      .doc(bookingId)
-      .collection("bookedItems");
+    /// 🔎 Check if item already exists
+    final existing = await bookedItemsRef
+        .where(
+          "inventoryItemId",
+          isEqualTo: item.inventoryItemId,
+        )
+        .get();
 
-  /// 🔎 Check if item already exists
-  final existing = await bookedItemsRef
-      .where(
-        "inventoryItemId",
-        isEqualTo: item.inventoryItemId,
-      )
-      .get();
+    /// ===============================
+    /// ITEM EXISTS → UPDATE
+    /// ===============================
+    if (existing.docs.isNotEmpty) {
+      final doc = existing.docs.first;
 
-  /// ===============================
-  /// ITEM EXISTS → UPDATE
-  /// ===============================
-  if (existing.docs.isNotEmpty) {
+      int oldQty = doc["requestedQuantity"];
 
-    final doc = existing.docs.first;
+      int oldShortage = doc["shortageQuantity"];
 
-    int oldQty =
-        doc["requestedQuantity"];
+      await doc.reference.update({
+        "requestedQuantity": oldQty + item.requestedQuantity,
+        "shortageQuantity": oldShortage + item.shortageQuantity,
+      });
+    }
 
-    int oldShortage =
-        doc["shortageQuantity"];
-
-    await doc.reference.update({
-      "requestedQuantity":
-          oldQty + item.requestedQuantity,
-
-      "shortageQuantity":
-          oldShortage +
-              item.shortageQuantity,
-    });
-
-  }
-  /// ===============================
-  /// NEW ITEM → CREATE
-  /// ===============================
-  else {
-
-    await bookedItemsRef
-        .doc(item.id)
-        .set(item.toMap());
-  }
-}
-
-Future<void> addBookingService({
-  required String bookingId,
-  required BookingServiceModel service,
-}) async {
-
-  final serviceRef = _firestore
-      .collection("businesses")
-      .doc(businessId)
-      .collection("bookings")
-      .doc(bookingId)
-      .collection("bookingServices");
-
-  /// 🔎 Check if service already exists
-  final existing = await serviceRef
-      .where("serviceId", isEqualTo: service.serviceId)
-      .get();
-
-  /// If already exists → do nothing
-  if (existing.docs.isNotEmpty) {
-    return;
+    /// ===============================
+    /// NEW ITEM → CREATE
+    /// ===============================
+    else {
+      await bookedItemsRef.doc(item.id).set(item.toMap());
+    }
   }
 
-  /// Else → create
-  await serviceRef
-      .doc(service.id)
-      .set(service.toMap());
-}
+  Future<void> addBookingService({
+    required String bookingId,
+    required BookingServiceModel service,
+  }) async {
+    final serviceRef = _firestore
+        .collection("businesses")
+        .doc(businessId)
+        .collection("bookings")
+        .doc(bookingId)
+        .collection("bookingServices");
+
+    /// 🔎 Check if service already exists
+    final existing =
+        await serviceRef.where("serviceId", isEqualTo: service.serviceId).get();
+
+    /// If already exists → do nothing
+    if (existing.docs.isNotEmpty) {
+      return;
+    }
+
+    /// Else → create
+    await serviceRef.doc(service.id).set(service.toMap());
+  }
 }

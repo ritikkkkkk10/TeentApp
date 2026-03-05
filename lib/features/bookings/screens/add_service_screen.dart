@@ -6,7 +6,6 @@ import '../../../core/services/cloudinary_service.dart';
 import '../../../core/utils/image_compressor.dart';
 
 class AddServiceScreen extends StatefulWidget {
-
   final String? parentId;
 
   const AddServiceScreen({
@@ -15,100 +14,84 @@ class AddServiceScreen extends StatefulWidget {
   });
 
   @override
-  State<AddServiceScreen> createState() =>
-      _AddServiceScreenState();
+  State<AddServiceScreen> createState() => _AddServiceScreenState();
 }
 
-class _AddServiceScreenState
-    extends State<AddServiceScreen> {
-
+class _AddServiceScreenState extends State<AddServiceScreen> {
   final ImagePicker _picker = ImagePicker();
   int currentImageIndex = 0;
 
   List<File> selectedImages = [];
   List<String> uploadedUrls = [];
 
-  final TextEditingController nameController =
-      TextEditingController();
+  final TextEditingController nameController = TextEditingController();
 
-  final TextEditingController priceController =
-      TextEditingController();
+  final TextEditingController priceController = TextEditingController();
 
-  final TextEditingController descController =
-      TextEditingController();
+  final TextEditingController descController = TextEditingController();
 
   bool isLoading = false;
 
-
   Future<void> pickImage() async {
+    int remaining = 5 - selectedImages.length;
 
-  int remaining = 5 - selectedImages.length;
+    if (remaining <= 0) return;
 
-  if (remaining <= 0) return;
+    final List<XFile> picked = await _picker.pickMultiImage();
 
-  final List<XFile> picked =
-      await _picker.pickMultiImage();
+    if (picked.isEmpty) return;
 
-  if (picked.isEmpty) return;
+    for (var img in picked.take(remaining)) {
+      File file = File(img.path);
 
-  for (var img in picked.take(remaining)) {
+      File? compressed = await compressImage(file);
 
-    File file = File(img.path);
-
-    File? compressed = await compressImage(file);
-
-    if (compressed != null) {
-      selectedImages.add(compressed);
+      if (compressed != null) {
+        selectedImages.add(compressed);
+      }
     }
+
+    setState(() {});
   }
 
-  setState(() {});
-}
+  Future<void> uploadImages() async {
+    uploadedUrls.clear();
 
-Future<void> uploadImages() async {
+    for (File file in selectedImages) {
+      String? url = await CloudinaryService.uploadImage(file);
 
-  uploadedUrls.clear();
-
-  for (File file in selectedImages) {
-
-    String? url =
-        await CloudinaryService.uploadImage(file);
-
-    if (url != null) {
-      uploadedUrls.add(url);
+      if (url != null) {
+        uploadedUrls.add(url);
+      }
     }
   }
-}
 
   Future<void> saveService() async {
+    if (nameController.text.isEmpty || priceController.text.isEmpty) {
+      return;
+    }
 
-  if (nameController.text.isEmpty ||
-      priceController.text.isEmpty) {
-    return;
+    setState(() => isLoading = true);
+
+    await uploadImages();
+
+    final service = InventoryService();
+
+    await service.addService(
+      name: nameController.text,
+      price: double.parse(priceController.text),
+      description: descController.text,
+      imageUrls: uploadedUrls,
+      parentId: widget.parentId,
+    );
+
+    setState(() => isLoading = false);
+
+    Navigator.pop(context);
   }
-
-  setState(() => isLoading = true);
-
-  await uploadImages();
-
-  final service = InventoryService();
-
-  await service.addService(
-    name: nameController.text,
-    price: double.parse(priceController.text),
-    description: descController.text,
-    imageUrls: uploadedUrls,
-    parentId: widget.parentId,
-  );
-
-  setState(() => isLoading = false);
-
-  Navigator.pop(context);
-}
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         title: const Text("Add Service"),
@@ -117,111 +100,99 @@ Future<void> uploadImages() async {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-
             TextField(
               controller: nameController,
-              decoration:
-                  const InputDecoration(
-                      labelText: "Service Name"),
+              decoration: const InputDecoration(labelText: "Service Name"),
             ),
 
             const SizedBox(height: 12),
 
             TextField(
               controller: priceController,
-              keyboardType:
-                  TextInputType.number,
-              decoration:
-                  const InputDecoration(
-                      labelText: "Price"),
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: "Price"),
             ),
 
             const SizedBox(height: 12),
 
             TextField(
-  controller: descController,
-  maxLines: 3,
-  decoration:
-      const InputDecoration(
-          labelText: "Description"),
-),
+              controller: descController,
+              maxLines: 3,
+              decoration: const InputDecoration(labelText: "Description"),
+            ),
 
-const SizedBox(height: 16),
+            const SizedBox(height: 16),
 
-/// ADD PHOTO BUTTON
-ElevatedButton.icon(
-  onPressed: pickImage,
-  icon: const Icon(Icons.photo_library),
-  label: Text(
-    "Add Photos (${selectedImages.length}/5)",
-  ),
-),
-
-const SizedBox(height: 16),
-
-/// IMAGE PREVIEW SLIDER
-if (selectedImages.isNotEmpty)
-Column(
-  children: [
-
-    SizedBox(
-      height: 200,
-      child: PageView.builder(
-        itemCount: selectedImages.length,
-        onPageChanged: (index) {
-          setState(() {
-            currentImageIndex = index;
-          });
-        },
-        itemBuilder: (context, index) {
-
-          return Padding(
-            padding: const EdgeInsets.all(8),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Image.file(
-                selectedImages[index],
-                fit: BoxFit.cover,
+            /// ADD PHOTO BUTTON
+            ElevatedButton.icon(
+              onPressed: pickImage,
+              icon: const Icon(Icons.photo_library),
+              label: Text(
+                "Add Photos (${selectedImages.length}/5)",
               ),
             ),
-          );
-        },
-      ),
-    ),
 
-    const SizedBox(height: 8),
+            const SizedBox(height: 16),
 
-    /// DOT INDICATOR
-    Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(
-        selectedImages.length,
-        (index) => Container(
-          margin: const EdgeInsets.symmetric(horizontal: 4),
-          width: currentImageIndex == index ? 10 : 6,
-          height: currentImageIndex == index ? 10 : 6,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: currentImageIndex == index
-                ? Colors.blue
-                : Colors.grey,
-          ),
-        ),
-      ),
-    ),
-  ],
-),
+            /// IMAGE PREVIEW SLIDER
+            if (selectedImages.isNotEmpty)
+              Column(
+                children: [
+                  SizedBox(
+                    height: 200,
+                    child: PageView.builder(
+                      itemCount: selectedImages.length,
+                      onPageChanged: (index) {
+                        setState(() {
+                          currentImageIndex = index;
+                        });
+                      },
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Image.file(
+                              selectedImages[index],
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
 
-const SizedBox(height: 24),
+                  const SizedBox(height: 8),
+
+                  /// DOT INDICATOR
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(
+                      selectedImages.length,
+                      (index) => Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        width: currentImageIndex == index ? 10 : 6,
+                        height: currentImageIndex == index ? 10 : 6,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: currentImageIndex == index
+                              ? Colors.blue
+                              : Colors.grey,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+            const SizedBox(height: 24),
 
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed:
-                    isLoading ? null : saveService,
+                onPressed: isLoading ? null : saveService,
                 child: isLoading
-                    ? const CircularProgressIndicator(
-                        color: Colors.white)
+                    ? const CircularProgressIndicator(color: Colors.white)
                     : const Text("Save Service"),
               ),
             )

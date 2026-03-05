@@ -7,7 +7,6 @@ import '../models/booked_item_model.dart';
 import '../models/temp_selected_item.dart';
 
 class SelectItemsScreen extends StatefulWidget {
-
   final String bookingId;
 
   const SelectItemsScreen({
@@ -16,44 +15,30 @@ class SelectItemsScreen extends StatefulWidget {
   });
 
   @override
-  State<SelectItemsScreen> createState()
-      => _SelectItemsScreenState();
+  State<SelectItemsScreen> createState() => _SelectItemsScreenState();
 }
 
-class _SelectItemsScreenState
-    extends State<SelectItemsScreen> {
-
-      DateTime? startDate;
-DateTime? endDate;
+class _SelectItemsScreenState extends State<SelectItemsScreen> {
+  DateTime? startDate;
+  DateTime? endDate;
 
   final String businessId = "demo_business";
-  final BookingRepository repo =
-      BookingRepository();
+  final BookingRepository repo = BookingRepository();
 
   /// ⭐ LOCAL CART
-  Map<String, TempSelectedItem>
-      selectedItems = {};
+  Map<String, TempSelectedItem> selectedItems = {};
 
   /// ===============================
   /// ADD QUICKLY
   /// ===============================
   void quickAdd(DocumentSnapshot item) {
-
-    if (selectedItems
-        .containsKey(item.id)) {
-
-      selectedItems[item.id]!
-          .quantity++;
-
+    if (selectedItems.containsKey(item.id)) {
+      selectedItems[item.id]!.quantity++;
     } else {
-
-      selectedItems[item.id] =
-          TempSelectedItem(
+      selectedItems[item.id] = TempSelectedItem(
         inventoryItemId: item.id,
         name: item["name"],
-        rentPrice:
-            item["rentPrice"]
-                .toDouble(),
+        rentPrice: item["rentPrice"].toDouble(),
         quantity: 1,
       );
     }
@@ -64,11 +49,8 @@ DateTime? endDate;
   /// ===============================
   /// QUANTITY POPUP
   /// ===============================
-  void openQtyDialog(
-      DocumentSnapshot item) {
-
-    TextEditingController controller =
-        TextEditingController();
+  void openQtyDialog(DocumentSnapshot item) {
+    TextEditingController controller = TextEditingController();
 
     showDialog(
       context: context,
@@ -76,32 +58,19 @@ DateTime? endDate;
         title: Text(item["name"]),
         content: TextField(
           controller: controller,
-          keyboardType:
-              TextInputType.number,
-          decoration:
-              const InputDecoration(
-                  labelText:
-                      "Quantity"),
+          keyboardType: TextInputType.number,
+          decoration: const InputDecoration(labelText: "Quantity"),
         ),
         actions: [
           TextButton(
-            child:
-                const Text("OK"),
+            child: const Text("OK"),
             onPressed: () {
+              int qty = int.parse(controller.text);
 
-              int qty =
-                  int.parse(
-                      controller.text);
-
-              selectedItems[item.id] =
-                  TempSelectedItem(
-                inventoryItemId:
-                    item.id,
-                name:
-                    item["name"],
-                rentPrice:
-                    item["rentPrice"]
-                        .toDouble(),
+              selectedItems[item.id] = TempSelectedItem(
+                inventoryItemId: item.id,
+                name: item["name"],
+                rentPrice: item["rentPrice"].toDouble(),
                 quantity: qty,
               );
 
@@ -118,31 +87,22 @@ DateTime? endDate;
   /// SAVE ALL ITEMS
   /// ===============================
   Future<void> saveItems() async {
-
-    for (var item
-        in selectedItems.values) {
-
+    for (var item in selectedItems.values) {
       await repo.addBookedItem(
-        bookingId:
-            widget.bookingId,
+        bookingId: widget.bookingId,
         item: BookedItemModel(
           id: const Uuid().v4(),
-          inventoryItemId:
-              item.inventoryItemId,
+          inventoryItemId: item.inventoryItemId,
           itemName: item.name,
-          requestedQuantity:
-              item.quantity,
-          availableQuantityAtBooking:
-              0,
+          requestedQuantity: item.quantity,
+          availableQuantityAtBooking: 0,
           shortageQuantity: 0,
-          rentPriceSnapshot:
-              item.rentPrice,
-          createdAt:
-              Timestamp.now(),
+          rentPriceSnapshot: item.rentPrice,
+          createdAt: Timestamp.now(),
 
-              /// ✅ ADD THESE
-  bookingStartDate: startDate!,
-  bookingEndDate: endDate!,
+          /// ✅ ADD THESE
+          bookingStartDate: startDate!,
+          bookingEndDate: endDate!,
         ),
       );
     }
@@ -155,73 +115,41 @@ DateTime? endDate;
   /// ===============================
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
-      appBar:
-          AppBar(title:
-              const Text("Select Items")),
-
-      floatingActionButton:
-          FloatingActionButton.extended(
+      appBar: AppBar(title: const Text("Select Items")),
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: saveItems,
         label: const Text("Done"),
       ),
-
       body: StreamBuilder(
-        stream: FirebaseFirestore
-            .instance
+        stream: FirebaseFirestore.instance
             .collection("businesses")
             .doc(businessId)
-            .collection(
-                "inventoryNodes")
-            .where("type",
-                isEqualTo: "item")
+            .collection("inventoryNodes")
+            .where("type", isEqualTo: "item")
             .snapshots(),
-
-        builder:
-            (context, snapshot) {
-
+        builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return const Center(
-                child:
-                    CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
 
-          var items =
-              snapshot.data!.docs;
+          var items = snapshot.data!.docs;
 
           return ListView.builder(
-            itemCount:
-                items.length,
-            itemBuilder:
-                (context, index) {
+            itemCount: items.length,
+            itemBuilder: (context, index) {
+              var item = items[index];
 
-              var item =
-                  items[index];
-
-              int qty =
-                  selectedItems[
-                              item.id]
-                          ?.quantity ??
-                      0;
+              int qty = selectedItems[item.id]?.quantity ?? 0;
 
               return ListTile(
-                title:
-                    Text(item["name"]),
-                subtitle:
-                    Text("Qty: $qty"),
-
-                trailing:
-                    ElevatedButton(
-                  onPressed: () =>
-                      quickAdd(item),
-                  child:
-                      const Text("+ Add"),
+                title: Text(item["name"]),
+                subtitle: Text("Qty: $qty"),
+                trailing: ElevatedButton(
+                  onPressed: () => quickAdd(item),
+                  child: const Text("+ Add"),
                 ),
-
-                onTap: () =>
-                    openQtyDialog(
-                        item),
+                onTap: () => openQtyDialog(item),
               );
             },
           );

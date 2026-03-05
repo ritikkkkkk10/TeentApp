@@ -8,7 +8,7 @@ import 'dispatch_items_screen.dart';
 
 class BookingDetailScreen extends StatefulWidget {
   final String bookingId;
-   final String businessId;
+  final String businessId;
 
   const BookingDetailScreen({
     super.key,
@@ -85,27 +85,26 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
           );
         },
       ),
-      
       body: Column(
         children: [
           /// =========================
           /// BOOKED ITEMS
           /// =========================
-          /// 
+          ///
           ElevatedButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => DispatchItemsScreen(
-                  businessId: widget.businessId,
-                  bookingId: widget.bookingId,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => DispatchItemsScreen(
+                    businessId: widget.businessId,
+                    bookingId: widget.bookingId,
+                  ),
                 ),
-              ),
-            );
-          },
-          child: const Text("Dispatch Items"),
-        ),
+              );
+            },
+            child: const Text("Dispatch Items"),
+          ),
           Expanded(
             child: StreamBuilder(
               stream: FirebaseFirestore.instance
@@ -127,20 +126,30 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                 return ListView(
                   children: [
                     /// ITEMS
-                    ...items.map((item) {
-                      return ListTile(
-                        leading: const Icon(Icons.inventory),
-                        title: Text(item["itemName"]),
-                        subtitle: Text("Qty: ${item["requestedQuantity"]}"),
-                        onTap: () => editQuantity(context, item),
-                        trailing: item["shortageQuantity"] > 0
-                            ? Text(
-                                "Shortage: ${item["shortageQuantity"]}",
-                                style: const TextStyle(color: Colors.red),
-                              )
-                            : null,
-                      );
-                    }),
+                   ...items.map((item) {
+
+  final data = item.data() as Map<String, dynamic>;
+
+  final requestedQty = data["requestedQuantity"] ?? 0;
+  final dispatchedQty = data["dispatchedQuantity"] ?? 0;
+
+  final displayQty =
+      dispatchedQty > 0 ? dispatchedQty : requestedQty;
+
+  return ListTile(
+    leading: const Icon(Icons.inventory),
+    title: Text(data["itemName"] ?? ""),
+    subtitle: Text("Qty: $displayQty"),
+    onTap: () => editQuantity(context, item),
+    trailing: (data["shortageQuantity"] ?? 0) > 0
+        ? Text(
+            "Shortage: ${data["shortageQuantity"]}",
+            style: const TextStyle(color: Colors.red),
+          )
+        : null,
+  );
+
+}),
 
                     /// =========================
                     /// SERVICES

@@ -138,45 +138,43 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Container(
-  height: 40,
-  decoration: BoxDecoration(
-    color: Colors.grey.shade200,
-    borderRadius: BorderRadius.circular(10),
-  ),
-  child: TextField(
-    controller: searchController,
-    decoration: InputDecoration(
-      hintText: "Search inventory...",
-      prefixIcon: const Icon(Icons.search),
-      border: InputBorder.none,
-      contentPadding: const EdgeInsets.symmetric(vertical: 10),
-      suffixIcon: searchText.isNotEmpty
-          ? IconButton(
-              icon: const Icon(Icons.close),
-              onPressed: () {
-                searchController.clear();
+          height: 40,
+          decoration: BoxDecoration(
+            color: Colors.grey.shade200,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: TextField(
+            controller: searchController,
+            decoration: InputDecoration(
+              hintText: "Search inventory...",
+              prefixIcon: const Icon(Icons.search),
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(vertical: 10),
+              suffixIcon: searchText.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () {
+                        searchController.clear();
+                        setState(() {
+                          searchText = "";
+                        });
+                      },
+                    )
+                  : null,
+            ),
+            onChanged: (value) {
+              if (_debounce?.isActive ?? false) {
+                _debounce!.cancel();
+              }
+
+              _debounce = Timer(const Duration(milliseconds: 300), () {
                 setState(() {
-                  searchText = "";
+                  searchText = value.toLowerCase();
                 });
-              },
-            )
-          : null,
-    ),
-    onChanged: (value) {
-
-      if (_debounce?.isActive ?? false) {
-        _debounce!.cancel();
-      }
-
-      _debounce = Timer(const Duration(milliseconds: 300), () {
-        setState(() {
-          searchText = value.toLowerCase();
-        });
-      });
-
-    },
-  ),
-),
+              });
+            },
+          ),
+        ),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 10),
@@ -217,194 +215,190 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
         ],
       ),
       body: Column(
-  children: [
+        children: [
+          /// SEARCH BAR
+          Padding(
+            padding: const EdgeInsets.all(10),
+            child: TextField(
+              controller: searchController,
+              decoration: InputDecoration(
+                hintText: "Search inventory...",
+                prefixIcon: const Icon(Icons.search),
+                filled: true,
+                fillColor: Colors.grey.shade200,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+              onChanged: (value) {
+                if (_debounce?.isActive ?? false) {
+                  _debounce!.cancel();
+                }
 
-    /// SEARCH BAR
-    Padding(
-      padding: const EdgeInsets.all(10),
-      child: TextField(
-        controller: searchController,
-        decoration: InputDecoration(
-          hintText: "Search inventory...",
-          prefixIcon: const Icon(Icons.search),
-          filled: true,
-          fillColor: Colors.grey.shade200,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide.none,
+                _debounce = Timer(const Duration(milliseconds: 300), () {
+                  setState(() {
+                    searchText = value.toLowerCase();
+                  });
+                });
+              },
+            ),
           ),
-        ),
-        onChanged: (value) {
-          if (_debounce?.isActive ?? false) {
-            _debounce!.cancel();
-          }
 
-          _debounce = Timer(const Duration(milliseconds: 300), () {
-            setState(() {
-              searchText = value.toLowerCase();
-            });
-          }
-          );
-        },
-      ),
-    ),
-        
+          /// YOUR EXISTING STREAMBUILDER
+          Expanded(
+            child: StreamBuilder(
+              stream: query.snapshots(),
+              builder: (context, inventorySnap) {
+                if (!inventorySnap.hasData) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
 
-    /// YOUR EXISTING STREAMBUILDER
-    Expanded(
-      child: StreamBuilder(
-        stream: query.snapshots(),
-        builder: (context, inventorySnap) {
-          if (!inventorySnap.hasData) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
+                var nodes = inventorySnap.data!.docs;
 
-          var nodes = inventorySnap.data!.docs;
+                /// SEARCH FILTER
+                if (searchText.isNotEmpty) {
+                  nodes = nodes.where((doc) {
+                    String name = (doc["name"] ?? "").toLowerCase();
 
-          /// SEARCH FILTER
-          if (searchText.isNotEmpty) {
-            nodes = nodes.where((doc) {
-              String name = (doc["name"] ?? "").toLowerCase();
+                    /// apply filter buttons also
+                    if (filterMode != "category" && doc["type"] != filterMode) {
+                      return false;
+                    }
 
-              /// apply filter buttons also
-              if (filterMode != "category" && doc["type"] != filterMode) {
-                return false;
-              }
+                    return name.contains(searchText);
+                  }).toList();
+                }
 
-              return name.contains(searchText);
-            }).toList();
-          }
+                List categories = [];
+                List items = [];
+                List services = [];
 
-          List categories = [];
-          List items = [];
-          List services = [];
+                for (var node in nodes) {
+                  if (node["type"] == "category") {
+                    categories.add(node);
+                  } else if (node["type"] == "item") {
+                    items.add(node);
+                  } else if (node["type"] == "service") {
+                    services.add(node);
+                  }
+                }
 
-          for (var node in nodes) {
-            if (node["type"] == "category") {
-              categories.add(node);
-            } else if (node["type"] == "item") {
-              items.add(node);
-            } else if (node["type"] == "service") {
-              services.add(node);
-            }
-          }
+                return StreamBuilder<Map<String, int>>(
+                  stream: dateAwareBookedItemsStream(),
+                  builder: (context, bookedSnap) {
+                    final bookedMap = bookedSnap.data ?? {};
 
-          return StreamBuilder<Map<String, int>>(
-            stream: dateAwareBookedItemsStream(),
-            builder: (context, bookedSnap) {
-              final bookedMap = bookedSnap.data ?? {};
-
-              return ListView(
-                children: [
-                  /// CATEGORIES
-                  if (categories.isNotEmpty)
-                    const Padding(
-                      padding: EdgeInsets.all(8),
-                      child: Text(
-                        "Categories",
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-
-                  ...categories.map((node) {
-                    return ListTile(
-                      leading: const Icon(Icons.folder),
-                      title: Text(node["name"]),
-                      trailing: const Icon(Icons.arrow_forward),
-                      onTap: () {
-                        /// if searching, clear search and open folder
-                        if (searchText.isNotEmpty) {
-                          searchController.clear();
-                          searchText = "";
-                        }
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => InventoryPickerScreen(
-                              bookingId: widget.bookingId,
-                              parentId: node.id,
+                    return ListView(
+                      children: [
+                        /// CATEGORIES
+                        if (categories.isNotEmpty)
+                          const Padding(
+                            padding: EdgeInsets.all(8),
+                            child: Text(
+                              "Categories",
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                           ),
-                        );
-                      },
+
+                        ...categories.map((node) {
+                          return ListTile(
+                            leading: const Icon(Icons.folder),
+                            title: Text(node["name"]),
+                            trailing: const Icon(Icons.arrow_forward),
+                            onTap: () {
+                              /// if searching, clear search and open folder
+                              if (searchText.isNotEmpty) {
+                                searchController.clear();
+                                searchText = "";
+                              }
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => InventoryPickerScreen(
+                                    bookingId: widget.bookingId,
+                                    parentId: node.id,
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        }),
+
+                        /// ITEMS
+                        if (items.isNotEmpty)
+                          const Padding(
+                            padding: EdgeInsets.all(8),
+                            child: Text(
+                              "Items",
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+
+                        ...items.map((node) {
+                          int total = (node["quantity"] as num?)?.toInt() ?? 0;
+                          int booked = bookedMap[node.id] ?? 0;
+                          int available = total - booked;
+
+                          return ListTile(
+                            leading: const Icon(Icons.inventory),
+                            title: Text(node["name"]),
+                            subtitle: Text("Available: $available"),
+                            onTap: () => openQtyDialog(context, node),
+                          );
+                        }),
+
+                        /// SERVICES
+                        if (services.isNotEmpty)
+                          const Padding(
+                            padding: EdgeInsets.all(8),
+                            child: Text(
+                              "Services",
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+
+                        ...services.map((node) {
+                          return ListTile(
+                            leading: const Icon(Icons.miscellaneous_services),
+                            title: Text(node["name"]),
+                            subtitle: Text(
+                                "₹ ${(node["price"] as num?)?.toDouble() ?? 0}"),
+                            onTap: () async {
+                              final service = BookingServiceModel(
+                                id: const Uuid().v4(),
+                                serviceId: node.id,
+                                serviceName: node["name"],
+                                priceSnapshot:
+                                    (node["price"] as num?)?.toDouble() ?? 0,
+                                createdAt: Timestamp.now(),
+                              );
+
+                              await repo.addBookingService(
+                                bookingId: widget.bookingId,
+                                service: service,
+                              );
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text("Service Added")),
+                              );
+                            },
+                          );
+                        }),
+                      ],
                     );
-                  }),
-
-                  /// ITEMS
-                  if (items.isNotEmpty)
-                    const Padding(
-                      padding: EdgeInsets.all(8),
-                      child: Text(
-                        "Items",
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-
-                  ...items.map((node) {
-                    int total = (node["quantity"] as num?)?.toInt() ?? 0;
-                    int booked = bookedMap[node.id] ?? 0;
-                    int available = total - booked;
-
-                    return ListTile(
-                      leading: const Icon(Icons.inventory),
-                      title: Text(node["name"]),
-                      subtitle: Text("Available: $available"),
-                      onTap: () => openQtyDialog(context, node),
-                    );
-                  }),
-
-                  /// SERVICES
-                  if (services.isNotEmpty)
-                    const Padding(
-                      padding: EdgeInsets.all(8),
-                      child: Text(
-                        "Services",
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-
-                  ...services.map((node) {
-                    return ListTile(
-                      leading: const Icon(Icons.miscellaneous_services),
-                      title: Text(node["name"]),
-                      subtitle:
-                          Text("₹ ${(node["price"] as num?)?.toDouble() ?? 0}"),
-                      onTap: () async {
-                        final service = BookingServiceModel(
-                          id: const Uuid().v4(),
-                          serviceId: node.id,
-                          serviceName: node["name"],
-                          priceSnapshot:
-                              (node["price"] as num?)?.toDouble() ?? 0,
-                          createdAt: Timestamp.now(),
-                        );
-
-                        await repo.addBookingService(
-                          bookingId: widget.bookingId,
-                          service: service,
-                        );
-
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Service Added")),
-                        );
-                      },
-                    );
-                  }),
-                ],
-              );
-            },
-          );
-        },
-      ),
+                  },
+                );
+              },
+            ),
           ),
-
-  ],
-),
+        ],
+      ),
     );
   }
 
