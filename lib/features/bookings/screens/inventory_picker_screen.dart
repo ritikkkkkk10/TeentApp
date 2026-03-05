@@ -28,6 +28,8 @@ class InventoryPickerScreen extends StatefulWidget {
 class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
   final String businessId = "demo_business";
   final BookingRepository repo = BookingRepository();
+  TextEditingController searchController = TextEditingController();
+  String searchText = "";
 
   DateTime? startDate;
   DateTime? endDate;
@@ -67,7 +69,7 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
 
     return FirebaseFirestore.instance
         .collectionGroup("bookedItems")
-.snapshots()
+        .snapshots()
         .map((snapshot) {
       Map<String, int> bookedMap = {};
 
@@ -112,72 +114,77 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
     }
 
     Query query = FirebaseFirestore.instance
-    .collection("businesses")
-    .doc(businessId)
-    .collection("inventoryNodes");
+        .collection("businesses")
+        .doc(businessId)
+        .collection("inventoryNodes");
 
-if (filterMode != "category") {
-  query = query.where("type", isEqualTo: filterMode);
-}
+    /// NORMAL BROWSING MODE (no search)
+    if (searchText.isEmpty) {
+      if (filterMode != "category") {
+        query = query.where("type", isEqualTo: filterMode);
+      }
 
-/// apply category hierarchy only when browsing categories
-if (filterMode == "category") {
-
-  if (widget.parentId == null) {
-    query = query.where("parentId", isNull: true);
-  } else {
-    query = query.where("parentId", isEqualTo: widget.parentId);
-  }
-
-}
+      if (filterMode == "category") {
+        if (widget.parentId == null) {
+          query = query.where("parentId", isNull: true);
+        } else {
+          query = query.where("parentId", isEqualTo: widget.parentId);
+        }
+      }
+    }
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Select"),
+        title: TextField(
+          controller: searchController,
+          decoration: const InputDecoration(
+            hintText: "Search items, categories, services",
+            border: InputBorder.none,
+          ),
+          onChanged: (value) {
+            setState(() {
+              searchText = value.toLowerCase();
+            });
+          },
+        ),
         actions: [
-  Padding(
-    padding: const EdgeInsets.only(right: 10),
-    child: Row(
-      children: [
-
-        ChoiceChip(
-          label: const Text("Items"),
-          selected: filterMode == "item",
-          onSelected: (_) {
-            setState(() {
-              filterMode = "item";
-            });
-          },
-        ),
-
-        const SizedBox(width: 6),
-
-        ChoiceChip(
-          label: const Text("Categories"),
-          selected: filterMode == "category",
-          onSelected: (_) {
-            setState(() {
-              filterMode = "category";
-            });
-          },
-        ),
-
-        const SizedBox(width: 6),
-
-        ChoiceChip(
-          label: const Text("Services"),
-          selected: filterMode == "service",
-          onSelected: (_) {
-            setState(() {
-              filterMode = "service";
-            });
-          },
-        ),
-
-      ],
-    ),
-  )
-],
+          Padding(
+            padding: const EdgeInsets.only(right: 10),
+            child: Row(
+              children: [
+                ChoiceChip(
+                  label: const Text("Items"),
+                  selected: filterMode == "item",
+                  onSelected: (_) {
+                    setState(() {
+                      filterMode = "item";
+                    });
+                  },
+                ),
+                const SizedBox(width: 6),
+                ChoiceChip(
+                  label: const Text("Categories"),
+                  selected: filterMode == "category",
+                  onSelected: (_) {
+                    setState(() {
+                      filterMode = "category";
+                    });
+                  },
+                ),
+                const SizedBox(width: 6),
+                ChoiceChip(
+                  label: const Text("Services"),
+                  selected: filterMode == "service",
+                  onSelected: (_) {
+                    setState(() {
+                      filterMode = "service";
+                    });
+                  },
+                ),
+              ],
+            ),
+          )
+        ],
       ),
       body: StreamBuilder(
         stream: query.snapshots(),
@@ -190,27 +197,63 @@ if (filterMode == "category") {
 
           var nodes = inventorySnap.data!.docs;
 
+          /// SEARCH FILTER
+          if (searchText.isNotEmpty) {
+            nodes = nodes.where((doc) {
+              String name = (doc["name"] ?? "").toLowerCase();
+
+              /// apply filter buttons also
+              if (filterMode != "category" && doc["type"] != filterMode) {
+                return false;
+              }
+
+              return name.contains(searchText);
+            }).toList();
+          }
+
+          List categories = [];
+          List items = [];
+          List services = [];
+
+          for (var node in nodes) {
+            if (node["type"] == "category") {
+              categories.add(node);
+            } else if (node["type"] == "item") {
+              items.add(node);
+            } else if (node["type"] == "service") {
+              services.add(node);
+            }
+          }
+
           return StreamBuilder<Map<String, int>>(
             stream: dateAwareBookedItemsStream(),
             builder: (context, bookedSnap) {
               final bookedMap = bookedSnap.data ?? {};
 
-              return ListView.builder(
-                itemCount: nodes.length,
-                /////////////////////////////////
-                itemBuilder: (context, index) {
-                  var node = nodes[index];
-                  final type = node["type"];
+              return ListView(
+                children: [
+                  /// CATEGORIES
+                  if (categories.isNotEmpty)
+                    const Padding(
+                      padding: EdgeInsets.all(8),
+                      child: Text(
+                        "Categories",
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                    ),
 
-                  /// =====================
-                  /// CATEGORY
-                  /// =====================
-                  if (type == "category") {
+                  ...categories.map((node) {
                     return ListTile(
                       leading: const Icon(Icons.folder),
                       title: Text(node["name"]),
                       trailing: const Icon(Icons.arrow_forward),
                       onTap: () {
+                        /// if searching, clear search and open folder
+                        if (searchText.isNotEmpty) {
+                          searchController.clear();
+                          searchText = "";
+                        }
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -222,12 +265,44 @@ if (filterMode == "category") {
                         );
                       },
                     );
-                  }
+                  }),
 
-                  /// =====================
-                  /// SERVICE
-                  /// =====================
-                  if (type == "service") {
+                  /// ITEMS
+                  if (items.isNotEmpty)
+                    const Padding(
+                      padding: EdgeInsets.all(8),
+                      child: Text(
+                        "Items",
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+
+                  ...items.map((node) {
+                    int total = (node["quantity"] as num?)?.toInt() ?? 0;
+                    int booked = bookedMap[node.id] ?? 0;
+                    int available = total - booked;
+
+                    return ListTile(
+                      leading: const Icon(Icons.inventory),
+                      title: Text(node["name"]),
+                      subtitle: Text("Available: $available"),
+                      onTap: () => openQtyDialog(context, node),
+                    );
+                  }),
+
+                  /// SERVICES
+                  if (services.isNotEmpty)
+                    const Padding(
+                      padding: EdgeInsets.all(8),
+                      child: Text(
+                        "Services",
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+
+                  ...services.map((node) {
                     return ListTile(
                       leading: const Icon(Icons.miscellaneous_services),
                       title: Text(node["name"]),
@@ -248,36 +323,13 @@ if (filterMode == "category") {
                           service: service,
                         );
 
-                        // No pop here
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text("Service Added")),
                         );
                       },
                     );
-                  }
-
-                  /// =====================
-                  /// ITEM
-                  /// =====================
-                  if (type == "item") {
-                    int total = (node["quantity"] as num?)?.toInt() ?? 0;
-
-                    int booked = bookedMap[node.id] ?? 0;
-                    int available = total - booked;
-
-                    return ListTile(
-                      leading: const Icon(Icons.inventory),
-                      title: Text(node["name"]),
-                      subtitle: Text("Available: $available"),
-                      onTap: () => openQtyDialog(context, node),
-                    );
-                  }
-
-                  /// =====================
-                  /// FALLBACK
-                  /// =====================
-                  return const SizedBox();
-                },
+                  }),
+                ],
               );
             },
           );
