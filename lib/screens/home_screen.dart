@@ -8,31 +8,26 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         title: const Text("Tent Manager"),
       ),
-
       body: Center(
         child: Column(
-          mainAxisAlignment:
-              MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-
             /// BOOKINGS BUTTON
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) =>
-                        const BookingsListScreen(),
-                  ),
+                      builder: (_) => BookingsListScreen(
+                            businessId: "demo_business",
+                          )),
                 );
               },
-              child:
-                  const Text("Bookings"),
+              child: const Text("Bookings"),
             ),
 
             const SizedBox(height: 20),
@@ -43,13 +38,11 @@ class HomeScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) =>
-                        const InventoryScreen(),
+                    builder: (_) => const InventoryScreen(),
                   ),
                 );
               },
-              child: const Text(
-                  "Update Inventory"),
+              child: const Text("Update Inventory"),
             ),
           ],
         ),

@@ -3,18 +3,30 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'booking_detail_screen.dart';
 import 'create_booking_screen.dart';
 
-class BookingsListScreen extends StatelessWidget {
-  const BookingsListScreen({super.key});
+class BookingsListScreen extends StatefulWidget {
+  final String businessId;
 
-  final String businessId = "demo_business";
+  const BookingsListScreen({
+    super.key,
+    required this.businessId,
+  });
+
+  @override
+  State<BookingsListScreen> createState() => _BookingsListScreenState();
+}
+
+class _BookingsListScreenState extends State<BookingsListScreen> {
+  String filter = "all";
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Bookings")),
+      appBar: AppBar(
+        title: const Text("Bookings"),
+      ),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
-        onPressed: () async{
+        onPressed: () async {
           await Navigator.push(
             context,
             MaterialPageRoute(
@@ -23,111 +35,158 @@ class BookingsListScreen extends StatelessWidget {
           );
         },
       ),
-      body: StreamBuilder(
-        stream: FirebaseFirestore.instance
-            .collection("businesses")
-            .doc(businessId)
-            .collection("bookings")
-            .orderBy("startDate", descending: true)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          var bookings = snapshot.data!.docs;
-
-          return ListView.builder(
-            itemCount: bookings.length,
-            itemBuilder: (context, index) {
-              var booking = bookings[index];
-
-              DateTime start = (booking["startDate"] as Timestamp).toDate();
-
-              return ListTile(
-                title: Text(booking["eventName"]),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(booking["customerName"]),
-                    Text(
-                      "Start: "
-                      "${start.day}/${start.month}/${start.year}",
-                    ),
-                  ],
+      body: Column(
+        children: [
+          /// FILTER BUTTONS
+          Padding(
+            padding: const EdgeInsets.all(10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      filter = "all";
+                    });
+                  },
+                  child: const Text("All"),
                 ),
-                onTap: () async {
-                  await Navigator.push(
-  context,
-  MaterialPageRoute(
-    builder: (_) => BookingDetailScreen(
-      businessId: businessId,
-      bookingId: booking.id,
-    ),
-  ),
-);
-                },
-                onLongPress: () async {
-
-    bool confirm = await showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text("Delete Booking"),
-        content: const Text(
-            "Delete this booking? Inventory will be freed."),
-        actions: [
-
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context, false);
-            },
-            child: const Text("Cancel"),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      filter = "dispatching";
+                    });
+                  },
+                  child: const Text("Pending"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      filter = "dispatched";
+                    });
+                  },
+                  child: const Text("Dispatched"),
+                ),
+              ],
+            ),
           ),
 
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context, true);
-            },
-            child: const Text("Delete"),
-          ),
+          /// BOOKINGS LIST
+          Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection("businesses")
+                  .doc(widget.businessId)
+                  .collection("bookings")
+                  .orderBy("startDate", descending: true)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
 
+                var bookings = snapshot.data!.docs;
+
+                if (filter != "all") {
+                  bookings =
+                      bookings.where((b) => b["status"] == filter).toList();
+                }
+
+                if (bookings.isEmpty) {
+                  return const Center(
+                    child: Text("No bookings found"),
+                  );
+                }
+
+                return ListView.builder(
+                  itemCount: bookings.length,
+                  itemBuilder: (context, index) {
+                    var booking = bookings[index];
+
+                    DateTime start =
+                        (booking["startDate"] as Timestamp).toDate();
+
+                    return ListTile(
+                      title: Text(booking["eventName"]),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(booking["customerName"]),
+                          Text(
+                            "Start: ${start.day}/${start.month}/${start.year}",
+                          ),
+                        ],
+                      ),
+                      onTap: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => BookingDetailScreen(
+                              businessId: widget.businessId,
+                              bookingId: booking.id,
+                            ),
+                          ),
+                        );
+                      },
+                      onLongPress: () async {
+                        bool confirm = await showDialog(
+                              context: context,
+                              builder: (_) => AlertDialog(
+                                title: const Text("Delete Booking"),
+                                content: const Text(
+                                    "Delete this booking? Inventory will be freed."),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context, false);
+                                    },
+                                    child: const Text("Cancel"),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context, true);
+                                    },
+                                    child: const Text("Delete"),
+                                  ),
+                                ],
+                              ),
+                            ) ??
+                            false;
+
+                        if (confirm) {
+                          final bookingRef = FirebaseFirestore.instance
+                              .collection("businesses")
+                              .doc(widget.businessId)
+                              .collection("bookings")
+                              .doc(booking.id);
+
+                          final items =
+                              await bookingRef.collection("bookedItems").get();
+
+                          for (var doc in items.docs) {
+                            await doc.reference.delete();
+                          }
+
+                          final services = await bookingRef
+                              .collection("bookingServices")
+                              .get();
+
+                          for (var doc in services.docs) {
+                            await doc.reference.delete();
+                          }
+
+                          await bookingRef.delete();
+                        }
+                      },
+                    );
+                  },
+                );
+              },
+            ),
+          ),
         ],
-      ),
-    ) ?? false;
-
-    if (confirm) {
-      final bookingRef = FirebaseFirestore.instance
-    .collection("businesses")
-    .doc(businessId)
-    .collection("bookings")
-    .doc(booking.id);
-
-/// delete booked items
-final items = await bookingRef
-    .collection("bookedItems")
-    .get();
-
-for (var doc in items.docs) {
-  await doc.reference.delete();
-}
-
-/// delete services
-final services = await bookingRef
-    .collection("bookingServices")
-    .get();
-
-for (var doc in services.docs) {
-  await doc.reference.delete();
-}
-
-/// finally delete booking
-await bookingRef.delete();
-    }
-  },
-);
-            },
-          );
-        },
       ),
     );
   }

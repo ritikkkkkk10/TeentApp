@@ -65,6 +65,15 @@ class _DispatchItemsScreenState extends State<DispatchItemsScreen> {
 
     await batch.commit();
 
+    await FirebaseFirestore.instance
+        .collection("businesses")
+        .doc(widget.businessId)
+        .collection("bookings")
+        .doc(widget.bookingId)
+        .update({
+      "status": "dispatching",
+    });
+
     Navigator.pop(context);
   }
 
@@ -108,18 +117,47 @@ class _DispatchItemsScreenState extends State<DispatchItemsScreen> {
         .collection("bookings")
         .doc(widget.bookingId);
 
-    batch.update(bookingRef, {
-      "status": "dispatched"
-    });
+    batch.update(bookingRef, {"status": "dispatched"});
 
     await batch.commit();
 
     Navigator.pop(context);
   }
 
+  Future<void> confirmDispatchDialog(List<QueryDocumentSnapshot> docs) async {
+    bool confirm = await showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text("Confirm Dispatch"),
+              content: const Text(
+                  "Once confirmed, dispatch cannot be edited.\n\nAre you sure you want to confirm dispatch?"),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context, false);
+                  },
+                  child: const Text("Cancel"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context, true);
+                  },
+                  child: const Text("Confirm"),
+                ),
+              ],
+            );
+          },
+        ) ??
+        false;
+
+    if (confirm) {
+      await confirmDispatch(docs);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-
     final bookingRef = FirebaseFirestore.instance
         .collection("businesses")
         .doc(widget.businessId)
@@ -135,7 +173,6 @@ class _DispatchItemsScreenState extends State<DispatchItemsScreen> {
       body: StreamBuilder<DocumentSnapshot>(
         stream: bookingRef.snapshots(),
         builder: (context, bookingSnapshot) {
-
           if (!bookingSnapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -149,7 +186,6 @@ class _DispatchItemsScreenState extends State<DispatchItemsScreen> {
           return StreamBuilder<QuerySnapshot>(
             stream: bookedItemsRef.snapshots(),
             builder: (context, snapshot) {
-
               if (!snapshot.hasData) {
                 return const Center(child: CircularProgressIndicator());
               }
@@ -158,16 +194,12 @@ class _DispatchItemsScreenState extends State<DispatchItemsScreen> {
 
               return Column(
                 children: [
-
                   /// Dispatch All button
                   ElevatedButton(
-                    onPressed: isDispatched
-                        ? null
-                        : () => dispatchAllItems(docs),
+                    onPressed:
+                        isDispatched ? null : () => dispatchAllItems(docs),
                     child: Text(
-                      isDispatched
-                          ? "Dispatched"
-                          : "Dispatch All",
+                      isDispatched ? "Dispatched" : "Dispatch All",
                     ),
                   ),
 
@@ -175,20 +207,15 @@ class _DispatchItemsScreenState extends State<DispatchItemsScreen> {
                     child: ListView.builder(
                       itemCount: docs.length,
                       itemBuilder: (context, index) {
-
                         final doc = docs[index];
-                        final data =
-                            doc.data() as Map<String, dynamic>;
+                        final data = doc.data() as Map<String, dynamic>;
 
                         final itemName = data['itemName'];
-                        final requestedQty =
-                            data['requestedQuantity'];
+                        final requestedQty = data['requestedQuantity'];
 
-                        final dispatchedQty =
-                            data['dispatchedQuantity'] ?? 0;
+                        final dispatchedQty = data['dispatchedQuantity'] ?? 0;
 
-                        final remainingQty =
-                            requestedQty - dispatchedQty;
+                        final remainingQty = requestedQty - dispatchedQty;
 
                         quantityControllers.putIfAbsent(
                           doc.id,
@@ -197,35 +224,22 @@ class _DispatchItemsScreenState extends State<DispatchItemsScreen> {
 
                         return Card(
                           child: ListTile(
-                            leading:
-                                const Icon(Icons.inventory),
-
+                            leading: const Icon(Icons.inventory),
                             title: Text(itemName),
-
                             subtitle: Column(
-                              crossAxisAlignment:
-                                  CrossAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-
                                 Text("Ordered: $requestedQty"),
-                                Text(
-                                    "Already Dispatched: $dispatchedQty"),
-                                Text(
-                                    "Remaining: $remainingQty"),
-
+                                Text("Already Dispatched: $dispatchedQty"),
+                                Text("Remaining: $remainingQty"),
                                 const SizedBox(height: 6),
-
                                 SizedBox(
                                   width: 120,
                                   child: TextField(
-                                    controller:
-                                        quantityControllers[
-                                            doc.id],
+                                    controller: quantityControllers[doc.id],
                                     enabled: !isDispatched,
-                                    keyboardType:
-                                        TextInputType.number,
-                                    decoration:
-                                        const InputDecoration(
+                                    keyboardType: TextInputType.number,
+                                    decoration: const InputDecoration(
                                       labelText: "Dispatch Qty",
                                     ),
                                   ),
@@ -239,28 +253,23 @@ class _DispatchItemsScreenState extends State<DispatchItemsScreen> {
                   ),
 
                   Row(
-                    mainAxisAlignment:
-                        MainAxisAlignment.spaceEvenly,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-
                       ElevatedButton(
-                        onPressed: isDispatched
-                            ? null
-                            : () => saveProgress(docs),
+                        onPressed:
+                            isDispatched ? null : () => saveProgress(docs),
                         child: const Text("Save Progress"),
                       ),
-
                       ElevatedButton(
                         onPressed: isDispatched
                             ? null
-                            : () => confirmDispatch(docs),
+                            : () => confirmDispatchDialog(docs),
                         child: const Text("Confirm Dispatch"),
                       ),
                     ],
                   ),
 
                   const SizedBox(height: 20)
-
                 ],
               );
             },
