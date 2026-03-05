@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 import '../models/booking_service_model.dart';
 import '../repository/booking_repository.dart';
 import '../models/booked_item_model.dart';
+import 'dart:async';
 
 /// =====================================================
 /// WIDGET
@@ -30,6 +31,7 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
   final BookingRepository repo = BookingRepository();
   TextEditingController searchController = TextEditingController();
   String searchText = "";
+  Timer? _debounce;
 
   DateTime? startDate;
   DateTime? endDate;
@@ -135,18 +137,46 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: TextField(
-          controller: searchController,
-          decoration: const InputDecoration(
-            hintText: "Search items, categories, services",
-            border: InputBorder.none,
-          ),
-          onChanged: (value) {
-            setState(() {
-              searchText = value.toLowerCase();
-            });
-          },
-        ),
+        title: Container(
+  height: 40,
+  decoration: BoxDecoration(
+    color: Colors.grey.shade200,
+    borderRadius: BorderRadius.circular(10),
+  ),
+  child: TextField(
+    controller: searchController,
+    decoration: InputDecoration(
+      hintText: "Search inventory...",
+      prefixIcon: const Icon(Icons.search),
+      border: InputBorder.none,
+      contentPadding: const EdgeInsets.symmetric(vertical: 10),
+      suffixIcon: searchText.isNotEmpty
+          ? IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: () {
+                searchController.clear();
+                setState(() {
+                  searchText = "";
+                });
+              },
+            )
+          : null,
+    ),
+    onChanged: (value) {
+
+      if (_debounce?.isActive ?? false) {
+        _debounce!.cancel();
+      }
+
+      _debounce = Timer(const Duration(milliseconds: 300), () {
+        setState(() {
+          searchText = value.toLowerCase();
+        });
+      });
+
+    },
+  ),
+),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 10),
@@ -186,7 +216,43 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
           )
         ],
       ),
-      body: StreamBuilder(
+      body: Column(
+  children: [
+
+    /// SEARCH BAR
+    Padding(
+      padding: const EdgeInsets.all(10),
+      child: TextField(
+        controller: searchController,
+        decoration: InputDecoration(
+          hintText: "Search inventory...",
+          prefixIcon: const Icon(Icons.search),
+          filled: true,
+          fillColor: Colors.grey.shade200,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none,
+          ),
+        ),
+        onChanged: (value) {
+          if (_debounce?.isActive ?? false) {
+            _debounce!.cancel();
+          }
+
+          _debounce = Timer(const Duration(milliseconds: 300), () {
+            setState(() {
+              searchText = value.toLowerCase();
+            });
+          }
+          );
+        },
+      ),
+    ),
+        
+
+    /// YOUR EXISTING STREAMBUILDER
+    Expanded(
+      child: StreamBuilder(
         stream: query.snapshots(),
         builder: (context, inventorySnap) {
           if (!inventorySnap.hasData) {
@@ -335,6 +401,10 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
           );
         },
       ),
+          ),
+
+  ],
+),
     );
   }
 
