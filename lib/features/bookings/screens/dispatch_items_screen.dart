@@ -1,0 +1,197 @@
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+class DispatchItemsScreen extends StatefulWidget {
+  final String businessId;
+  final String bookingId;
+
+  const DispatchItemsScreen({
+    super.key,
+    required this.businessId,
+    required this.bookingId,
+  });
+
+  @override
+  State<DispatchItemsScreen> createState() => _DispatchItemsScreenState();
+}
+
+class _DispatchItemsScreenState extends State<DispatchItemsScreen> {
+
+  Map<String, TextEditingController> quantityControllers = {};
+
+  /// Dispatch All → fills ordered quantity
+  void dispatchAllItems(List<QueryDocumentSnapshot> docs) {
+
+    for (var doc in docs) {
+
+      final data = doc.data() as Map<String, dynamic>;
+
+      final requested = data["requestedQuantity"];
+
+      quantityControllers[doc.id]?.text =
+          requested.toString();
+    }
+
+    setState(() {});
+  }
+
+  Future<void> dispatchSelected(List<QueryDocumentSnapshot> docs) async {
+
+    final batch = FirebaseFirestore.instance.batch();
+
+    for (var doc in docs) {
+
+      final data = doc.data() as Map<String, dynamic>;
+
+      int qty = int.parse(quantityControllers[doc.id]!.text);
+
+      int requested = data["requestedQuantity"];
+      int previousDispatched = data["dispatchedQuantity"] ?? 0;
+
+      int remaining = requested - previousDispatched;
+
+      /// Prevent over-dispatch
+      if (qty > remaining) {
+        qty = remaining;
+      }
+
+      if (qty <= 0) continue;
+
+      final ref = FirebaseFirestore.instance
+          .collection('businesses')
+          .doc(widget.businessId)
+          .collection('bookings')
+          .doc(widget.bookingId)
+          .collection('bookedItems')
+          .doc(doc.id);
+
+      batch.update(ref, {
+        'dispatchedQuantity': previousDispatched + qty,
+      });
+
+    }
+
+    await batch.commit();
+
+    /// reset fields after dispatch
+    for (var controller in quantityControllers.values) {
+      controller.text = "0";
+    }
+
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    final bookedItemsRef = FirebaseFirestore.instance
+        .collection('businesses')
+        .doc(widget.businessId)
+        .collection('bookings')
+        .doc(widget.bookingId)
+        .collection('bookedItems');
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Dispatch Items"),
+      ),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: bookedItemsRef.snapshots(),
+        builder: (context, snapshot) {
+
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          final docs = snapshot.data!.docs;
+
+          return Column(
+            children: [
+
+              /// Dispatch All button
+              ElevatedButton(
+                onPressed: () => dispatchAllItems(docs),
+                child: const Text("Dispatch All"),
+              ),
+
+              Expanded(
+                child: ListView.builder(
+                  itemCount: docs.length,
+                  itemBuilder: (context, index) {
+
+                    final doc = docs[index];
+                    final data = doc.data() as Map<String, dynamic>;
+
+                    final itemName = data['itemName'];
+                    final requestedQty = data['requestedQuantity'];
+                    final dispatchedQty = data['dispatchedQuantity'] ?? 0;
+
+                    final remainingQty = requestedQty - dispatchedQty;
+
+                    quantityControllers.putIfAbsent(
+                      doc.id,
+                      () => TextEditingController(text: "0"),
+                    );
+
+                    return Card(
+                      child: ListTile(
+
+                        leading: const Icon(Icons.inventory),
+
+                        title: Text(itemName),
+
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+
+                            Text("Ordered: $requestedQty"),
+                            Text("Already Dispatched: $dispatchedQty"),
+                            Text("Remaining: $remainingQty"),
+
+                            const SizedBox(height: 6),
+
+                            SizedBox(
+                              width: 120,
+                              child: TextField(
+                                controller: quantityControllers[doc.id],
+                                keyboardType: TextInputType.number,
+                                decoration: const InputDecoration(
+                                  labelText: "Dispatch Qty",
+                                ),
+                              ),
+                            ),
+
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+
+                  ElevatedButton(
+                    onPressed: () => dispatchSelected(docs),
+                    child: const Text("Save Progress"),
+                  ),
+
+                  ElevatedButton(
+                    onPressed: () => dispatchSelected(docs),
+                    child: const Text("Confirm Dispatch"),
+                  ),
+
+                ],
+              ),
+
+              const SizedBox(height: 20)
+
+            ],
+          );
+        },
+      ),
+    );
+  }
+}

@@ -4,13 +4,16 @@ import 'package:tent_app/core/config/app_config.dart';
 import 'add_item_screen.dart';
 import 'select_items_screen.dart';
 import 'inventory_picker_screen.dart';
+import 'dispatch_items_screen.dart';
 
 class BookingDetailScreen extends StatefulWidget {
   final String bookingId;
+   final String businessId;
 
   const BookingDetailScreen({
     super.key,
     required this.bookingId,
+    required this.businessId,
   });
 
   @override
@@ -82,11 +85,27 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
           );
         },
       ),
+      
       body: Column(
         children: [
           /// =========================
           /// BOOKED ITEMS
           /// =========================
+          /// 
+          ElevatedButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => DispatchItemsScreen(
+                  businessId: widget.businessId,
+                  bookingId: widget.bookingId,
+                ),
+              ),
+            );
+          },
+          child: const Text("Dispatch Items"),
+        ),
           Expanded(
             child: StreamBuilder(
               stream: FirebaseFirestore.instance

@@ -61,6 +61,7 @@ class BookingsListScreen extends StatelessWidget {
   context,
   MaterialPageRoute(
     builder: (_) => BookingDetailScreen(
+      businessId: businessId,
       bookingId: booking.id,
     ),
   ),
