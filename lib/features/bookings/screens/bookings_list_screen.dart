@@ -131,6 +131,20 @@ class _BookingsListScreenState extends State<BookingsListScreen> {
                         );
                       },
                       onLongPress: () async {
+                        String status = booking["status"] ?? "confirmed";
+
+                        if (status == "dispatched" ||
+                            status == "receiving" ||
+                            status == "completed") {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content:
+                                  Text("Dispatched bookings cannot be deleted"),
+                            ),
+                          );
+
+                          return;
+                        }
                         bool confirm = await showDialog(
                               context: context,
                               builder: (_) => AlertDialog(
