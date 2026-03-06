@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 
 import '../repository/booking_repository.dart';
 import '../models/booked_item_model.dart';
+import '../../../core/config/app_config.dart';
 
 class AddItemScreen extends StatefulWidget {
   final String bookingId;
@@ -18,7 +19,7 @@ class AddItemScreen extends StatefulWidget {
 }
 
 class _AddItemScreenState extends State<AddItemScreen> {
-  final String businessId = "demo_business";
+  String? businessId;
   final BookingRepository repo = BookingRepository();
 
   DateTime? startDate;
@@ -36,7 +37,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
   Future<void> loadBookingDates() async {
     final bookingDoc = await FirebaseFirestore.instance
         .collection("businesses")
-        .doc(businessId)
+        .doc(businessId!)
         .collection("bookings")
         .doc(widget.bookingId)
         .get();
@@ -54,7 +55,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
   Stream<int> bookedQuantityStream(String inventoryItemId) {
     return FirebaseFirestore.instance
         .collection("businesses")
-        .doc(businessId)
+        .doc(businessId!)
         .collection("bookings")
         .snapshots()
         .asyncMap((bookingSnapshot) async {

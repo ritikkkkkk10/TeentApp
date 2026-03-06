@@ -19,7 +19,7 @@ Future<String> getBusinessId() async {
 
   /// DEVELOPMENT MODE
   if (appMode == AppMode.demoSingleBusiness) {
-    return "demo_business";
+    return "test_business_2";
   }
 
   /// FUTURE REAL SAAS MODE

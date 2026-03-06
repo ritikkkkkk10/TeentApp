@@ -1,13 +1,37 @@
 import 'package:flutter/material.dart';
-
 import 'package:tent_app/features/bookings/screens/bookings_list_screen.dart';
 import 'package:tent_app/features/inventory/screens/inventory_screen.dart';
+import 'package:tent_app/core/config/app_config.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  String? businessId;
+
+  @override
+  void initState() {
+    super.initState();
+    loadBusiness();
+  }
+
+  Future<void> loadBusiness() async {
+    businessId = await getBusinessId();
+    setState(() {});
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (businessId == null) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Tent Manager"),
@@ -22,9 +46,10 @@ class HomeScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (_) => BookingsListScreen(
-                            businessId: "demo_business",
-                          )),
+                    builder: (_) => BookingsListScreen(
+                      businessId: businessId!,
+                    ),
+                  ),
                 );
               },
               child: const Text("Bookings"),
@@ -32,7 +57,7 @@ class HomeScreen extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            /// INVENTORY BUTTON ✅
+            /// INVENTORY BUTTON
             ElevatedButton(
               onPressed: () {
                 Navigator.push(

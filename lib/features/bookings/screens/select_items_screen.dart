@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
-
+import '../../../core/config/app_config.dart';
 import '../repository/booking_repository.dart';
 import '../models/booked_item_model.dart';
 import '../models/temp_selected_item.dart';
@@ -22,8 +22,37 @@ class _SelectItemsScreenState extends State<SelectItemsScreen> {
   DateTime? startDate;
   DateTime? endDate;
 
-  final String businessId = "demo_business";
+  String? businessId;
   final BookingRepository repo = BookingRepository();
+
+  @override
+  void initState() {
+    super.initState();
+    initialize();
+  }
+
+  Future<void> initialize() async {
+    businessId = await getBusinessId();
+    await loadBookingDates();
+    setState(() {});
+  }
+
+  Future<void> loadBookingDates() async {
+    final bookingDoc = await FirebaseFirestore.instance
+        .collection("businesses")
+        .doc(businessId!)
+        .collection("bookings")
+        .doc(widget.bookingId)
+        .get();
+
+    startDate = (bookingDoc["startDate"] as Timestamp).toDate();
+    endDate = (bookingDoc["endDate"] as Timestamp).toDate();
+  }
+
+  Future<void> loadBusiness() async {
+    businessId = await getBusinessId();
+    setState(() {});
+  }
 
   /// ⭐ LOCAL CART
   Map<String, TempSelectedItem> selectedItems = {};
@@ -115,6 +144,18 @@ class _SelectItemsScreenState extends State<SelectItemsScreen> {
   /// ===============================
   @override
   Widget build(BuildContext context) {
+    if (businessId == null) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (startDate == null || endDate == null) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(title: const Text("Select Items")),
       floatingActionButton: FloatingActionButton.extended(
@@ -124,7 +165,7 @@ class _SelectItemsScreenState extends State<SelectItemsScreen> {
       body: StreamBuilder(
         stream: FirebaseFirestore.instance
             .collection("businesses")
-            .doc(businessId)
+            .doc(businessId!)
             .collection("inventoryNodes")
             .where("type", isEqualTo: "item")
             .snapshots(),

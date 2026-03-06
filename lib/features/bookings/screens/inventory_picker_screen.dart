@@ -5,6 +5,7 @@ import '../models/booking_service_model.dart';
 import '../repository/booking_repository.dart';
 import '../models/booked_item_model.dart';
 import 'dart:async';
+import '../../../core/config/app_config.dart';
 
 /// =====================================================
 /// WIDGET
@@ -27,7 +28,7 @@ class InventoryPickerScreen extends StatefulWidget {
 /// STATE
 /// =====================================================
 class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
-  final String businessId = "demo_business";
+  String? businessId;
   final BookingRepository repo = BookingRepository();
   TextEditingController searchController = TextEditingController();
   String searchText = "";
@@ -43,13 +44,19 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
   @override
   void initState() {
     super.initState();
-    loadBookingDates();
+    initialize();
+  }
+
+  Future<void> initialize() async {
+    businessId = await getBusinessId();
+    await loadBookingDates();
+    setState(() {});
   }
 
   Future<void> loadBookingDates() async {
     final bookingDoc = await FirebaseFirestore.instance
         .collection("businesses")
-        .doc(businessId)
+        .doc(businessId!)
         .collection("bookings")
         .doc(widget.bookingId)
         .get();
@@ -107,6 +114,12 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
   /// =====================================================
   @override
   Widget build(BuildContext context) {
+    if (businessId == null) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     if (startDate == null || endDate == null) {
       return const Scaffold(
         body: Center(
@@ -117,7 +130,7 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
 
     Query query = FirebaseFirestore.instance
         .collection("businesses")
-        .doc(businessId)
+        .doc(businessId!)
         .collection("inventoryNodes");
 
     /// NORMAL BROWSING MODE (no search)
