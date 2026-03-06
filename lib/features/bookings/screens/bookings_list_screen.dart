@@ -16,7 +16,7 @@ class BookingsListScreen extends StatefulWidget {
 }
 
 class _BookingsListScreenState extends State<BookingsListScreen> {
-  String filter = "all";
+  String filter = "all"; // all, pending, dispatched, receiving, history, missing
 
   @override
   Widget build(BuildContext context) {
