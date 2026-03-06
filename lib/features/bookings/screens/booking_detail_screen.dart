@@ -97,7 +97,24 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
 
           return Column(
             children: [
-              /// DISPATCH BUTTON
+              /// DISPATCH / RECEIVE BUTTON
+
+              if (status == "confirmed" || status == "dispatching")
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => DispatchItemsScreen(
+                          businessId: widget.businessId,
+                          bookingId: widget.bookingId,
+                        ),
+                      ),
+                    );
+                  },
+                  child: const Text("Dispatch Items"),
+                ),
+
               if (status == "dispatched")
                 ElevatedButton(
                   onPressed: () {

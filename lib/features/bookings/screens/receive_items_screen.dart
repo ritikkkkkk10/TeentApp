@@ -101,6 +101,8 @@ for (var doc in docs) {
 
   if (qty > remaining) qty = remaining;
 
+  if (qty <= 0) continue;
+
   int finalReceived = received + qty;
 
   int missing = dispatched - finalReceived;
@@ -119,6 +121,7 @@ batch.update(
   {"quantity": FieldValue.increment(finalReceived)}
 );
 
+/// update booked item
   final ref = FirebaseFirestore.instance
       .collection("businesses")
       .doc(widget.businessId)
@@ -134,18 +137,6 @@ batch.update(
 
   if (missing > 0) {
     hasMissing = true;
-
-    String inventoryId = data["inventoryItemId"];
-
-    final inventoryRef = FirebaseFirestore.instance
-        .collection("businesses")
-        .doc(widget.businessId)
-        .collection("inventoryNodes")
-        .doc(inventoryId);
-
-    batch.update(
-        inventoryRef,
-        {"quantity": FieldValue.increment(-missing)});
   }
 }
 
