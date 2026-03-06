@@ -92,14 +92,6 @@ class _BookingsListScreenState extends State<BookingsListScreen> {
                       },
                       child: const Text("History"),
                     ),
-                    ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          filter = "missing";
-                        });
-                      },
-                      child: const Text("Missing"),
-                    ),
                   ],
                 ),
               ],
@@ -152,13 +144,9 @@ class _BookingsListScreenState extends State<BookingsListScreen> {
 
                 if (filter == "all") {
                   bookings = bookings
-                      .where((b) => b["status"] != "completed")
-                      .toList();
-                }
-
-                if (filter == "missing") {
-                  bookings = bookings
-                      .where((b) => b["status"] == "receiving")
+                      .where((b) =>
+                          b["status"] != "completed" &&
+                          b["status"] != "receiving")
                       .toList();
                 }
                 if (bookings.isEmpty) {
