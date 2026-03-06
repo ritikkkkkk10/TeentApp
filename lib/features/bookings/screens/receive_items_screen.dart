@@ -65,15 +65,6 @@ class _ReceiveItemsScreenState extends State<ReceiveItemsScreen> {
 
     await batch.commit();
 
-    await FirebaseFirestore.instance
-        .collection("businesses")
-        .doc(widget.businessId)
-        .collection("bookings")
-        .doc(widget.bookingId)
-        .update({
-      "status": "receiving",
-    });
-
     Navigator.pop(context);
   }
 
@@ -110,12 +101,12 @@ class _ReceiveItemsScreenState extends State<ReceiveItemsScreen> {
 
       /// return received items back to inventory
       /// reduce inventory only if items are missing
-if (missing > 0) {
-  batch.update(
-    inventoryRef,
-    {"quantity": FieldValue.increment(-missing)},
-  );
-}
+      if (missing > 0) {
+        batch.update(
+          inventoryRef,
+          {"quantity": FieldValue.increment(-missing)},
+        );
+      }
 
       /// update booked item
       final ref = FirebaseFirestore.instance
