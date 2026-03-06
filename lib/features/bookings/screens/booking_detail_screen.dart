@@ -20,6 +20,11 @@ class BookingDetailScreen extends StatefulWidget {
 
 class _BookingDetailScreenState extends State<BookingDetailScreen> {
   void editQuantity(BuildContext context, DocumentSnapshot item) {
+    final status = item["status"] ?? "";
+
+    if (status == "completed") {
+      return;
+    }
     TextEditingController controller = TextEditingController(
       text: item["requestedQuantity"].toString(),
     );
@@ -92,11 +97,29 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
               bookingSnapshot.data!.data() as Map<String, dynamic>;
 
           final status = bookingData["status"] ?? "confirmed";
-
+          final isCompleted = status == "completed";
           final isDispatched = status == "dispatched";
 
           return Column(
             children: [
+              if (isCompleted)
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  margin: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.green,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    "RETURNED",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+
               /// DISPATCH / RECEIVE BUTTON
 
               if (status == "confirmed" || status == "dispatching")
@@ -162,10 +185,20 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
 
                             title: Text(data["itemName"] ?? ""),
 
-                            subtitle: Text("Qty: $displayQty"),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text("Qty: $displayQty"),
+                                if ((data["missingQuantity"] ?? 0) > 0)
+                                  Text(
+                                    "Missing: ${data["missingQuantity"]}",
+                                    style: const TextStyle(color: Colors.red),
+                                  ),
+                              ],
+                            ),
 
                             /// DISABLE EDIT AFTER DISPATCH
-                            onTap: isDispatched
+                            onTap: (isDispatched || isCompleted)
                                 ? null
                                 : () => editQuantity(context, item),
 
@@ -200,7 +233,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                       Text("₹ ${service["priceSnapshot"]}"),
 
                                   /// DISABLE DELETE AFTER DISPATCH
-                                  onLongPress: isDispatched
+                                  onLongPress: (isDispatched || isCompleted)
                                       ? null
                                       : () async {
                                           bool confirm = await showDialog(
@@ -261,7 +294,9 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
 
           final status = data["status"] ?? "confirmed";
 
-          if (status == "dispatched") return const SizedBox();
+          if (status != "confirmed") {
+            return const SizedBox();
+          }
 
           return FloatingActionButton(
             child: const Icon(Icons.add),
