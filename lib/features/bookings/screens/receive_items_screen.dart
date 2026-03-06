@@ -252,17 +252,47 @@ return Scaffold(
 
                         const SizedBox(height: 6),
 
-                        SizedBox(
-                          width: 120,
-                          child: TextField(
-                            controller:
-                                quantityControllers[doc.id],
-                            keyboardType: TextInputType.number,
-                            decoration: const InputDecoration(
-                              labelText: "Receive Qty",
-                            ),
-                          ),
-                        ),
+                        Row(
+  children: [
+
+    IconButton(
+      icon: const Icon(Icons.remove),
+      onPressed: () {
+        int value =
+            int.parse(quantityControllers[doc.id]!.text);
+
+        if (value > 0) {
+          quantityControllers[doc.id]!.text =
+              (value - 1).toString();
+          setState(() {});
+        }
+      },
+    ),
+
+    Text(
+      quantityControllers[doc.id]!.text,
+      style: const TextStyle(fontSize: 18),
+    ),
+
+    IconButton(
+      icon: const Icon(Icons.add),
+      onPressed: () {
+
+        int value =
+            int.parse(quantityControllers[doc.id]!.text);
+
+        int remaining = dispatched - received;
+
+        if (value < remaining) {
+          quantityControllers[doc.id]!.text =
+              (value + 1).toString();
+          setState(() {});
+        }
+      },
+    ),
+
+  ],
+)
                       ],
                     ),
                   ),
