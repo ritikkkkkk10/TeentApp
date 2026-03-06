@@ -100,9 +100,14 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
 
         String itemId = doc["inventoryItemId"];
 
-        int qty = (doc["requestedQuantity"] as num).toInt();
+        int requested = (doc["requestedQuantity"] as num?)?.toInt() ?? 0;
+        int dispatched = (doc["dispatchedQuantity"] as num?)?.toInt() ?? 0;
 
-        bookedMap[itemId] = (bookedMap[itemId] ?? 0) + qty;
+        /// before dispatch → requested quantity
+        /// after dispatch → actual dispatched quantity
+        int effectiveQty = dispatched > 0 ? dispatched : requested;
+
+        bookedMap[itemId] = (bookedMap[itemId] ?? 0) + effectiveQty;
       }
 
       return bookedMap;

@@ -37,7 +37,7 @@ class _DispatchItemsScreenState extends State<DispatchItemsScreen> {
     for (var doc in docs) {
       final data = doc.data() as Map<String, dynamic>;
 
-      int qty = int.parse(quantityControllers[doc.id]!.text);
+      int qty = int.tryParse(quantityControllers[doc.id]!.text) ?? 0;
 
       int requested = data["requestedQuantity"];
       int previousDispatched = data["dispatchedQuantity"] ?? 0;
@@ -110,20 +110,6 @@ class _DispatchItemsScreenState extends State<DispatchItemsScreen> {
       batch.update(ref, {
         'dispatchedQuantity': previousDispatched + qty,
       });
-
-      int actualDispatched = previousDispatched + qty;
-      int difference = requested - actualDispatched;
-
-      if (difference > 0) {
-        final inventoryRef = FirebaseFirestore.instance
-            .collection("businesses")
-            .doc(widget.businessId)
-            .collection("inventoryNodes")
-            .doc(inventoryItemId);
-
-        batch.update(
-            inventoryRef, {"quantity": FieldValue.increment(difference)});
-      }
     }
 
     /// Update booking status

@@ -109,8 +109,13 @@ class _ReceiveItemsScreenState extends State<ReceiveItemsScreen> {
           .doc(inventoryId);
 
       /// return received items back to inventory
-      batch.update(
-          inventoryRef, {"quantity": FieldValue.increment(finalReceived)});
+      /// reduce inventory only if items are missing
+if (missing > 0) {
+  batch.update(
+    inventoryRef,
+    {"quantity": FieldValue.increment(-missing)},
+  );
+}
 
       /// update booked item
       final ref = FirebaseFirestore.instance
