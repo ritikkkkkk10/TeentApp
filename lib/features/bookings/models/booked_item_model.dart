@@ -9,7 +9,10 @@ class BookedItemModel {
   final int availableQuantityAtBooking;
   final int shortageQuantity;
 
-  final int dispatchedQuantity;   // ✅ NEW FIELD
+  final int dispatchedQuantity; // ✅ NEW FIELD
+
+  final int receivedQuantity;
+  final int missingQuantity;
 
   final double rentPriceSnapshot;
   final Timestamp createdAt;
@@ -31,7 +34,9 @@ class BookedItemModel {
     required this.bookingStartDate,
     required this.bookingEndDate,
     this.businessId,
-    this.dispatchedQuantity = 0,   // ✅ default
+    this.dispatchedQuantity = 0,
+    this.receivedQuantity = 0,
+    this.missingQuantity = 0, // ✅ default
   });
 
   Map<String, dynamic> toMap() {
@@ -39,13 +44,15 @@ class BookedItemModel {
       "inventoryItemId": inventoryItemId,
       "itemName": itemName,
       "requestedQuantity": requestedQuantity,
-      "dispatchedQuantity": dispatchedQuantity,   // ✅ NEW
+      "dispatchedQuantity": dispatchedQuantity, // ✅ NEW
       "availableQuantityAtBooking": availableQuantityAtBooking,
       "shortageQuantity": shortageQuantity,
       "rentPriceSnapshot": rentPriceSnapshot,
       "createdAt": createdAt,
       "bookingStartDate": Timestamp.fromDate(bookingStartDate),
       "bookingEndDate": Timestamp.fromDate(bookingEndDate),
+      "receivedQuantity": receivedQuantity,
+      "missingQuantity": missingQuantity,
     };
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'inventory_picker_screen.dart';
 import 'dispatch_items_screen.dart';
+import 'receive_items_screen.dart';
 
 class BookingDetailScreen extends StatefulWidget {
   final String bookingId;
@@ -18,9 +19,7 @@ class BookingDetailScreen extends StatefulWidget {
 }
 
 class _BookingDetailScreenState extends State<BookingDetailScreen> {
-
   void editQuantity(BuildContext context, DocumentSnapshot item) {
-
     TextEditingController controller = TextEditingController(
       text: item["requestedQuantity"].toString(),
     );
@@ -36,12 +35,10 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
             decoration: const InputDecoration(labelText: "Quantity"),
           ),
           actions: [
-
             /// REMOVE ITEM
             TextButton(
               child: const Text("Remove"),
               onPressed: () async {
-
                 await item.reference.delete();
 
                 Navigator.pop(context);
@@ -52,7 +49,6 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
             TextButton(
               child: const Text("Update"),
               onPressed: () async {
-
                 int newQty = int.parse(controller.text);
 
                 await item.reference.update({
@@ -62,7 +58,6 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                 Navigator.pop(context);
               },
             ),
-
           ],
         );
       },
@@ -71,7 +66,6 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     final bookingRef = FirebaseFirestore.instance
         .collection("businesses")
         .doc(widget.businessId)
@@ -83,7 +77,6 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
     final servicesRef = bookingRef.collection("bookingServices");
 
     return Scaffold(
-
       appBar: AppBar(
         title: const Text("Booking"),
       ),
@@ -91,7 +84,6 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
       body: StreamBuilder<DocumentSnapshot>(
         stream: bookingRef.snapshots(),
         builder: (context, bookingSnapshot) {
-
           if (!bookingSnapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -105,29 +97,28 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
 
           return Column(
             children: [
-
               /// DISPATCH BUTTON
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => DispatchItemsScreen(
-                        businessId: widget.businessId,
-                        bookingId: widget.bookingId,
+              if (status == "dispatched")
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ReceiveItemsScreen(
+                          businessId: widget.businessId,
+                          bookingId: widget.bookingId,
+                        ),
                       ),
-                    ),
-                  );
-                },
-                child: const Text("Dispatch Items"),
-              ),
+                    );
+                  },
+                  child: const Text("Receive Items"),
+                ),
 
               /// ITEMS
               Expanded(
                 child: StreamBuilder<QuerySnapshot>(
                   stream: bookedItemsRef.snapshots(),
                   builder: (context, itemSnapshot) {
-
                     if (!itemSnapshot.hasData) {
                       return const Center(
                         child: CircularProgressIndicator(),
@@ -138,23 +129,16 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
 
                     return ListView(
                       children: [
-
                         /// INVENTORY ITEMS
                         ...items.map((item) {
+                          final data = item.data() as Map<String, dynamic>;
 
-                          final data =
-                              item.data() as Map<String, dynamic>;
+                          final requestedQty = data["requestedQuantity"] ?? 0;
 
-                          final requestedQty =
-                              data["requestedQuantity"] ?? 0;
-
-                          final dispatchedQty =
-                              data["dispatchedQuantity"] ?? 0;
+                          final dispatchedQty = data["dispatchedQuantity"] ?? 0;
 
                           final displayQty =
-                              dispatchedQty > 0
-                                  ? dispatchedQty
-                                  : requestedQty;
+                              dispatchedQty > 0 ? dispatchedQty : requestedQty;
 
                           return ListTile(
                             leading: const Icon(Icons.inventory),
@@ -171,19 +155,16 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                             trailing: (data["shortageQuantity"] ?? 0) > 0
                                 ? Text(
                                     "Shortage: ${data["shortageQuantity"]}",
-                                    style: const TextStyle(
-                                        color: Colors.red),
+                                    style: const TextStyle(color: Colors.red),
                                   )
                                 : null,
                           );
-
                         }),
 
                         /// SERVICES
                         StreamBuilder<QuerySnapshot>(
                           stream: servicesRef.snapshots(),
                           builder: (context, serviceSnapshot) {
-
                             if (!serviceSnapshot.hasData) {
                               return const SizedBox();
                             }
@@ -192,79 +173,62 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
 
                             return Column(
                               children: services.map((service) {
-
                                 return ListTile(
-                                  leading: const Icon(
-                                      Icons.miscellaneous_services),
+                                  leading:
+                                      const Icon(Icons.miscellaneous_services),
 
-                                  title:
-                                      Text(service["serviceName"]),
+                                  title: Text(service["serviceName"]),
 
-                                  subtitle: Text(
-                                      "₹ ${service["priceSnapshot"]}"),
+                                  subtitle:
+                                      Text("₹ ${service["priceSnapshot"]}"),
 
                                   /// DISABLE DELETE AFTER DISPATCH
                                   onLongPress: isDispatched
                                       ? null
                                       : () async {
-
-                                          bool confirm =
-                                              await showDialog(
-                                                    context: context,
-                                                    builder: (_) =>
-                                                        AlertDialog(
-                                                      title: const Text(
-                                                          "Remove Service"),
-                                                      content:
-                                                          const Text(
-                                                              "Delete this service from booking?"),
-                                                      actions: [
-
-                                                        TextButton(
-                                                          child:
-                                                              const Text(
-                                                                  "Cancel"),
-                                                          onPressed: () {
-                                                            Navigator.pop(
-                                                                context,
-                                                                false);
-                                                          },
-                                                        ),
-
-                                                        TextButton(
-                                                          child:
-                                                              const Text(
-                                                                  "Delete"),
-                                                          onPressed: () {
-                                                            Navigator.pop(
-                                                                context,
-                                                                true);
-                                                          },
-                                                        ),
-
-                                                      ],
+                                          bool confirm = await showDialog(
+                                                context: context,
+                                                builder: (_) => AlertDialog(
+                                                  title: const Text(
+                                                      "Remove Service"),
+                                                  content: const Text(
+                                                      "Delete this service from booking?"),
+                                                  actions: [
+                                                    TextButton(
+                                                      child:
+                                                          const Text("Cancel"),
+                                                      onPressed: () {
+                                                        Navigator.pop(
+                                                            context, false);
+                                                      },
                                                     ),
-                                                  ) ??
-                                                  false;
+                                                    TextButton(
+                                                      child:
+                                                          const Text("Delete"),
+                                                      onPressed: () {
+                                                        Navigator.pop(
+                                                            context, true);
+                                                      },
+                                                    ),
+                                                  ],
+                                                ),
+                                              ) ??
+                                              false;
 
                                           if (confirm) {
-                                            await service.reference
-                                                .delete();
+                                            await service.reference.delete();
                                           }
                                         },
                                 );
-
                               }).toList(),
                             );
                           },
                         ),
-
                       ],
                     );
                   },
                 ),
               ),
-
             ],
           );
         },
@@ -274,7 +238,6 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
       floatingActionButton: StreamBuilder<DocumentSnapshot>(
         stream: bookingRef.snapshots(),
         builder: (context, snapshot) {
-
           if (!snapshot.hasData) return const SizedBox();
 
           final data = snapshot.data!.data() as Map<String, dynamic>;
@@ -286,7 +249,6 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
           return FloatingActionButton(
             child: const Icon(Icons.add),
             onPressed: () {
-
               Navigator.push(
                 context,
                 MaterialPageRoute(
