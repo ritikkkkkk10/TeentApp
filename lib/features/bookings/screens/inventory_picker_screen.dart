@@ -83,32 +83,31 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
       Map<String, int> bookedMap = {};
 
       for (var doc in snapshot.docs) {
-        if (!doc.data().containsKey("bookingStartDate")) {
-          continue;
-        }
 
-        /// ✅ dates already stored in bookedItems
-        DateTime otherStart = (doc["bookingStartDate"] as Timestamp).toDate();
+  /// ignore other businesses
+  String bookingBusinessId =
+      doc.reference.parent.parent!.parent!.parent!.id;
 
-        DateTime otherEnd = (doc["bookingEndDate"] as Timestamp).toDate();
+  if (bookingBusinessId != businessId) continue;
 
-        /// DATE OVERLAP CHECK
-        bool overlap =
-            !(otherEnd.isBefore(startDate!) || otherStart.isAfter(endDate!));
+  if (!doc.data().containsKey("bookingStartDate")) {
+    continue;
+  }
 
-        if (!overlap) continue;
+  DateTime otherStart = (doc["bookingStartDate"] as Timestamp).toDate();
+  DateTime otherEnd = (doc["bookingEndDate"] as Timestamp).toDate();
 
-        String itemId = doc["inventoryItemId"];
+  bool overlap =
+      !(otherEnd.isBefore(startDate!) || otherStart.isAfter(endDate!));
 
-        int requested = (doc["requestedQuantity"] as num?)?.toInt() ?? 0;
-        int dispatched = (doc["dispatchedQuantity"] as num?)?.toInt() ?? 0;
+  if (!overlap) continue;
 
-        /// before dispatch → requested quantity
-        /// after dispatch → actual dispatched quantity
-        int effectiveQty = dispatched > 0 ? dispatched : requested;
+  String itemId = doc["inventoryItemId"];
 
-        bookedMap[itemId] = (bookedMap[itemId] ?? 0) + effectiveQty;
-      }
+  int qty = (doc["requestedQuantity"] as num).toInt();
+
+  bookedMap[itemId] = (bookedMap[itemId] ?? 0) + qty;
+}
 
       return bookedMap;
     });
