@@ -16,7 +16,8 @@ class BookingsListScreen extends StatefulWidget {
 }
 
 class _BookingsListScreenState extends State<BookingsListScreen> {
-  String filter = "all"; // all, pending, dispatched, receiving, history, missing
+  String filter =
+      "all"; // all, pending, dispatched, receiving, history, missing
 
   @override
   Widget build(BuildContext context) {
@@ -40,32 +41,66 @@ class _BookingsListScreenState extends State<BookingsListScreen> {
           /// FILTER BUTTONS
           Padding(
             padding: const EdgeInsets.all(10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            child: Column(
               children: [
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      filter = "all";
-                    });
-                  },
-                  child: const Text("All"),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          filter = "all";
+                        });
+                      },
+                      child: const Text("All"),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          filter = "pending";
+                        });
+                      },
+                      child: const Text("Pending"),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          filter = "dispatched";
+                        });
+                      },
+                      child: const Text("Dispatched"),
+                    ),
+                  ],
                 ),
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      filter = "dispatching";
-                    });
-                  },
-                  child: const Text("Pending"),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      filter = "dispatched";
-                    });
-                  },
-                  child: const Text("Dispatched"),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          filter = "receiving";
+                        });
+                      },
+                      child: const Text("Receiving"),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          filter = "history";
+                        });
+                      },
+                      child: const Text("History"),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          filter = "missing";
+                        });
+                      },
+                      child: const Text("Missing"),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -89,11 +124,43 @@ class _BookingsListScreenState extends State<BookingsListScreen> {
 
                 var bookings = snapshot.data!.docs;
 
-                if (filter != "all") {
-                  bookings =
-                      bookings.where((b) => b["status"] == filter).toList();
+                if (filter == "pending") {
+                  bookings = bookings
+                      .where((b) =>
+                          b["status"] == "confirmed" ||
+                          b["status"] == "dispatching")
+                      .toList();
                 }
 
+                if (filter == "dispatched") {
+                  bookings = bookings
+                      .where((b) => b["status"] == "dispatched")
+                      .toList();
+                }
+
+                if (filter == "receiving") {
+                  bookings = bookings
+                      .where((b) => b["status"] == "receiving")
+                      .toList();
+                }
+
+                if (filter == "history") {
+                  bookings = bookings
+                      .where((b) => b["status"] == "completed")
+                      .toList();
+                }
+
+                if (filter == "all") {
+                  bookings = bookings
+                      .where((b) => b["status"] != "completed")
+                      .toList();
+                }
+
+                if (filter == "missing") {
+                  bookings = bookings
+                      .where((b) => b["status"] == "receiving")
+                      .toList();
+                }
                 if (bookings.isEmpty) {
                   return const Center(
                     child: Text("No bookings found"),
