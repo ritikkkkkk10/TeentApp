@@ -19,7 +19,12 @@ class BookingDetailScreen extends StatefulWidget {
 }
 
 class _BookingDetailScreenState extends State<BookingDetailScreen> {
-  void showAdvanceDialog(BuildContext context, DocumentReference bookingRef) {
+  void showAdvanceDialog(
+    BuildContext context,
+    DocumentReference bookingRef,
+    double currentAdvance,
+    double grandTotal,
+  ) {
     TextEditingController controller = TextEditingController();
 
     showDialog(
@@ -46,8 +51,43 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
               onPressed: () async {
                 double amount = double.tryParse(controller.text) ?? 0;
 
+                double newAdvance = currentAdvance + amount;
+
+                double remaining = grandTotal - currentAdvance;
+
+                if (amount > remaining) {
+                  bool confirm = await showDialog(
+                        context: context,
+                        builder: (_) => AlertDialog(
+                          title: const Text("Advance exceeds remaining"),
+                          content: const Text(
+                            "This payment exceeds remaining amount.\n\nContinue?",
+                          ),
+                          actions: [
+                            TextButton(
+                              child: const Text("Cancel"),
+                              onPressed: () => Navigator.pop(context, false),
+                            ),
+                            TextButton(
+                              child: const Text("Confirm"),
+                              onPressed: () => Navigator.pop(context, true),
+                            ),
+                          ],
+                        ),
+                      ) ??
+                      false;
+
+                  if (!confirm) return;
+                }
+
                 await bookingRef.update({
-                  "advancePaid": amount,
+                  "advancePaid": newAdvance,
+                });
+
+                await bookingRef.collection("payments").add({
+                  "amount": amount,
+                  "type": "advance",
+                  "timestamp": Timestamp.now(),
                 });
 
                 Navigator.pop(context);
@@ -281,7 +321,8 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                   const SizedBox(height: 10),
                                   ElevatedButton(
                                     onPressed: () {
-                                      showAdvanceDialog(context, bookingRef);
+                                      showAdvanceDialog(context, bookingRef,
+                                          advance, grandTotal);
                                     },
                                     child: const Text("Pay Advance"),
                                   ),
