@@ -19,6 +19,46 @@ class BookingDetailScreen extends StatefulWidget {
 }
 
 class _BookingDetailScreenState extends State<BookingDetailScreen> {
+  void showAdvanceDialog(BuildContext context, DocumentReference bookingRef) {
+    TextEditingController controller = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          title: const Text("Enter Advance Amount"),
+          content: TextField(
+            controller: controller,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(
+              labelText: "Advance Amount",
+            ),
+          ),
+          actions: [
+            TextButton(
+              child: const Text("Cancel"),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+            TextButton(
+              child: const Text("Save"),
+              onPressed: () async {
+                double amount = double.tryParse(controller.text) ?? 0;
+
+                await bookingRef.update({
+                  "advancePaid": amount,
+                });
+
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void editQuantity(BuildContext context, DocumentSnapshot item) {
     final status = item["status"] ?? "";
 
@@ -238,6 +278,13 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                   ),
                                   Text("Advance Paid: ₹$advance"),
                                   Text("Remaining: ₹${grandTotal - advance}"),
+                                  const SizedBox(height: 10),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      showAdvanceDialog(context, bookingRef);
+                                    },
+                                    child: const Text("Pay Advance"),
+                                  ),
                                 ],
                               ),
                             );
