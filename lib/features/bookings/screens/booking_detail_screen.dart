@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'inventory_picker_screen.dart';
 import 'dispatch_items_screen.dart';
 import 'receive_items_screen.dart';
+import 'payment_history_screen.dart';
 
 class BookingDetailScreen extends StatefulWidget {
   final String bookingId;
@@ -329,12 +330,36 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                   Text(
                                       "Remaining: ₹${(grandTotal - paid).toStringAsFixed(2)}"),
                                   const SizedBox(height: 10),
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      showPaymentDialog(context, bookingRef,
-                                          paid, grandTotal);
-                                    },
-                                    child: const Text("Make Payment"),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: ElevatedButton(
+                                          onPressed: () {
+                                            showPaymentDialog(context,
+                                                bookingRef, paid, grandTotal);
+                                          },
+                                          child: const Text("Make Payment"),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Expanded(
+                                        child: OutlinedButton(
+                                          onPressed: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (_) =>
+                                                    PaymentHistoryScreen(
+                                                  bookingId: widget.bookingId,
+                                                  businessId: widget.businessId,
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                          child: const Text("History"),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
