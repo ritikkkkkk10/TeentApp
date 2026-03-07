@@ -11,6 +11,12 @@ class BookingModel {
   final Timestamp createdAt;
   final String customerAddress;
 
+  final double advancePaid;
+  final double estimatedTotal;
+  final double finalTotal;
+  final double remainingAmount;
+  final bool finalBillGenerated;
+
   BookingModel({
     required this.id,
     required this.eventName,
@@ -21,6 +27,11 @@ class BookingModel {
     required this.status,
     required this.createdAt,
     required this.customerAddress,
+    this.advancePaid = 0,
+    this.estimatedTotal = 0,
+    this.finalTotal = 0,
+    this.remainingAmount = 0,
+    this.finalBillGenerated = false,
   });
 
   Map<String, dynamic> toMap() {
@@ -33,6 +44,11 @@ class BookingModel {
       "status": status,
       "createdAt": createdAt,
       "customerAddress": customerAddress,
+      "advancePaid": advancePaid,
+      "estimatedTotal": estimatedTotal,
+      "finalTotal": finalTotal,
+      "remainingAmount": remainingAmount,
+      "finalBillGenerated": finalBillGenerated,
     };
   }
 }

@@ -167,8 +167,83 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
 
                     var items = itemSnapshot.data!.docs;
 
+                    double estimatedTotal = 0;
+
+                    /// ITEMS COST
+                    for (var item in items) {
+                      final data = item.data() as Map<String, dynamic>;
+
+                      int requestedQty = data["requestedQuantity"] ?? 0;
+                      int dispatchedQty = data["dispatchedQuantity"] ?? 0;
+
+                      int qty =
+                          dispatchedQty > 0 ? dispatchedQty : requestedQty;
+
+                      double price =
+                          (data["rentPriceSnapshot"] ?? 0).toDouble();
+
+                      estimatedTotal += qty * price;
+                    }
+
                     return ListView(
                       children: [
+                        StreamBuilder<QuerySnapshot>(
+                          stream: servicesRef.snapshots(),
+                          builder: (context, serviceSnapshot) {
+                            if (!serviceSnapshot.hasData) {
+                              return const SizedBox();
+                            }
+
+                            var services = serviceSnapshot.data!.docs;
+
+                            double serviceTotal = 0;
+
+                            for (var service in services) {
+                              serviceTotal +=
+                                  (service["priceSnapshot"] ?? 0).toDouble();
+                            }
+
+                            double grandTotal = estimatedTotal + serviceTotal;
+
+                            double advance =
+                                (bookingData["advancePaid"] ?? 0).toDouble();
+
+                            return Container(
+                              padding: const EdgeInsets.all(12),
+                              margin: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    "Estimated Bill",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                      "Items Total: ₹${estimatedTotal.toStringAsFixed(2)}"),
+                                  Text(
+                                      "Services Total: ₹${serviceTotal.toStringAsFixed(2)}"),
+                                  const Divider(),
+                                  Text(
+                                    "Total: ₹${grandTotal.toStringAsFixed(2)}",
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  Text("Advance Paid: ₹$advance"),
+                                  Text("Remaining: ₹${grandTotal - advance}"),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+
                         /// INVENTORY ITEMS
                         ...items.map((item) {
                           final data = item.data() as Map<String, dynamic>;
@@ -220,6 +295,13 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                             }
 
                             var services = serviceSnapshot.data!.docs;
+
+                            double serviceTotal = 0;
+
+                            for (var service in services) {
+                              serviceTotal +=
+                                  (service["priceSnapshot"] ?? 0).toDouble();
+                            }
 
                             return Column(
                               children: services.map((service) {
