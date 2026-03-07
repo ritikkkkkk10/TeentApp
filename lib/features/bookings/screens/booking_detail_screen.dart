@@ -19,10 +19,10 @@ class BookingDetailScreen extends StatefulWidget {
 }
 
 class _BookingDetailScreenState extends State<BookingDetailScreen> {
-  void showAdvanceDialog(
+  void showPaymentDialog(
     BuildContext context,
     DocumentReference bookingRef,
-    double currentAdvance,
+    double currentPaid,
     double grandTotal,
   ) {
     TextEditingController controller = TextEditingController();
@@ -31,12 +31,12 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
       context: context,
       builder: (_) {
         return AlertDialog(
-          title: const Text("Enter Advance Amount"),
+          title: const Text("Enter Payment Amount"),
           content: TextField(
             controller: controller,
             keyboardType: TextInputType.number,
             decoration: const InputDecoration(
-              labelText: "Advance Amount",
+              labelText: "Payment Amount",
             ),
           ),
           actions: [
@@ -51,9 +51,18 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
               onPressed: () async {
                 double amount = double.tryParse(controller.text) ?? 0;
 
-                double newAdvance = currentAdvance + amount;
+                double remaining = grandTotal - currentPaid;
 
-                double remaining = grandTotal - currentAdvance;
+                if (amount > remaining) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Payment cannot exceed remaining amount"),
+                    ),
+                  );
+                  return;
+                }
+
+                double newTotalPaid = currentPaid + amount;
 
                 if (amount > remaining) {
                   bool confirm = await showDialog(
@@ -81,12 +90,12 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                 }
 
                 await bookingRef.update({
-                  "advancePaid": newAdvance,
+                  "totalPaid": newTotalPaid,
                 });
 
                 await bookingRef.collection("payments").add({
                   "amount": amount,
-                  "type": "advance",
+                  "type": "payment",
                   "timestamp": Timestamp.now(),
                 });
 
@@ -285,8 +294,8 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
 
                             double grandTotal = estimatedTotal + serviceTotal;
 
-                            double advance =
-                                (bookingData["advancePaid"] ?? 0).toDouble();
+                            double paid =
+                                (bookingData["totalPaid"] ?? 0).toDouble();
 
                             return Container(
                               padding: const EdgeInsets.all(12),
@@ -316,15 +325,16 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                     style: const TextStyle(
                                         fontWeight: FontWeight.bold),
                                   ),
-                                  Text("Advance Paid: ₹$advance"),
-                                  Text("Remaining: ₹${grandTotal - advance}"),
+                                  Text("Paid: ₹$paid"),
+                                  Text(
+                                      "Remaining: ₹${(grandTotal - paid).toStringAsFixed(2)}"),
                                   const SizedBox(height: 10),
                                   ElevatedButton(
                                     onPressed: () {
-                                      showAdvanceDialog(context, bookingRef,
-                                          advance, grandTotal);
+                                      showPaymentDialog(context, bookingRef,
+                                          paid, grandTotal);
                                     },
-                                    child: const Text("Pay Advance"),
+                                    child: const Text("Make Payment"),
                                   ),
                                 ],
                               ),
