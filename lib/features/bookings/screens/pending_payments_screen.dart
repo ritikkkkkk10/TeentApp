@@ -12,7 +12,6 @@ class PendingPaymentsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     final bookingsRef = FirebaseFirestore.instance
         .collection("businesses")
         .doc(businessId)
@@ -25,62 +24,91 @@ class PendingPaymentsScreen extends StatelessWidget {
       body: StreamBuilder<QuerySnapshot>(
         stream: bookingsRef.snapshots(),
         builder: (context, snapshot) {
-
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
 
           final bookings = snapshot.data!.docs;
 
-          List<DocumentSnapshot> pendingBookings = [];
-
-          for (var booking in bookings) {
-
-            final data = booking.data() as Map<String, dynamic>;
-
-            double totalPaid =
-                (data["totalPaid"] ?? 0).toDouble();
-
-            if (data["status"] == "completed") continue;
-
-            pendingBookings.add(booking);
-          }
-
-          if (pendingBookings.isEmpty) {
-            return const Center(
-              child: Text("No pending payments"),
-            );
-          }
-
-          return ListView.builder(
-            itemCount: pendingBookings.length,
-            itemBuilder: (context, index) {
-
-              final booking = pendingBookings[index];
+          return ListView(
+            children: bookings.map((booking) {
               final data = booking.data() as Map<String, dynamic>;
 
-              return ListTile(
-                leading: const Icon(Icons.payments),
+              final bookingRef = FirebaseFirestore.instance
+                  .collection("businesses")
+                  .doc(businessId)
+                  .collection("bookings")
+                  .doc(booking.id);
 
-                title: Text(data["eventName"] ?? ""),
+              return StreamBuilder<QuerySnapshot>(
+                stream: bookingRef.collection("bookedItems").snapshots(),
+                builder: (context, itemSnap) {
+                  if (!itemSnap.hasData) return const SizedBox();
 
-                subtitle: Text(data["customerName"] ?? ""),
+                  var items = itemSnap.data!.docs;
 
-                trailing: const Text("View"),
+                  double itemsTotal = 0;
 
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => BookingDetailScreen(
-                        bookingId: booking.id,
-                        businessId: businessId,
-                      ),
-                    ),
+                  for (var item in items) {
+                    final itemData = item.data() as Map<String, dynamic>;
+
+                    int requested = itemData["requestedQuantity"] ?? 0;
+                    int dispatched = itemData["dispatchedQuantity"] ?? 0;
+
+                    int qty = dispatched > 0 ? dispatched : requested;
+
+                    double price =
+                        (itemData["rentPriceSnapshot"] ?? 0).toDouble();
+
+                    itemsTotal += qty * price;
+                  }
+
+                  return StreamBuilder<QuerySnapshot>(
+                    stream:
+                        bookingRef.collection("bookingServices").snapshots(),
+                    builder: (context, serviceSnap) {
+                      if (!serviceSnap.hasData) return const SizedBox();
+
+                      var services = serviceSnap.data!.docs;
+
+                      double servicesTotal = 0;
+
+                      for (var service in services) {
+                        servicesTotal +=
+                            (service["priceSnapshot"] ?? 0).toDouble();
+                      }
+
+                      double grandTotal = itemsTotal + servicesTotal;
+
+                      double paid = (data["totalPaid"] ?? 0).toDouble();
+
+                      double remaining = grandTotal - paid;
+
+                      if (remaining <= 0) return const SizedBox();
+
+                      return ListTile(
+                        leading: const Icon(Icons.payments),
+                        title: Text(data["eventName"] ?? ""),
+                        subtitle: Text(
+                            "${data["customerName"] ?? ""}\nRemaining: ₹${remaining.toStringAsFixed(2)}"),
+                        trailing: const Text("View"),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => BookingDetailScreen(
+                                bookingId: booking.id,
+                                businessId: businessId,
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
                   );
                 },
               );
-            },
+            }).toList(),
           );
         },
       ),
