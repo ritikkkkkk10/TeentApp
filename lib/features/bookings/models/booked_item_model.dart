@@ -5,6 +5,8 @@ class BookedItemModel {
   final String inventoryItemId;
   final String itemName;
 
+  final bool isManual;
+
   final int requestedQuantity;
   final int availableQuantityAtBooking;
   final int shortageQuantity;
@@ -21,11 +23,13 @@ class BookedItemModel {
   final DateTime bookingEndDate;
 
   final String? businessId;
+  
 
   BookedItemModel({
     required this.id,
     required this.inventoryItemId,
     required this.itemName,
+    this.isManual = false,
     required this.requestedQuantity,
     required this.availableQuantityAtBooking,
     required this.shortageQuantity,
@@ -43,6 +47,7 @@ class BookedItemModel {
     return {
       "inventoryItemId": inventoryItemId,
       "itemName": itemName,
+      "isManual": isManual,
       "requestedQuantity": requestedQuantity,
       "dispatchedQuantity": dispatchedQuantity, // ✅ NEW
       "availableQuantityAtBooking": availableQuantityAtBooking,

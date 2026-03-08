@@ -47,6 +47,125 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
     initialize();
   }
 
+  void openManualItemDialog() {
+    TextEditingController nameController = TextEditingController();
+    TextEditingController qtyController = TextEditingController();
+    TextEditingController priceController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Add Manual Item"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameController,
+              decoration: const InputDecoration(labelText: "Item Name"),
+            ),
+            TextField(
+              controller: qtyController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: "Quantity"),
+            ),
+            TextField(
+              controller: priceController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: "Rent Price"),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            child: const Text("Cancel"),
+            onPressed: () => Navigator.pop(context),
+          ),
+          TextButton(
+            child: const Text("Add"),
+            onPressed: () async {
+              String name = nameController.text;
+              int qty = int.tryParse(qtyController.text) ?? 0;
+              double price = double.tryParse(priceController.text) ?? 0;
+
+              BookedItemModel item = BookedItemModel(
+                id: const Uuid().v4(),
+                inventoryItemId: "manual",
+                itemName: name,
+                isManual: true,
+                requestedQuantity: qty,
+                availableQuantityAtBooking: 0,
+                shortageQuantity: 0,
+                rentPriceSnapshot: price,
+                createdAt: Timestamp.now(),
+                bookingStartDate: startDate!,
+                bookingEndDate: endDate!,
+                businessId: businessId,
+              );
+
+              await repo.addBookedItem(
+                bookingId: widget.bookingId,
+                item: item,
+              );
+
+              Navigator.pop(context);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  void openManualServiceDialog() {
+    TextEditingController nameController = TextEditingController();
+    TextEditingController priceController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Add Manual Service"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameController,
+              decoration: const InputDecoration(labelText: "Service Name"),
+            ),
+            TextField(
+              controller: priceController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: "Price"),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            child: const Text("Cancel"),
+            onPressed: () => Navigator.pop(context),
+          ),
+          TextButton(
+            child: const Text("Add"),
+            onPressed: () async {
+              final service = BookingServiceModel(
+                id: const Uuid().v4(),
+                serviceId: "manual",
+                serviceName: nameController.text,
+                priceSnapshot: double.tryParse(priceController.text) ?? 0,
+                createdAt: Timestamp.now(),
+              );
+
+              await repo.addBookingService(
+                bookingId: widget.bookingId,
+                service: service,
+              );
+
+              Navigator.pop(context);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> initialize() async {
     businessId = await getBusinessId();
     await loadBookingDates();
@@ -100,6 +219,10 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
             !(otherEnd.isBefore(startDate!) || otherStart.isAfter(endDate!));
 
         if (!overlap) continue;
+
+        if (doc["inventoryItemId"] == "manual") {
+          continue;
+        }
 
         String itemId = doc["inventoryItemId"];
 
@@ -238,6 +361,33 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
       body: Column(
         children: [
           /// SEARCH BAR
+          ///
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            child: Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.add),
+                    label: const Text("Manual Item"),
+                    onPressed: () {
+                      openManualItemDialog();
+                    },
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.miscellaneous_services),
+                    label: const Text("Manual Service"),
+                    onPressed: () {
+                      openManualServiceDialog();
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.all(10),
             child: TextField(
