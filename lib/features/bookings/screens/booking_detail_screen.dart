@@ -4,6 +4,7 @@ import 'inventory_picker_screen.dart';
 import 'dispatch_items_screen.dart';
 import 'receive_items_screen.dart';
 import 'payment_history_screen.dart';
+import '../../../core/utils/invoice_generator.dart';
 
 class BookingDetailScreen extends StatefulWidget {
   final String bookingId;
@@ -330,37 +331,100 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                   Text(
                                       "Remaining: ₹${(grandTotal - paid).toStringAsFixed(2)}"),
                                   const SizedBox(height: 10),
-                                  Row(
+                                  Column(
                                     children: [
-                                      Expanded(
-                                        child: ElevatedButton(
-                                          onPressed: () {
-                                            showPaymentDialog(context,
-                                                bookingRef, paid, grandTotal);
-                                          },
-                                          child: const Text("Make Payment"),
-                                        ),
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: ElevatedButton(
+                                              onPressed: () {
+                                                showPaymentDialog(
+                                                  context,
+                                                  bookingRef,
+                                                  paid,
+                                                  grandTotal,
+                                                );
+                                              },
+                                              child: const Text("Make Payment"),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Expanded(
+                                            child: OutlinedButton(
+                                              onPressed: () {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (_) =>
+                                                        PaymentHistoryScreen(
+                                                      bookingId:
+                                                          widget.bookingId,
+                                                      businessId:
+                                                          widget.businessId,
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                              child: const Text("History"),
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                      const SizedBox(width: 10),
-                                      Expanded(
-                                        child: OutlinedButton(
+                                      const SizedBox(height: 10),
+                                      SizedBox(
+                                        width: double.infinity,
+                                        child: ElevatedButton(
+                                          child: const Text("Generate Invoice"),
                                           onPressed: () {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (_) =>
-                                                    PaymentHistoryScreen(
-                                                  bookingId: widget.bookingId,
-                                                  businessId: widget.businessId,
-                                                ),
-                                              ),
+                                            generateInvoice(
+                                              customerName:
+                                                  bookingData["customerName"],
+                                              phone:
+                                                  bookingData["customerPhone"],
+                                              eventName:
+                                                  bookingData["eventName"],
+                                              items: items.map((doc) {
+                                                final data = doc.data()
+                                                    as Map<String, dynamic>;
+
+                                                int requested =
+                                                    data["requestedQuantity"] ??
+                                                        0;
+                                                int dispatched = data[
+                                                        "dispatchedQuantity"] ??
+                                                    0;
+
+                                                int qty = dispatched > 0
+                                                    ? dispatched
+                                                    : requested;
+
+                                                return {
+                                                  "name": data["itemName"],
+                                                  "requested":
+                                                      data["requestedQuantity"],
+                                                  "dispatched": data[
+                                                      "dispatchedQuantity"],
+                                                  "price":
+                                                      data["rentPriceSnapshot"]
+                                                };
+                                              }).toList(),
+                                              services: services.map((doc) {
+                                                final data = doc.data()
+                                                    as Map<String, dynamic>;
+
+                                                return {
+                                                  "name": data["serviceName"],
+                                                  "price": data["priceSnapshot"]
+                                                };
+                                              }).toList(),
+                                              total: grandTotal,
+                                              paid: paid,
                                             );
                                           },
-                                          child: const Text("History"),
                                         ),
                                       ),
                                     ],
-                                  ),
+                                  )
                                 ],
                               ),
                             );
