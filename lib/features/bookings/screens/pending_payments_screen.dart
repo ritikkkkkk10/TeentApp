@@ -101,11 +101,21 @@ class PendingPaymentsScreen extends StatelessWidget {
                         return const SizedBox();
                       }
 
+String dateText =
+    "${startDate.day}/${startDate.month}/${startDate.year}";
+
                       return ListTile(
                         leading: const Icon(Icons.payments),
                         title: Text(data["eventName"] ?? ""),
-                        subtitle: Text(
-                            "${data["customerName"] ?? ""}\nRemaining: ₹${remaining.toStringAsFixed(2)}"),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(data["customerName"] ?? ""),
+                            Text("Date: $dateText"),
+                            Text("Status: ${data["status"]}"),
+                            Text("Remaining: ₹${remaining.toStringAsFixed(2)}"),
+                          ],
+                        ),
                         trailing: const Text("View"),
                         onTap: () {
                           Navigator.push(
