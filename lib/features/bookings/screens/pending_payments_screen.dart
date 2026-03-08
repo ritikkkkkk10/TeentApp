@@ -84,7 +84,22 @@ class PendingPaymentsScreen extends StatelessWidget {
 
                       double remaining = grandTotal - paid;
 
+                      DateTime startDate =
+                          (data["startDate"] as Timestamp).toDate();
+
+                      DateTime today = DateTime.now();
+
+                      bool eventStarted = !startDate.isAfter(today);
+
+                      String status = data["status"] ?? "confirmed";
+
                       if (remaining <= 0) return const SizedBox();
+
+                      if (!(eventStarted ||
+                          status == "dispatched" ||
+                          status == "receiving")) {
+                        return const SizedBox();
+                      }
 
                       return ListTile(
                         leading: const Icon(Icons.payments),
