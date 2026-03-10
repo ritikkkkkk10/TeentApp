@@ -4,6 +4,7 @@ import 'package:tent_app/features/inventory/screens/inventory_screen.dart';
 import 'package:tent_app/core/config/app_config.dart';
 import 'package:tent_app/features/bookings/screens/pending_payments_screen.dart';
 import 'package:tent_app/features/bookings/screens/business_profile_screen.dart';
+import 'package:tent_app/features/bookings/screens/bookings_calendar_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -55,6 +56,22 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               },
               child: const Text("Bookings"),
+            ),
+
+            const SizedBox(height: 20),
+
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => BookingsCalendarScreen(
+                      businessId: businessId!,
+                    ),
+                  ),
+                );
+              },
+              child: const Text("Bookings Calendar"),
             ),
 
             const SizedBox(height: 20),
