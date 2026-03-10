@@ -1,8 +1,10 @@
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
+import 'package:flutter/material.dart';
 
-Future<void> generateInvoice({
+Future<void> generateInvoice(
+  BuildContext context, {
   /// BUSINESS
   required String businessName,
   required String ownerName,
@@ -35,9 +37,10 @@ Future<void> generateInvoice({
   }
 
   pdf.addPage(
-    pw.Page(
+    pw.MultiPage(
       build: (pw.Context context) {
-        return pw.Padding(
+  return [
+    pw.Padding(
           padding: const pw.EdgeInsets.all(20),
           child: pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -163,12 +166,21 @@ Future<void> generateInvoice({
               ),
             ],
           ),
-        );
+        ),
+        ];
       },
     ),
   );
 
-  await Printing.layoutPdf(
-    onLayout: (PdfPageFormat format) async => pdf.save(),
-  );
+  Navigator.push(
+  context,
+  MaterialPageRoute(
+    builder: (_) => Scaffold(
+      appBar: AppBar(title: const Text("Invoice")),
+      body: PdfPreview(
+        build: (format) async => pdf.save(),
+      ),
+    ),
+  ),
+);
 }

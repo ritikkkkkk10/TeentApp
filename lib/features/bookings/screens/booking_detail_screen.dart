@@ -385,59 +385,78 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                       SizedBox(
                                         width: double.infinity,
                                         child: ElevatedButton(
-                                          child: const Text("Generate Invoice"),
-                                          onPressed: () async {
+                                            child:
+                                                const Text("Generate Invoice"),
+                                            onPressed: () async {
+                                              final profileService =
+                                                  BusinessProfileService();
+                                              final profile =
+                                                  await profileService
+                                                      .getProfile(
+                                                          widget.businessId);
 
-  final profileService = BusinessProfileService();
-  final profile = await profileService.getProfile(widget.businessId);
+                                              if (profile == null) {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  const SnackBar(
+                                                      content: Text(
+                                                          "Please fill Business Profile first")),
+                                                );
+                                                return;
+                                              }
 
-  if (profile == null) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Please fill Business Profile first")),
-    );
-    return;
-  }
+                                              generateInvoice(
+                                                context,
+                                                businessName:
+                                                    profile.businessName,
+                                                ownerName: profile.ownerName,
+                                                businessPhone: profile.phone,
+                                                businessAddress:
+                                                    profile.address,
+                                                gst: profile.gst,
+                                                customerName:
+                                                    bookingData["customerName"],
+                                                customerPhone: bookingData[
+                                                    "customerPhone"],
+                                                customerAddress: bookingData[
+                                                    "customerAddress"],
+                                                eventName:
+                                                    bookingData["eventName"],
+                                                startDate:
+                                                    (bookingData["startDate"]
+                                                            as Timestamp)
+                                                        .toDate(),
+                                                endDate: (bookingData["endDate"]
+                                                        as Timestamp)
+                                                    .toDate(),
+                                                items: items.map((doc) {
+                                                  final data = doc.data()
+                                                      as Map<String, dynamic>;
 
-  generateInvoice(
-    businessName: profile.businessName,
-    ownerName: profile.ownerName,
-    businessPhone: profile.phone,
-    businessAddress: profile.address,
-    gst: profile.gst,
+                                                  return {
+                                                    "name": data["itemName"],
+                                                    "requested": data[
+                                                        "requestedQuantity"],
+                                                    "dispatched": data[
+                                                        "dispatchedQuantity"],
+                                                    "price": data[
+                                                        "rentPriceSnapshot"],
+                                                  };
+                                                }).toList(),
+                                                services: services.map((doc) {
+                                                  final data = doc.data()
+                                                      as Map<String, dynamic>;
 
-    customerName: bookingData["customerName"],
-    customerPhone: bookingData["customerPhone"],
-    customerAddress: bookingData["customerAddress"],
-
-    eventName: bookingData["eventName"],
-    startDate: (bookingData["startDate"] as Timestamp).toDate(),
-    endDate: (bookingData["endDate"] as Timestamp).toDate(),
-
-    items: items.map((doc) {
-      final data = doc.data() as Map<String, dynamic>;
-
-      return {
-        "name": data["itemName"],
-        "requested": data["requestedQuantity"],
-        "dispatched": data["dispatchedQuantity"],
-        "price": data["rentPriceSnapshot"],
-      };
-    }).toList(),
-
-    services: services.map((doc) {
-      final data = doc.data() as Map<String, dynamic>;
-
-      return {
-        "name": data["serviceName"],
-        "price": data["priceSnapshot"],
-      };
-    }).toList(),
-
-    total: grandTotal,
-    paid: paid,
-  );
-}
-                                        ),
+                                                  return {
+                                                    "name": data["serviceName"],
+                                                    "price":
+                                                        data["priceSnapshot"],
+                                                  };
+                                                }).toList(),
+                                                total: grandTotal,
+                                                paid: paid,
+                                              );
+                                            }),
                                       ),
                                       if (status == "receiving" &&
                                           hasMissingItems)
