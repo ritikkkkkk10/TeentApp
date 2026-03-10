@@ -5,6 +5,7 @@ import 'dispatch_items_screen.dart';
 import 'receive_items_screen.dart';
 import 'payment_history_screen.dart';
 import '../../../core/utils/invoice_generator.dart';
+import 'package:tent_app/features/inventory/services/business_profile_service.dart';
 
 class BookingDetailScreen extends StatefulWidget {
   final String bookingId;
@@ -385,52 +386,57 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                         width: double.infinity,
                                         child: ElevatedButton(
                                           child: const Text("Generate Invoice"),
-                                          onPressed: () {
-                                            generateInvoice(
-                                              customerName:
-                                                  bookingData["customerName"],
-                                              phone:
-                                                  bookingData["customerPhone"],
-                                              eventName:
-                                                  bookingData["eventName"],
-                                              items: items.map((doc) {
-                                                final data = doc.data()
-                                                    as Map<String, dynamic>;
+                                          onPressed: () async {
 
-                                                int requested =
-                                                    data["requestedQuantity"] ??
-                                                        0;
-                                                int dispatched = data[
-                                                        "dispatchedQuantity"] ??
-                                                    0;
+  final profileService = BusinessProfileService();
+  final profile = await profileService.getProfile(widget.businessId);
 
-                                                int qty = dispatched > 0
-                                                    ? dispatched
-                                                    : requested;
+  if (profile == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Please fill Business Profile first")),
+    );
+    return;
+  }
 
-                                                return {
-                                                  "name": data["itemName"],
-                                                  "requested":
-                                                      data["requestedQuantity"],
-                                                  "dispatched": data[
-                                                      "dispatchedQuantity"],
-                                                  "price":
-                                                      data["rentPriceSnapshot"]
-                                                };
-                                              }).toList(),
-                                              services: services.map((doc) {
-                                                final data = doc.data()
-                                                    as Map<String, dynamic>;
+  generateInvoice(
+    businessName: profile.businessName,
+    ownerName: profile.ownerName,
+    businessPhone: profile.phone,
+    businessAddress: profile.address,
+    gst: profile.gst,
 
-                                                return {
-                                                  "name": data["serviceName"],
-                                                  "price": data["priceSnapshot"]
-                                                };
-                                              }).toList(),
-                                              total: grandTotal,
-                                              paid: paid,
-                                            );
-                                          },
+    customerName: bookingData["customerName"],
+    customerPhone: bookingData["customerPhone"],
+    customerAddress: bookingData["customerAddress"],
+
+    eventName: bookingData["eventName"],
+    startDate: (bookingData["startDate"] as Timestamp).toDate(),
+    endDate: (bookingData["endDate"] as Timestamp).toDate(),
+
+    items: items.map((doc) {
+      final data = doc.data() as Map<String, dynamic>;
+
+      return {
+        "name": data["itemName"],
+        "requested": data["requestedQuantity"],
+        "dispatched": data["dispatchedQuantity"],
+        "price": data["rentPriceSnapshot"],
+      };
+    }).toList(),
+
+    services: services.map((doc) {
+      final data = doc.data() as Map<String, dynamic>;
+
+      return {
+        "name": data["serviceName"],
+        "price": data["priceSnapshot"],
+      };
+    }).toList(),
+
+    total: grandTotal,
+    paid: paid,
+  );
+}
                                         ),
                                       ),
                                       if (status == "receiving" &&
