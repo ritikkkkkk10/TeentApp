@@ -19,6 +19,9 @@ class _BookingsListScreenState extends State<BookingsListScreen> {
   String filter =
       "all"; // all, pending, dispatched, receiving, history, missing
 
+  TextEditingController searchController = TextEditingController();
+  String searchText = "";
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,6 +41,31 @@ class _BookingsListScreenState extends State<BookingsListScreen> {
       ),
       body: Column(
         children: [
+          /// SEARCH BAR
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: TextField(
+              controller: searchController,
+              decoration: InputDecoration(
+                hintText: "Search by customer, event or phone",
+                prefixIcon: const Icon(Icons.search),
+                filled: true,
+                fillColor: Colors.grey.shade200,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+              onChanged: (value) {
+                setState(() {
+                  searchText = value.toLowerCase();
+                });
+              },
+            ),
+          ),
+
+          const SizedBox(height: 8),
+
           /// FILTER BUTTONS
           Padding(
             padding: const EdgeInsets.all(10),
@@ -116,6 +144,24 @@ class _BookingsListScreenState extends State<BookingsListScreen> {
 
                 var bookings = snapshot.data!.docs;
 
+                /// SEARCH FILTER
+                if (searchText.isNotEmpty) {
+                  bookings = bookings.where((b) {
+                    String eventName =
+                        (b["eventName"] ?? "").toString().toLowerCase();
+
+                    String customerName =
+                        (b["customerName"] ?? "").toString().toLowerCase();
+
+                    String phone =
+                        (b["customerPhone"] ?? "").toString().toLowerCase();
+
+                    return eventName.contains(searchText) ||
+                        customerName.contains(searchText) ||
+                        phone.contains(searchText);
+                  }).toList();
+                }
+
                 if (filter == "pending") {
                   bookings = bookings
                       .where((b) =>
@@ -169,6 +215,7 @@ class _BookingsListScreenState extends State<BookingsListScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(booking["customerName"]),
+                          Text(booking["customerPhone"]),
                           Text(
                             "Start: ${start.day}/${start.month}/${start.year}",
                           ),
