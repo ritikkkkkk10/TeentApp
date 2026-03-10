@@ -258,6 +258,16 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
 
                     var items = itemSnapshot.data!.docs;
 
+                    bool hasMissingItems = false;
+
+                    for (var item in items) {
+                      final data = item.data() as Map<String, dynamic>;
+                      if ((data["missingQuantity"] ?? 0) > 0) {
+                        hasMissingItems = true;
+                        break;
+                      }
+                    }
+
                     double estimatedTotal = 0;
 
                     /// ITEMS COST
@@ -423,6 +433,59 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                           },
                                         ),
                                       ),
+                                      if (status == "receiving" &&
+                                          hasMissingItems)
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(top: 10),
+                                          child: SizedBox(
+                                            width: double.infinity,
+                                            child: ElevatedButton(
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: Colors.orange,
+                                              ),
+                                              child:
+                                                  const Text("Close Booking"),
+                                              onPressed: () async {
+                                                bool confirm = await showDialog(
+                                                      context: context,
+                                                      builder: (_) =>
+                                                          AlertDialog(
+                                                        title: const Text(
+                                                            "Close Booking"),
+                                                        content: const Text(
+                                                            "Some items are missing.\n\nClose this booking?"),
+                                                        actions: [
+                                                          TextButton(
+                                                            child: const Text(
+                                                                "Cancel"),
+                                                            onPressed: () =>
+                                                                Navigator.pop(
+                                                                    context,
+                                                                    false),
+                                                          ),
+                                                          TextButton(
+                                                            child: const Text(
+                                                                "Close"),
+                                                            onPressed: () =>
+                                                                Navigator.pop(
+                                                                    context,
+                                                                    true),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ) ??
+                                                    false;
+
+                                                if (!confirm) return;
+
+                                                await bookingRef.update({
+                                                  "status": "completed",
+                                                });
+                                              },
+                                            ),
+                                          ),
+                                        ),
                                     ],
                                   )
                                 ],
