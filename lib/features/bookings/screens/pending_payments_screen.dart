@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'booking_detail_screen.dart';
 
-class PendingPaymentsScreen extends StatelessWidget {
+class PendingPaymentsScreen extends StatefulWidget {
   final String businessId;
 
   const PendingPaymentsScreen({
@@ -11,132 +11,223 @@ class PendingPaymentsScreen extends StatelessWidget {
   });
 
   @override
+  State<PendingPaymentsScreen> createState() =>
+      _PendingPaymentsScreenState();
+}
+
+class _PendingPaymentsScreenState extends State<PendingPaymentsScreen>
+    with SingleTickerProviderStateMixin {
+
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _tabController = TabController(length: 4, vsync: this);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final bookingsRef = FirebaseFirestore.instance
-        .collection("businesses")
-        .doc(businessId)
-        .collection("bookings");
 
     return Scaffold(
       appBar: AppBar(
         title: const Text("Pending Payments"),
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: const [
+            Tab(text: "All"),
+            Tab(text: "Dispatched"),
+            Tab(text: "Receiving"),
+            Tab(text: "Completed"),
+          ],
+        ),
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: bookingsRef.snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
 
-          final bookings = snapshot.data!.docs;
+      body: TabBarView(
+        controller: _tabController,
+        children: [
 
-          return ListView(
-            children: bookings.map((booking) {
-              final data = booking.data() as Map<String, dynamic>;
+          buildBookingsList(null),
 
-              final bookingRef = FirebaseFirestore.instance
-                  .collection("businesses")
-                  .doc(businessId)
-                  .collection("bookings")
-                  .doc(booking.id);
+          buildBookingsList("dispatched"),
 
-              return StreamBuilder<QuerySnapshot>(
-                stream: bookingRef.collection("bookedItems").snapshots(),
-                builder: (context, itemSnap) {
-                  if (!itemSnap.hasData) return const SizedBox();
+          buildBookingsList("receiving"),
 
-                  var items = itemSnap.data!.docs;
+          buildBookingsList("completed"),
+        ],
+      ),
+    );
+  }
 
-                  double itemsTotal = 0;
+  Widget buildBookingsList(String? statusFilter) {
 
-                  for (var item in items) {
-                    final itemData = item.data() as Map<String, dynamic>;
+    final bookingsRef = FirebaseFirestore.instance
+        .collection("businesses")
+        .doc(widget.businessId)
+        .collection("bookings");
 
-                    int requested = itemData["requestedQuantity"] ?? 0;
-                    int dispatched = itemData["dispatchedQuantity"] ?? 0;
+    return StreamBuilder<QuerySnapshot>(
+      stream: bookingsRef.snapshots(),
+      builder: (context, snapshot) {
 
-                    int qty = dispatched > 0 ? dispatched : requested;
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-                    double price =
-                        (itemData["rentPriceSnapshot"] ?? 0).toDouble();
+        final bookings = snapshot.data!.docs;
 
-                    itemsTotal += qty * price;
-                  }
+        return ListView(
+          children: bookings.map((booking) {
 
-                  return StreamBuilder<QuerySnapshot>(
-                    stream:
-                        bookingRef.collection("bookingServices").snapshots(),
-                    builder: (context, serviceSnap) {
-                      if (!serviceSnap.hasData) return const SizedBox();
+            final data = booking.data() as Map<String, dynamic>;
 
-                      var services = serviceSnap.data!.docs;
+            String status = data["status"] ?? "confirmed";
 
-                      double servicesTotal = 0;
+            /// FILTER BASED ON TAB
+            if (statusFilter != null && status != statusFilter) {
+              return const SizedBox();
+            }
 
-                      for (var service in services) {
-                        servicesTotal +=
-                            (service["priceSnapshot"] ?? 0).toDouble();
-                      }
+            final bookingRef = FirebaseFirestore.instance
+                .collection("businesses")
+                .doc(widget.businessId)
+                .collection("bookings")
+                .doc(booking.id);
 
-                      double grandTotal = itemsTotal + servicesTotal;
+            return StreamBuilder<QuerySnapshot>(
+              stream: bookingRef.collection("bookedItems").snapshots(),
+              builder: (context, itemSnap) {
 
-                      double paid = (data["totalPaid"] ?? 0).toDouble();
+                if (!itemSnap.hasData) return const SizedBox();
 
-                      double remaining = grandTotal - paid;
+                var items = itemSnap.data!.docs;
 
-                      DateTime startDate =
-                          (data["startDate"] as Timestamp).toDate();
+                double itemsTotal = 0;
 
-                      DateTime today = DateTime.now();
+                for (var item in items) {
 
-                      bool eventStarted = !startDate.isAfter(today);
+                  final itemData =
+                      item.data() as Map<String, dynamic>;
 
-                      String status = data["status"] ?? "confirmed";
+                  int requested =
+                      itemData["requestedQuantity"] ?? 0;
 
-                      if (remaining <= 0) return const SizedBox();
+                  int dispatched =
+                      itemData["dispatchedQuantity"] ?? 0;
 
-                      if (!(eventStarted ||
-                          status == "dispatched" ||
-                          status == "receiving")) {
-                        return const SizedBox();
-                      }
+                  int qty = dispatched > 0
+                      ? dispatched
+                      : requested;
 
-String dateText =
-    "${startDate.day}/${startDate.month}/${startDate.year}";
+                  double price =
+                      (itemData["rentPriceSnapshot"] ?? 0)
+                          .toDouble();
 
-                      return ListTile(
-                        leading: const Icon(Icons.payments),
-                        title: Text(data["eventName"] ?? ""),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(data["customerName"] ?? ""),
-                            Text("Date: $dateText"),
-                            Text("Status: ${data["status"]}"),
-                            Text("Remaining: ₹${remaining.toStringAsFixed(2)}"),
-                          ],
-                        ),
-                        trailing: const Text("View"),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => BookingDetailScreen(
-                                bookingId: booking.id,
-                                businessId: businessId,
-                              ),
+                  itemsTotal += qty * price;
+                }
+
+                return StreamBuilder<QuerySnapshot>(
+                  stream: bookingRef
+                      .collection("bookingServices")
+                      .snapshots(),
+                  builder: (context, serviceSnap) {
+
+                    if (!serviceSnap.hasData) {
+                      return const SizedBox();
+                    }
+
+                    var services =
+                        serviceSnap.data!.docs;
+
+                    double servicesTotal = 0;
+
+                    for (var service in services) {
+
+                      servicesTotal +=
+                          (service["priceSnapshot"] ?? 0)
+                              .toDouble();
+                    }
+
+                    double grandTotal =
+                        itemsTotal + servicesTotal;
+
+                    double paid =
+                        (data["totalPaid"] ?? 0).toDouble();
+
+                    double remaining =
+                        grandTotal - paid;
+
+                    DateTime startDate =
+                        (data["startDate"] as Timestamp)
+                            .toDate();
+
+                    DateTime today = DateTime.now();
+
+                    bool eventStarted =
+                        !startDate.isAfter(today);
+
+                    if (remaining <= 0) {
+                      return const SizedBox();
+                    }
+
+                    if (!(eventStarted ||
+                        status == "dispatched" ||
+                        status == "receiving")) {
+                      return const SizedBox();
+                    }
+
+                    String dateText =
+                        "${startDate.day}/${startDate.month}/${startDate.year}";
+
+                    return ListTile(
+                      leading: const Icon(Icons.payments),
+
+                      title:
+                          Text(data["eventName"] ?? ""),
+
+                      subtitle: Column(
+                        crossAxisAlignment:
+                            CrossAxisAlignment.start,
+                        children: [
+
+                          Text(
+                              data["customerName"] ?? ""),
+
+                          Text("Date: $dateText"),
+
+                          Text("Status: $status"),
+
+                          Text(
+                            "Remaining: ₹${remaining.toStringAsFixed(2)}",
+                          ),
+                        ],
+                      ),
+
+                      trailing: const Text("View"),
+
+                      onTap: () {
+
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                BookingDetailScreen(
+                              bookingId: booking.id,
+                              businessId:
+                                  widget.businessId,
                             ),
-                          );
-                        },
-                      );
-                    },
-                  );
-                },
-              );
-            }).toList(),
-          );
-        },
-      ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                );
+              },
+            );
+          }).toList(),
+        );
+      },
     );
   }
 }
