@@ -22,6 +22,8 @@ class BookingDetailScreen extends StatefulWidget {
 }
 
 class _BookingDetailScreenState extends State<BookingDetailScreen> {
+  bool isSavingPayment = false;
+
   void showPaymentDialog(
     BuildContext context,
     DocumentReference bookingRef,
@@ -50,60 +52,80 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
               },
             ),
             TextButton(
-              child: const Text("Save"),
-              onPressed: () async {
-                double amount = double.tryParse(controller.text) ?? 0;
+              child: isSavingPayment
+                  ? const SizedBox(
+                      height: 16,
+                      width: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text("Save"),
+              onPressed: isSavingPayment
+                  ? null
+                  : () async {
+                      if (isSavingPayment) return;
 
-                double remaining = grandTotal - currentPaid;
+                      setState(() {
+                        isSavingPayment = true;
+                      });
+                      double amount = double.tryParse(controller.text) ?? 0;
 
-                if (amount > remaining) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Payment cannot exceed remaining amount"),
-                    ),
-                  );
-                  return;
-                }
+                      double remaining = grandTotal - currentPaid;
 
-                double newTotalPaid = currentPaid + amount;
-
-                if (amount > remaining) {
-                  bool confirm = await showDialog(
-                        context: context,
-                        builder: (_) => AlertDialog(
-                          title: const Text("Advance exceeds remaining"),
-                          content: const Text(
-                            "This payment exceeds remaining amount.\n\nContinue?",
+                      if (amount > remaining) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content:
+                                Text("Payment cannot exceed remaining amount"),
                           ),
-                          actions: [
-                            TextButton(
-                              child: const Text("Cancel"),
-                              onPressed: () => Navigator.pop(context, false),
-                            ),
-                            TextButton(
-                              child: const Text("Confirm"),
-                              onPressed: () => Navigator.pop(context, true),
-                            ),
-                          ],
-                        ),
-                      ) ??
-                      false;
+                        );
+                        return;
+                      }
 
-                  if (!confirm) return;
-                }
+                      double newTotalPaid = currentPaid + amount;
 
-                await bookingRef.update({
-                  "totalPaid": newTotalPaid,
-                });
+                      if (amount > remaining) {
+                        bool confirm = await showDialog(
+                              context: context,
+                              builder: (_) => AlertDialog(
+                                title: const Text("Advance exceeds remaining"),
+                                content: const Text(
+                                  "This payment exceeds remaining amount.\n\nContinue?",
+                                ),
+                                actions: [
+                                  TextButton(
+                                    child: const Text("Cancel"),
+                                    onPressed: () =>
+                                        Navigator.pop(context, false),
+                                  ),
+                                  TextButton(
+                                    child: const Text("Confirm"),
+                                    onPressed: () =>
+                                        Navigator.pop(context, true),
+                                  ),
+                                ],
+                              ),
+                            ) ??
+                            false;
 
-                await bookingRef.collection("payments").add({
-                  "amount": amount,
-                  "type": "payment",
-                  "timestamp": Timestamp.now(),
-                });
+                        if (!confirm) return;
+                      }
 
-                Navigator.pop(context);
-              },
+                      await bookingRef.update({
+                        "totalPaid": newTotalPaid,
+                      });
+
+                      await bookingRef.collection("payments").add({
+                        "amount": amount,
+                        "type": "payment",
+                        "timestamp": Timestamp.now(),
+                      });
+
+                      Navigator.pop(context);
+
+                      setState(() {
+                        isSavingPayment = false;
+                      });
+                    },
             ),
           ],
         );
