@@ -10,21 +10,22 @@ enum AppMode {
 }
 
 /// CHANGE THIS LATER ONLY
-const AppMode appMode = AppMode.demoSingleBusiness;
+const AppMode appMode = AppMode.multiBusiness;
 
 /// ===============================
 /// BUSINESS ID PROVIDER
 /// ===============================
 Future<String> getBusinessId() async {
 
-  /// DEVELOPMENT MODE
   if (appMode == AppMode.demoSingleBusiness) {
     return "test_business_5";
   }
 
-  /// FUTURE REAL SAAS MODE
-  final user = FirebaseAuth.instance.currentUser!;
+  User? user = FirebaseAuth.instance.currentUser;
 
-  // Later we will fetch businessId from Firestore users collection
-  return user.uid;
+  if (user == null) {
+    user = await FirebaseAuth.instance.authStateChanges().first;
+  }
+
+  return user!.uid;
 }

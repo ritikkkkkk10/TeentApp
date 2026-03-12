@@ -7,6 +7,7 @@ import 'package:tent_app/features/bookings/screens/business_profile_screen.dart'
 import 'package:tent_app/features/bookings/screens/bookings_calendar_screen.dart';
 import 'package:tent_app/features/bookings/screens/today_payments_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -40,6 +41,14 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Tent Manager"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              await FirebaseAuth.instance.signOut();
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -48,7 +57,9 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: const EdgeInsets.all(12),
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
-                  .collectionGroup("payments")
+                  .collection("businesses")
+                  .doc(businessId!)
+                  .collection("bookings")
                   .snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
@@ -59,13 +70,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 DateTime now = DateTime.now();
                 DateTime startOfDay = DateTime(now.year, now.month, now.day);
+
                 DateTime endOfDay =
                     DateTime(now.year, now.month, now.day, 23, 59, 59);
 
                 for (var doc in snapshot.data!.docs) {
                   final data = doc.data() as Map<String, dynamic>;
 
-                  Timestamp ts = data["timestamp"];
+                  Timestamp? ts = data["timestamp"];
+
+                  if (ts == null) {
+                    continue; // skip bad records
+                  }
 
                   DateTime time = ts.toDate();
 
