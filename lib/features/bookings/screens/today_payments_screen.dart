@@ -73,8 +73,7 @@ class TodayPaymentsScreen extends StatelessWidget {
                               Text(
                                   bookingData["customerName"] ?? ""),
                               Text("Paid: ₹$amount"),
-                              Text(
-                                  "${time.hour}:${time.minute}"),
+                              Text("${time.hour.toString().padLeft(2,'0')}:${time.minute.toString().padLeft(2,'0')}"),
                             ],
                           ),
                           trailing: const Text("View"),

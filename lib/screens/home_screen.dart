@@ -57,9 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: const EdgeInsets.all(12),
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
-                  .collection("businesses")
-                  .doc(businessId!)
-                  .collection("bookings")
+                  .collectionGroup("payments")
                   .snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
@@ -75,14 +73,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     DateTime(now.year, now.month, now.day, 23, 59, 59);
 
                 for (var doc in snapshot.data!.docs) {
+                  /// ensure payment belongs to this business
+                  String bookingBusinessId =
+                      doc.reference.parent.parent!.parent!.parent!.id;
+
+                  if (bookingBusinessId != businessId) continue;
+
                   final data = doc.data() as Map<String, dynamic>;
 
-                  Timestamp? ts = data["timestamp"];
-
-                  if (ts == null) {
-                    continue; // skip bad records
-                  }
-
+                  Timestamp ts = data["timestamp"];
                   DateTime time = ts.toDate();
 
                   if (time.isAfter(startOfDay) && time.isBefore(endOfDay)) {
