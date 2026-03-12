@@ -89,7 +89,7 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
 
               BookedItemModel item = BookedItemModel(
                 id: const Uuid().v4(),
-                inventoryItemId: "manual",
+                inventoryItemId: const Uuid().v4(),
                 itemName: name,
                 isManual: true,
                 requestedQuantity: qty,
@@ -220,7 +220,7 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
 
         if (!overlap) continue;
 
-        if (doc["inventoryItemId"] == "manual") {
+        if (doc["isManual"] == true) {
           continue;
         }
 

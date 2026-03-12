@@ -39,7 +39,7 @@ class _ReceiveItemsScreenState extends State<ReceiveItemsScreen> {
     for (var doc in docs) {
       final data = doc.data() as Map<String, dynamic>;
 
-      int qty = int.parse(quantityControllers[doc.id]!.text);
+      int qty = int.tryParse(quantityControllers[doc.id]!.text) ?? 0;
 
       int dispatched = data["dispatchedQuantity"] ?? 0;
       int previousReceived = data["receivedQuantity"] ?? 0;
@@ -91,21 +91,23 @@ class _ReceiveItemsScreenState extends State<ReceiveItemsScreen> {
 
       int missing = dispatched - finalReceived;
 
-      String inventoryId = data["inventoryItemId"];
+      bool isManual = data["isManual"] ?? false;
 
-      final inventoryRef = FirebaseFirestore.instance
-          .collection("businesses")
-          .doc(widget.businessId)
-          .collection("inventoryNodes")
-          .doc(inventoryId);
+      if (!isManual) {
+        String inventoryId = data["inventoryItemId"];
 
-      /// return received items back to inventory
-      /// reduce inventory only if items are missing
-      if (missing > 0) {
-        batch.update(
-          inventoryRef,
-          {"quantity": FieldValue.increment(-missing)},
-        );
+        final inventoryRef = FirebaseFirestore.instance
+            .collection("businesses")
+            .doc(widget.businessId)
+            .collection("inventoryNodes")
+            .doc(inventoryId);
+
+        if (missing > 0) {
+          batch.update(
+            inventoryRef,
+            {"quantity": FieldValue.increment(-missing)},
+          );
+        }
       }
 
       /// update booked item
