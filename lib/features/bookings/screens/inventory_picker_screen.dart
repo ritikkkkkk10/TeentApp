@@ -147,7 +147,7 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
             onPressed: () async {
               final service = BookingServiceModel(
                 id: const Uuid().v4(),
-                serviceId: "manual",
+                serviceId: const Uuid().v4(),
                 serviceName: nameController.text,
                 priceSnapshot: double.tryParse(priceController.text) ?? 0,
                 createdAt: Timestamp.now(),
