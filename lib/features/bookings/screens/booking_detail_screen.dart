@@ -203,7 +203,8 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
 
                       int currentQty = data["requestedQuantity"] ?? 0;
 
-                      if (newQty > totalInventory + (data["requestedQuantity"] ?? 0)){
+                      if (newQty >
+                          totalInventory + (data["requestedQuantity"] ?? 0)) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text("Not enough inventory"),
@@ -262,6 +263,39 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
 
           return Column(
             children: [
+              /// BOOKING INFO
+              Container(
+                width: double.infinity,
+                margin: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      bookingData["eventName"] ?? "",
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text("Customer: ${bookingData["customerName"] ?? ""}"),
+                    Text("Phone: ${bookingData["customerPhone"] ?? ""}"),
+                    Text("Address: ${bookingData["customerAddress"] ?? ""}"),
+                    const SizedBox(height: 6),
+                    Text(
+                      "Event Date: ${(bookingData["startDate"] as Timestamp).toDate().day}/"
+                      "${(bookingData["startDate"] as Timestamp).toDate().month}/"
+                      "${(bookingData["startDate"] as Timestamp).toDate().year}",
+                    ),
+                  ],
+                ),
+              ),
+
               if (isCompleted)
                 Container(
                   padding: const EdgeInsets.all(10),
