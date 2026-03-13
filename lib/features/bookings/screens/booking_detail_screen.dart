@@ -260,6 +260,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
           final status = bookingData["status"] ?? "confirmed";
           final isCompleted = status == "completed";
           final isDispatched = status == "dispatched";
+          bool isReceiving = status == "receiving";
 
           return Column(
             children: [
@@ -648,7 +649,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                   ),
                               ],
                             ),
-                            onTap: (isDispatched || isCompleted)
+                            onTap: (isDispatched || isCompleted || isReceiving)
                                 ? null
                                 : () => editQuantity(context, item, isManual),
                             trailing: Row(
@@ -659,7 +660,9 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                     "Shortage: ${data["shortageQuantity"]}",
                                     style: const TextStyle(color: Colors.red),
                                   ),
-                                if (!(isDispatched || isCompleted))
+                                if (!(isDispatched ||
+                                    isCompleted ||
+                                    isReceiving))
                                   IconButton(
                                     icon: const Icon(Icons.edit),
                                     onPressed: () =>
