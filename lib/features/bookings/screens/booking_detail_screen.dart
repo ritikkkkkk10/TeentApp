@@ -133,51 +133,97 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
     );
   }
 
-  void editQuantity(BuildContext context, DocumentSnapshot item) {
-    final status = item["status"] ?? "";
+  void editQuantity(
+      BuildContext context, DocumentSnapshot item, bool isManual) {
+    final data = item.data() as Map<String, dynamic>;
 
-    if (status == "completed") {
-      return;
-    }
-    TextEditingController controller = TextEditingController(
-      text: item["requestedQuantity"].toString(),
-    );
+    int qty = data["requestedQuantity"] ?? 0;
 
     showDialog(
       context: context,
       builder: (_) {
-        return AlertDialog(
-          title: Text(item["itemName"]),
-          content: TextField(
-            controller: controller,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(labelText: "Quantity"),
-          ),
-          actions: [
-            /// REMOVE ITEM
-            TextButton(
-              child: const Text("Remove"),
-              onPressed: () async {
-                await item.reference.delete();
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text("${data["itemName"]} (Current: $qty)"),
+              content: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.remove),
+                    onPressed: () {
+                      if (qty > 0) {
+                        setState(() {
+                          qty--;
+                        });
+                      }
+                    },
+                  ),
+                  Text(
+                    qty.toString(),
+                    style: const TextStyle(fontSize: 20),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.add),
+                    onPressed: () {
+                      setState(() {
+                        qty++;
+                      });
+                    },
+                  ),
+                ],
+              ),
+              actions: [
+                /// DELETE ITEM
+                TextButton(
+                  child: const Text("Delete"),
+                  onPressed: () async {
+                    await item.reference.delete();
 
-                Navigator.pop(context);
-              },
-            ),
+                    Navigator.pop(context);
+                  },
+                ),
 
-            /// UPDATE ITEM
-            TextButton(
-              child: const Text("Update"),
-              onPressed: () async {
-                int newQty = int.parse(controller.text);
+                /// SAVE CHANGES
+                TextButton(
+                  child: const Text("Save"),
+                  onPressed: () async {
+                    int newQty = qty;
 
-                await item.reference.update({
-                  "requestedQuantity": newQty,
-                });
+                    if (!isManual) {
+                      final inventoryDoc = await FirebaseFirestore.instance
+                          .collection("businesses")
+                          .doc(widget.businessId)
+                          .collection("inventoryNodes")
+                          .doc(data["inventoryItemId"])
+                          .get();
 
-                Navigator.pop(context);
-              },
-            ),
-          ],
+                      int totalInventory =
+                          (inventoryDoc["quantity"] as num).toInt();
+
+                      int currentQty = data["requestedQuantity"] ?? 0;
+
+                      if (newQty > totalInventory + (data["requestedQuantity"] ?? 0)){
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Not enough inventory"),
+                          ),
+                        );
+
+                        return;
+                      }
+                    }
+
+                    await item.reference.update({
+                      "requestedQuantity": newQty,
+                    });
+
+                    Navigator.pop(context);
+                  },
+                )
+              ],
+            );
+          },
         );
       },
     );
@@ -545,6 +591,8 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                         ...items.map((item) {
                           final data = item.data() as Map<String, dynamic>;
 
+                          bool isManual = data["isManual"] ?? false;
+
                           final requestedQty = data["requestedQuantity"] ?? 0;
 
                           final dispatchedQty = data["dispatchedQuantity"] ?? 0;
@@ -554,9 +602,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
 
                           return ListTile(
                             leading: const Icon(Icons.inventory),
-
                             title: Text(data["itemName"] ?? ""),
-
                             subtitle: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -568,18 +614,25 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                   ),
                               ],
                             ),
-
-                            /// DISABLE EDIT AFTER DISPATCH
                             onTap: (isDispatched || isCompleted)
                                 ? null
-                                : () => editQuantity(context, item),
-
-                            trailing: (data["shortageQuantity"] ?? 0) > 0
-                                ? Text(
+                                : () => editQuantity(context, item, isManual),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if ((data["shortageQuantity"] ?? 0) > 0)
+                                  Text(
                                     "Shortage: ${data["shortageQuantity"]}",
                                     style: const TextStyle(color: Colors.red),
-                                  )
-                                : null,
+                                  ),
+                                if (!(isDispatched || isCompleted))
+                                  IconButton(
+                                    icon: const Icon(Icons.edit),
+                                    onPressed: () =>
+                                        editQuantity(context, item, isManual),
+                                  ),
+                              ],
+                            ),
                           );
                         }),
 
