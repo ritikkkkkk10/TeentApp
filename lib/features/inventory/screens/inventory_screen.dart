@@ -401,10 +401,15 @@ class _InventoryScreenState extends State<InventoryScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.white,
+        elevation: 3,
         onPressed: () {
           _showAddOptions(context);
         },
-        child: const Icon(Icons.add),
+        child: const Icon(
+          Icons.add,
+          color: Color(0xFF1E4FA3),
+        ),
       ),
       body: Column(
         children: [
@@ -539,76 +544,91 @@ class _InventoryScreenState extends State<InventoryScreen> {
                       itemBuilder: (_, index) {
                         final data = docs[index].data() as Map<String, dynamic>;
 
-                        return ListTile(
-                          leading: Icon(
-                            data['type'] == 'category'
-                                ? Icons.folder
-                                : data['type'] == 'service'
-                                    ? Icons.miscellaneous_services
-                                    : Icons.inventory,
+                        return Card(
+                          color: Colors.white,
+                          elevation: 2,
+                          margin: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
                           ),
-                          title: Text(data['name']),
-                          onLongPress: () async {
-                            bool confirm = await showDialog(
-                                  context: context,
-                                  builder: (_) => AlertDialog(
-                                    title: const Text("Delete"),
-                                    content: const Text("Delete this item?"),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.pop(context, false);
-                                        },
-                                        child: const Text("Cancel"),
-                                      ),
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.pop(context, true);
-                                        },
-                                        child: const Text("Delete"),
-                                      ),
-                                    ],
-                                  ),
-                                ) ??
-                                false;
+                          child: ListTile(
+                            leading: Icon(
+                              data['type'] == 'category'
+                                  ? Icons.folder
+                                  : data['type'] == 'service'
+                                      ? Icons.miscellaneous_services
+                                      : Icons.inventory,
+                              color: const Color(0xFF1E4FA3),
+                            ),
+                            title: Text(
+                              data['name'],
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            onLongPress: () async {
+                              bool confirm = await showDialog(
+                                    context: context,
+                                    builder: (_) => AlertDialog(
+                                      title: const Text("Delete"),
+                                      content: const Text("Delete this item?"),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context, false);
+                                          },
+                                          child: const Text("Cancel"),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context, true);
+                                          },
+                                          child: const Text("Delete"),
+                                        ),
+                                      ],
+                                    ),
+                                  ) ??
+                                  false;
 
-                            if (!confirm) return;
+                              if (!confirm) return;
 
-                            await deleteNodeRecursive(docs[index].id);
-                          },
-                          onTap: () {
-                            if (data['type'] == 'category') {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => InventoryScreen(
-                                    parentId: docs[index].id,
-                                    title: data['name'],
+                              await deleteNodeRecursive(docs[index].id);
+                            },
+                            onTap: () {
+                              if (data['type'] == 'category') {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => InventoryScreen(
+                                      parentId: docs[index].id,
+                                      title: data['name'],
+                                    ),
                                   ),
-                                ),
-                              );
-                            } else if (data['type'] == 'item') {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => ItemDetailScreen(
-                                    itemData: data,
-                                    itemId: docs[index].id,
+                                );
+                              } else if (data['type'] == 'item') {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => ItemDetailScreen(
+                                      itemData: data,
+                                      itemId: docs[index].id,
+                                    ),
                                   ),
-                                ),
-                              );
-                            } else if (data['type'] == 'service') {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => ServiceDetailScreen(
-                                    serviceData: data,
-                                    serviceId: docs[index].id,
+                                );
+                              } else if (data['type'] == 'service') {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => ServiceDetailScreen(
+                                      serviceData: data,
+                                      serviceId: docs[index].id,
+                                    ),
                                   ),
-                                ),
-                              );
-                            }
-                          },
+                                );
+                              }
+                            },
+                          ),
                         );
                       },
                     );
