@@ -58,35 +58,82 @@ class _BookingsListScreenState extends State<BookingsListScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Bookings"),
-        bottom: TabBar(
-          controller: _tabController,
-          isScrollable: true,
-          tabs: const [
-            Tab(text: "All"),
-            Tab(text: "Pending"),
-            Tab(text: "Dispatched"),
-            Tab(text: "Receiving"),
-            Tab(text: "History"),
-          ],
+        backgroundColor: const Color(0xFF1E4FA3),
+        centerTitle: true,
+        title: const Text(
+          "Bookings",
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
-      
       body: Column(
         children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 6,
+                  )
+                ],
+              ),
+              child: TabBar(
+                controller: _tabController,
+                isScrollable: true,
+                labelColor: const Color(0xFF1E4FA3),
+                unselectedLabelColor: Colors.grey,
+                indicatorColor: const Color(0xFF1E4FA3),
+                indicatorWeight: 2,
+                tabs: const [
+                  Tab(text: "All"),
+                  Tab(text: "Pending"),
+                  Tab(text: "Dispatched"),
+                  Tab(text: "Receiving"),
+                  Tab(text: "History"),
+                ],
+              ),
+            ),
+          ),
+
           /// SEARCH BAR
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
+            padding: const EdgeInsets.symmetric(horizontal:12, vertical: 8),
             child: TextField(
               controller: searchController,
               decoration: InputDecoration(
                 hintText: "Search by customer, event or phone",
                 prefixIcon: const Icon(Icons.search),
+
                 filled: true,
-                fillColor: Colors.grey.shade200,
+                fillColor: Colors.white, // white search area
+
+                contentPadding: const EdgeInsets.symmetric(
+                  vertical: 10,
+                  horizontal: 12,
+                ), // reduces height
+
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
+                ),
+
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(
+                    color: Color(0xFF1E4FA3),
+                    width: 1,
+                  ),
                 ),
               ),
               onChanged: (value) {
