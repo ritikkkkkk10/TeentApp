@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:table_calendar/table_calendar.dart';
-
+import '../../../core/widgets/bookings_calendar_widget.dart';
 import 'booking_detail_screen.dart';
 
 class BookingsCalendarScreen extends StatefulWidget {
@@ -17,7 +17,6 @@ class BookingsCalendarScreen extends StatefulWidget {
 }
 
 class _BookingsCalendarScreenState extends State<BookingsCalendarScreen> {
-
   Map<DateTime, List<QueryDocumentSnapshot>> events = {};
 
   DateTime selectedDay = DateTime.now();
@@ -30,7 +29,6 @@ class _BookingsCalendarScreenState extends State<BookingsCalendarScreen> {
   }
 
   Future<void> loadBookings() async {
-
     final snapshot = await FirebaseFirestore.instance
         .collection("businesses")
         .doc(widget.businessId)
@@ -40,14 +38,12 @@ class _BookingsCalendarScreenState extends State<BookingsCalendarScreen> {
     Map<DateTime, List<QueryDocumentSnapshot>> map = {};
 
     for (var doc in snapshot.docs) {
-
       final start = (doc["startDate"] as Timestamp).toDate();
       final end = (doc["endDate"] as Timestamp).toDate();
 
       DateTime day = normalize(start);
 
       while (!day.isAfter(end)) {
-
         final key = normalize(day);
 
         if (!map.containsKey(key)) {
@@ -78,55 +74,24 @@ class _BookingsCalendarScreenState extends State<BookingsCalendarScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         title: const Text("Bookings Calendar"),
       ),
-
       body: Column(
         children: [
-
-          TableCalendar(
-            firstDay: DateTime(2020),
-            lastDay: DateTime(2100),
-            focusedDay: focusedDay,
-
-            selectedDayPredicate: (day) {
-              return isSameDay(selectedDay, day);
-            },
-
-            eventLoader: getEventsForDay,
-
-            onDaySelected: (selected, focused) {
-
-              setState(() {
-
-                selectedDay = selected;
-                focusedDay = focused;
-
-                selectedEvents = getEventsForDay(selected);
-
-              });
-            },
-
-            calendarStyle: const CalendarStyle(
-              markerDecoration: BoxDecoration(
-                color: Colors.red,
-                shape: BoxShape.circle,
-              ),
-            ),
+          /// CALENDAR
+          BookingsCalendarWidget(
+            businessId: widget.businessId,
           ),
 
           const SizedBox(height: 10),
-
           Expanded(
             child: selectedEvents.isEmpty
                 ? const Center(child: Text("No bookings"))
                 : ListView.builder(
                     itemCount: selectedEvents.length,
                     itemBuilder: (context, index) {
-
                       var booking = selectedEvents[index];
 
                       DateTime start =
@@ -138,7 +103,6 @@ class _BookingsCalendarScreenState extends State<BookingsCalendarScreen> {
                           "${booking["customerName"]}\n"
                           "${start.day}/${start.month}/${start.year}",
                         ),
-
                         onTap: () {
                           Navigator.push(
                             context,
