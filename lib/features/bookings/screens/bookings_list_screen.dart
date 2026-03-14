@@ -19,6 +19,46 @@ class _BookingsListScreenState extends State<BookingsListScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
+  Color _statusColor(String status) {
+    switch (status) {
+      case "confirmed":
+        return Colors.orange;
+
+      case "dispatching":
+        return Colors.blue;
+
+      case "dispatched":
+        return Colors.green;
+
+      case "receiving":
+        return Colors.purple;
+
+      case "completed":
+        return Colors.grey;
+
+      default:
+        return Colors.black;
+    }
+  }
+
+  String _monthName(int month) {
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec"
+    ];
+    return months[month - 1];
+  }
+
   @override
   void initState() {
     super.initState();
@@ -103,7 +143,7 @@ class _BookingsListScreenState extends State<BookingsListScreen>
 
           /// SEARCH BAR
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal:12, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: TextField(
               controller: searchController,
               decoration: InputDecoration(
@@ -232,98 +272,149 @@ class _BookingsListScreenState extends State<BookingsListScreen>
                         itemCount: bookings.length,
                         itemBuilder: (context, index) {
                           var booking = bookings[index];
+                          String status = booking["status"] ?? "confirmed";
 
                           DateTime start =
                               (booking["startDate"] as Timestamp).toDate();
 
-                          return ListTile(
-                            title: Text(booking["eventName"]),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(booking["customerName"]),
-                                Text(booking["customerPhone"]),
-                                Text(
-                                  "Start: ${start.day}/${start.month}/${start.year}",
-                                ),
-                              ],
-                            ),
-                            onTap: () async {
-                              await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => BookingDetailScreen(
-                                    businessId: widget.businessId,
-                                    bookingId: booking.id,
-                                  ),
-                                ),
-                              );
-                            },
-                            onLongPress: () async {
-                              String status = booking["status"] ?? "confirmed";
-
-                              if (status == "dispatched" ||
-                                  status == "receiving" ||
-                                  status == "completed") {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                        "Dispatched bookings cannot be deleted"),
-                                  ),
-                                );
-
-                                return;
-                              }
-                              bool confirm = await showDialog(
-                                    context: context,
-                                    builder: (_) => AlertDialog(
-                                      title: const Text("Delete Booking"),
-                                      content: const Text(
-                                          "Delete this booking? Inventory will be freed."),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context, false);
-                                          },
-                                          child: const Text("Cancel"),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context, true);
-                                          },
-                                          child: const Text("Delete"),
-                                        ),
-                                      ],
+                          return Column(
+                            children: [
+                              ListTile(
+                                title: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      booking["customerName"],
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                     ),
-                                  ) ??
-                                  false;
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: _statusColor(status)
+                                            .withOpacity(0.15),
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Text(
+                                        status.toUpperCase(),
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.bold,
+                                          color: _statusColor(status),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      "Event: ${booking["eventName"]}",
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      "Date: ${start.day} ${_monthName(start.month)} ${start.year}",
+                                      style: const TextStyle(
+                                        fontSize: 13,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                onTap: () async {
+                                  await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => BookingDetailScreen(
+                                        businessId: widget.businessId,
+                                        bookingId: booking.id,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                onLongPress: () async {
+                                  String status =
+                                      booking["status"] ?? "confirmed";
 
-                              if (confirm) {
-                                final bookingRef = FirebaseFirestore.instance
-                                    .collection("businesses")
-                                    .doc(widget.businessId)
-                                    .collection("bookings")
-                                    .doc(booking.id);
+                                  if (status == "dispatched" ||
+                                      status == "receiving" ||
+                                      status == "completed") {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                            "Dispatched bookings cannot be deleted"),
+                                      ),
+                                    );
 
-                                final items = await bookingRef
-                                    .collection("bookedItems")
-                                    .get();
+                                    return;
+                                  }
+                                  bool confirm = await showDialog(
+                                        context: context,
+                                        builder: (_) => AlertDialog(
+                                          title: const Text("Delete Booking"),
+                                          content: const Text(
+                                              "Delete this booking? Inventory will be freed."),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.pop(context, false);
+                                              },
+                                              child: const Text("Cancel"),
+                                            ),
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.pop(context, true);
+                                              },
+                                              child: const Text("Delete"),
+                                            ),
+                                          ],
+                                        ),
+                                      ) ??
+                                      false;
 
-                                for (var doc in items.docs) {
-                                  await doc.reference.delete();
-                                }
+                                  if (confirm) {
+                                    final bookingRef = FirebaseFirestore
+                                        .instance
+                                        .collection("businesses")
+                                        .doc(widget.businessId)
+                                        .collection("bookings")
+                                        .doc(booking.id);
 
-                                final services = await bookingRef
-                                    .collection("bookingServices")
-                                    .get();
+                                    final items = await bookingRef
+                                        .collection("bookedItems")
+                                        .get();
 
-                                for (var doc in services.docs) {
-                                  await doc.reference.delete();
-                                }
+                                    for (var doc in items.docs) {
+                                      await doc.reference.delete();
+                                    }
 
-                                await bookingRef.delete();
-                              }
-                            },
+                                    final services = await bookingRef
+                                        .collection("bookingServices")
+                                        .get();
+
+                                    for (var doc in services.docs) {
+                                      await doc.reference.delete();
+                                    }
+
+                                    await bookingRef.delete();
+                                  }
+                                },
+                              ),
+                              const Divider(
+                                height: 1,
+                                thickness: 0.6,
+                              ),
+                            ],
                           );
                         },
                       );
