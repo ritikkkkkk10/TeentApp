@@ -4,12 +4,14 @@ import 'package:table_calendar/table_calendar.dart';
 
 class BookingsCalendarWidget extends StatefulWidget {
   final String businessId;
-  final bool isMini; // true when used on home screen
+  final bool isMini;
+  final Function(DateTime)? onDaySelected;
 
   const BookingsCalendarWidget({
     super.key,
     required this.businessId,
     this.isMini = false,
+    this.onDaySelected,
   });
 
   @override
@@ -74,6 +76,36 @@ class _BookingsCalendarWidgetState extends State<BookingsCalendarWidget> {
     return IgnorePointer(
       ignoring: widget.isMini,
       child: TableCalendar(
+        calendarBuilders: CalendarBuilders(
+          markerBuilder: (context, date, events) {
+            if (events.isEmpty) return null;
+
+            final isSelected = isSameDay(date, selectedDay);
+
+            return Positioned(
+              bottom: 10,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: events.take(3).map((event) {
+                  return Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 1),
+                    width: 5,
+                    height: 5,
+                    decoration: BoxDecoration(
+                      color:
+                          isSelected ? Colors.white : const Color(0xFF1E4FA3),
+                      shape: BoxShape.circle,
+                    ),
+                  );
+                }).toList(),
+              ),
+            );
+          },
+        ),
+        headerStyle: const HeaderStyle(
+          titleCentered: true,
+          formatButtonVisible: false,
+        ),
         firstDay: DateTime(2020),
         lastDay: DateTime(2100),
         focusedDay: focusedDay,
@@ -86,11 +118,25 @@ class _BookingsCalendarWidgetState extends State<BookingsCalendarWidget> {
                   selectedDay = selected;
                   focusedDay = focused;
                 });
+
+                if (widget.onDaySelected != null) {
+                  widget.onDaySelected!(selected);
+                }
               },
-        headerVisible: !widget.isMini,
-        calendarStyle: const CalendarStyle(
-          markerDecoration: BoxDecoration(
-            color: Colors.red,
+        headerVisible: true,
+        calendarStyle: CalendarStyle(
+          markersMaxCount: 3,
+          markerSize: 5,
+          markerDecoration: const BoxDecoration(
+            color: Color(0xFF1E4FA3),
+            shape: BoxShape.circle,
+          ),
+          selectedDecoration: const BoxDecoration(
+            color: Color(0xFF1E4FA3),
+            shape: BoxShape.circle,
+          ),
+          todayDecoration: const BoxDecoration(
+            color: Color(0xFF1E4FA3),
             shape: BoxShape.circle,
           ),
         ),

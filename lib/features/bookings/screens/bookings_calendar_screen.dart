@@ -83,6 +83,12 @@ class _BookingsCalendarScreenState extends State<BookingsCalendarScreen> {
           /// CALENDAR
           BookingsCalendarWidget(
             businessId: widget.businessId,
+            onDaySelected: (day) {
+              setState(() {
+                selectedDay = day;
+                selectedEvents = getEventsForDay(day);
+              });
+            },
           ),
 
           const SizedBox(height: 10),

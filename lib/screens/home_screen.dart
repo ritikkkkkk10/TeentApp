@@ -164,105 +164,105 @@ class _HomeScreenState extends State<HomeScreen> {
 
           /// ORIGINAL BUTTONS
           Expanded(
-  child: SingleChildScrollView(
-    child: Column(
-      children: [
-
-        /// MINI CALENDAR
-        Padding(
-          padding: const EdgeInsets.all(12),
-          child: InkWell(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => BookingsCalendarScreen(
-                    businessId: businessId!,
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  /// MINI CALENDAR
+                  Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => BookingsCalendarScreen(
+                              businessId: businessId!,
+                            ),
+                          ),
+                        );
+                      },
+                      child: Card(
+                        color: Colors.white,
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: BookingsCalendarWidget(
+                            businessId: businessId!,
+                            isMini: true,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              );
-            },
-            child: Card(
-              elevation: 3,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(10),
-                child: BookingsCalendarWidget(
-                  businessId: businessId!,
-                  isMini: true,
-                ),
+
+                  const SizedBox(height: 20),
+
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => BookingsListScreen(
+                            businessId: businessId!,
+                          ),
+                        ),
+                      );
+                    },
+                    child: const Text("Bookings"),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const InventoryScreen(),
+                        ),
+                      );
+                    },
+                    child: const Text("Update Inventory"),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.payments),
+                    label: const Text("Pending Payments"),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => PendingPaymentsScreen(
+                            businessId: businessId!,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.business),
+                    label: const Text("Business Profile"),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const BusinessProfileScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
             ),
           ),
-        ),
-
-        const SizedBox(height: 20),
-
-        ElevatedButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => BookingsListScreen(
-                  businessId: businessId!,
-                ),
-              ),
-            );
-          },
-          child: const Text("Bookings"),
-        ),
-
-        const SizedBox(height: 20),
-
-        ElevatedButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const InventoryScreen(),
-              ),
-            );
-          },
-          child: const Text("Update Inventory"),
-        ),
-
-        const SizedBox(height: 20),
-
-        ElevatedButton.icon(
-          icon: const Icon(Icons.payments),
-          label: const Text("Pending Payments"),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => PendingPaymentsScreen(
-                  businessId: businessId!,
-                ),
-              ),
-            );
-          },
-        ),
-
-        const SizedBox(height: 20),
-
-        ElevatedButton.icon(
-          icon: const Icon(Icons.business),
-          label: const Text("Business Profile"),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const BusinessProfileScreen(),
-              ),
-            );
-          },
-        ),
-      ],
-    ),
-  ),
-),
         ],
       ),
     );
