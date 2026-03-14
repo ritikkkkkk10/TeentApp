@@ -30,6 +30,10 @@ class _InventoryScreenState extends State<InventoryScreen> {
   TextEditingController searchController = TextEditingController();
   String searchText = "";
 
+  bool showAllItems = false;
+  bool showAllServices = false;
+  bool showAllCategories = false;
+
   Widget _filterButton(String label, String mode) {
     bool selected = filterMode == mode;
 
@@ -57,23 +61,39 @@ class _InventoryScreenState extends State<InventoryScreen> {
   }
 
   Widget _buildAllSections(List docs) {
-    List items = docs.where((d) => d["type"] == "item").take(2).toList();
-    List services = docs.where((d) => d["type"] == "service").take(2).toList();
-    List categories =
-        docs.where((d) => d["type"] == "category").take(2).toList();
+    List items = docs
+        .where((d) =>
+            (d.data() as Map)["type"] == "item" &&
+            (d.data() as Map)["parentId"] == widget.parentId)
+        .toList();
+
+    List services = docs
+        .where((d) =>
+            (d.data() as Map)["type"] == "service" &&
+            (d.data() as Map)["parentId"] == widget.parentId)
+        .toList();
+
+    List categories = docs
+        .where((d) =>
+            (d.data() as Map)["type"] == "category" &&
+            (d.data() as Map)["parentId"] == widget.parentId)
+        .toList();
 
     return SingleChildScrollView(
       child: Column(
         children: [
-          _section("Items", "item", items),
-          _section("Services", "service", services),
-          _section("Categories", "category", categories),
+          _section("Items", "item", items, showAllItems),
+          _section("Services", "service", services, showAllServices),
+          _section("Categories", "category", categories, showAllCategories)
         ],
       ),
     );
   }
 
-  Widget _section(String title, String type, List docs) {
+  Widget _section(String title, String type, List docs, bool expanded) {
+    /// show only first 2 unless expanded
+    final displayDocs = expanded ? docs : docs.take(2).toList();
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       child: Column(
@@ -91,7 +111,6 @@ class _InventoryScreenState extends State<InventoryScreen> {
 
           const SizedBox(height: 8),
 
-          /// WHITE CARD CONTAINER
           Container(
             decoration: BoxDecoration(
               color: Colors.white,
@@ -105,8 +124,8 @@ class _InventoryScreenState extends State<InventoryScreen> {
             ),
             child: Column(
               children: [
-                /// ITEMS
-                ...docs.map((doc) {
+                /// SHOW ITEMS
+                ...displayDocs.map((doc) {
                   final data = doc.data() as Map<String, dynamic>;
 
                   return ListTile(
@@ -155,28 +174,30 @@ class _InventoryScreenState extends State<InventoryScreen> {
                   );
                 }),
 
-                /// DIVIDER BEFORE MORE
-                const Divider(height: 1),
-
-                /// MORE BUTTON INSIDE CARD
-                ListTile(
-                  leading: const Icon(
-                    Icons.arrow_forward,
-                    color: Color(0xFF1E4FA3),
-                  ),
-                  title: const Text(
-                    "More",
-                    style: TextStyle(
+                /// SHOW MORE BUTTON ONLY IF NOT EXPANDED
+                if (!expanded) ...[
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: const Icon(
+                      Icons.expand_more,
                       color: Color(0xFF1E4FA3),
-                      fontWeight: FontWeight.w500,
                     ),
+                    title: const Text(
+                      "More",
+                      style: TextStyle(
+                        color: Color(0xFF1E4FA3),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    onTap: () {
+                      setState(() {
+                        if (type == "item") showAllItems = true;
+                        if (type == "service") showAllServices = true;
+                        if (type == "category") showAllCategories = true;
+                      });
+                    },
                   ),
-                  onTap: () {
-                    setState(() {
-                      filterMode = type;
-                    });
-                  },
-                ),
+                ]
               ],
             ),
           ),
@@ -476,6 +497,24 @@ class _InventoryScreenState extends State<InventoryScreen> {
                 decoration: InputDecoration(
                   hintText: "Search inventory",
                   prefixIcon: const Icon(Icons.search),
+
+
+                  /// CLEAR BUTTON
+  suffixIcon: searchController.text.isNotEmpty
+      ? IconButton(
+          icon: const Icon(Icons.close),
+          onPressed: () {
+            searchController.clear();
+
+            setState(() {
+              searchText = "";
+            });
+
+            FocusScope.of(context).unfocus(); // closes keyboard
+          },
+        )
+      : null,
+
                   contentPadding: const EdgeInsets.symmetric(
                     vertical: 10,
                     horizontal: 12,
@@ -542,11 +581,12 @@ class _InventoryScreenState extends State<InventoryScreen> {
                 Query query = FirebaseFirestore.instance
                     .collection('businesses')
                     .doc(businessId)
-                    .collection('inventoryNodes')
-                    .where(
-                      'parentId',
-                      isEqualTo: widget.parentId,
-                    );
+                    .collection('inventoryNodes');
+
+                /// only restrict by parent when NOT searching
+                if (searchText.isEmpty) {
+                  query = query.where('parentId', isEqualTo: widget.parentId);
+                }
 
                 if (filterMode != "all") {
                   query = query.where('type', isEqualTo: filterMode);
@@ -575,7 +615,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                       );
                     }
 
-                    if (filterMode == "all") {
+                    if (filterMode == "all" && searchText.isEmpty) {
                       return _buildAllSections(docs);
                     }
 
