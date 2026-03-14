@@ -8,6 +8,7 @@ import 'package:tent_app/features/bookings/screens/bookings_calendar_screen.dart
 import 'package:tent_app/features/bookings/screens/today_payments_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../core/widgets/app_menu.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -65,163 +66,179 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _homeContent() {
-    return Column(
-      children: [
-        /// TODAY PAYMENTS DASHBOARD
-        Padding(
-          padding: const EdgeInsets.all(12),
-          child: StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance
-                .collectionGroup("payments")
-                .snapshots(),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return const SizedBox();
-              }
-
-              double todayTotal = 0;
-
-              DateTime now = DateTime.now();
-              DateTime startOfDay = DateTime(now.year, now.month, now.day);
-              DateTime endOfDay =
-                  DateTime(now.year, now.month, now.day, 23, 59, 59);
-
-              for (var doc in snapshot.data!.docs) {
-                String bookingBusinessId =
-                    doc.reference.parent.parent!.parent!.parent!.id;
-
-                if (bookingBusinessId != businessId) continue;
-
-                final data = doc.data() as Map<String, dynamic>;
-
-                Timestamp ts = data["timestamp"];
-                DateTime time = ts.toDate();
-
-                if (time.isAfter(startOfDay) && time.isBefore(endOfDay)) {
-                  todayTotal += (data["amount"] ?? 0).toDouble();
-                }
-              }
-
-              return InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => TodayPaymentsScreen(
-                        businessId: businessId!,
-                      ),
-                    ),
-                  );
-                },
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.green.shade100,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Column(
-                    children: [
-                      const Text(
-                        "Today's Payments",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        "₹${todayTotal.toStringAsFixed(2)}",
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF1E4FA3),
+        centerTitle: true,
+        title: const Text(
+          "Home",
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
           ),
         ),
+        actions: const [
+          AppMenu(),
+        ],
+      ),
+      body: Column(
+        children: [
+          /// TODAY PAYMENTS DASHBOARD
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collectionGroup("payments")
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const SizedBox();
+                }
 
-        /// ORIGINAL BUTTONS
-        Expanded(
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
+                double todayTotal = 0;
+
+                DateTime now = DateTime.now();
+                DateTime startOfDay = DateTime(now.year, now.month, now.day);
+                DateTime endOfDay =
+                    DateTime(now.year, now.month, now.day, 23, 59, 59);
+
+                for (var doc in snapshot.data!.docs) {
+                  String bookingBusinessId =
+                      doc.reference.parent.parent!.parent!.parent!.id;
+
+                  if (bookingBusinessId != businessId) continue;
+
+                  final data = doc.data() as Map<String, dynamic>;
+
+                  Timestamp ts = data["timestamp"];
+                  DateTime time = ts.toDate();
+
+                  if (time.isAfter(startOfDay) && time.isBefore(endOfDay)) {
+                    todayTotal += (data["amount"] ?? 0).toDouble();
+                  }
+                }
+
+                return InkWell(
+                  onTap: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => BookingsListScreen(
+                        builder: (_) => TodayPaymentsScreen(
                           businessId: businessId!,
                         ),
                       ),
                     );
                   },
-                  child: const Text("Bookings"),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => BookingsCalendarScreen(
-                          businessId: businessId!,
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.green.shade100,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Column(
+                      children: [
+                        const Text(
+                          "Today's Payments",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                  child: const Text("Bookings Calendar"),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const InventoryScreen(),
-                      ),
-                    );
-                  },
-                  child: const Text("Update Inventory"),
-                ),
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.payments),
-                  label: const Text("Pending Payments"),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => PendingPaymentsScreen(
-                          businessId: businessId!,
+                        const SizedBox(height: 6),
+                        Text(
+                          "₹${todayTotal.toStringAsFixed(2)}",
+                          style: const TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.business),
-                  label: const Text("Business Profile"),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const BusinessProfileScreen(),
-                      ),
-                    );
-                  },
-                ),
-              ],
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
           ),
-        ),
-      ],
+
+          /// ORIGINAL BUTTONS
+          Expanded(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => BookingsListScreen(
+                            businessId: businessId!,
+                          ),
+                        ),
+                      );
+                    },
+                    child: const Text("Bookings"),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => BookingsCalendarScreen(
+                            businessId: businessId!,
+                          ),
+                        ),
+                      );
+                    },
+                    child: const Text("Bookings Calendar"),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const InventoryScreen(),
+                        ),
+                      );
+                    },
+                    child: const Text("Update Inventory"),
+                  ),
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.payments),
+                    label: const Text("Pending Payments"),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => PendingPaymentsScreen(
+                            businessId: businessId!,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.business),
+                    label: const Text("Business Profile"),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const BusinessProfileScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -234,48 +251,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     return Scaffold(
-  backgroundColor: const Color(0xFFF5F6FA),
-      appBar: AppBar(
-  backgroundColor: const Color(0xFF1E4FA3),
-  centerTitle: true,
-  title: const Text(
-    "Home",
-    style: TextStyle(
-      color: Colors.white,
-      fontWeight: FontWeight.w600,
-    ),
-  ),
-        iconTheme: const IconThemeData(color: Colors.white),
-        actions: [
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert, color: Colors.white),
-            onSelected: (value) async {
-              if (value == "profile") {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const BusinessProfileScreen(),
-                  ),
-                );
-              }
-
-              if (value == "logout") {
-                await FirebaseAuth.instance.signOut();
-              }
-            },
-            itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: "profile",
-                child: Text("Business Profile"),
-              ),
-              const PopupMenuItem(
-                value: "logout",
-                child: Text("Logout"),
-              ),
-            ],
-          ),
-        ],
-      ),
+      backgroundColor: const Color(0xFFF5F6FA),
       body: _getScreen(),
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(

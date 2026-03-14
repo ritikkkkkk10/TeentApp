@@ -1,0 +1,39 @@
+import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../../features/bookings/screens/business_profile_screen.dart';
+
+class AppMenu extends StatelessWidget {
+  const AppMenu({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return PopupMenuButton<String>(
+      icon: const Icon(Icons.more_vert, color: Colors.white),
+      onSelected: (value) async {
+
+        if (value == "profile") {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const BusinessProfileScreen(),
+            ),
+          );
+        }
+
+        if (value == "logout") {
+          await FirebaseAuth.instance.signOut();
+        }
+      },
+      itemBuilder: (context) => const [
+        PopupMenuItem(
+          value: "profile",
+          child: Text("Business Profile"),
+        ),
+        PopupMenuItem(
+          value: "logout",
+          child: Text("Logout"),
+        ),
+      ],
+    );
+  }
+}
