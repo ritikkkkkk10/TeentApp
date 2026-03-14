@@ -38,32 +38,31 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _getScreen() {
-  switch (_selectedIndex) {
+    switch (_selectedIndex) {
+      /// HOME TAB
+      case 0:
+        return _homeContent();
 
-    /// HOME TAB
-    case 0:
-      return _homeContent();
+      /// BOOKINGS TAB
+      case 1:
+        return BookingsListScreen(
+          businessId: businessId!,
+        );
 
-    /// BOOKINGS TAB
-    case 1:
-      return BookingsListScreen(
-        businessId: businessId!,
-      );
+      /// INVENTORY TAB
+      case 2:
+        return const InventoryScreen();
 
-    /// INVENTORY TAB
-    case 2:
-      return const InventoryScreen();
+      /// PAYMENTS TAB
+      case 3:
+        return PendingPaymentsScreen(
+          businessId: businessId!,
+        );
 
-    /// PAYMENTS TAB
-    case 3:
-      return PendingPaymentsScreen(
-        businessId: businessId!,
-      );
-
-    default:
-      return _homeContent();
+      default:
+        return _homeContent();
+    }
   }
-}
 
   Widget _homeContent() {
     return Column(
@@ -235,40 +234,85 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     return Scaffold(
+  backgroundColor: const Color(0xFFF5F6FA),
       appBar: AppBar(
-        title: const Text("Tent Manager"),
+  backgroundColor: const Color(0xFF1E4FA3),
+  centerTitle: true,
+  title: const Text(
+    "Home",
+    style: TextStyle(
+      color: Colors.white,
+      fontWeight: FontWeight.w600,
+    ),
+  ),
+        iconTheme: const IconThemeData(color: Colors.white),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await FirebaseAuth.instance.signOut();
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert, color: Colors.white),
+            onSelected: (value) async {
+              if (value == "profile") {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const BusinessProfileScreen(),
+                  ),
+                );
+              }
+
+              if (value == "logout") {
+                await FirebaseAuth.instance.signOut();
+              }
             },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: "profile",
+                child: Text("Business Profile"),
+              ),
+              const PopupMenuItem(
+                value: "logout",
+                child: Text("Logout"),
+              ),
+            ],
           ),
         ],
       ),
       body: _getScreen(),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onTabTapped,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: "Home",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.book),
-            label: "Bookings",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.inventory),
-            label: "Inventory",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.payments),
-            label: "Payments",
-          ),
-        ],
+      bottomNavigationBar: Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 8,
+            )
+          ],
+        ),
+        child: BottomNavigationBar(
+          currentIndex: _selectedIndex,
+          onTap: _onTabTapped,
+          type: BottomNavigationBarType.fixed,
+          backgroundColor: Colors.white,
+          selectedItemColor: const Color(0xFF1E4FA3),
+          unselectedItemColor: Colors.grey,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: "Home",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.book),
+              label: "Bookings",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.inventory),
+              label: "Inventory",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.payments),
+              label: "Payments",
+            ),
+          ],
+        ),
       ),
     );
   }
