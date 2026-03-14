@@ -8,6 +8,7 @@ class AppMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<String>(
+      color: Colors.white, 
       icon: const Icon(Icons.more_vert, color: Colors.white),
       onSelected: (value) async {
 
