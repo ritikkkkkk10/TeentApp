@@ -79,76 +79,107 @@ class _InventoryScreenState extends State<InventoryScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              TextButton(
-                onPressed: () {
-                  setState(() {
-                    filterMode = type;
-                  });
-                },
-                child: const Text("More"),
-              )
-            ],
+          /// BLUE SECTION TITLE
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF1E4FA3),
+            ),
           ),
-          Column(
-            children: docs.map((doc) {
-              final data = doc.data() as Map<String, dynamic>;
 
-              return ListTile(
-                leading: Icon(
-                  type == "category"
-                      ? Icons.folder
-                      : type == "service"
-                          ? Icons.miscellaneous_services
-                          : Icons.inventory,
-                  color: const Color(0xFF1E4FA3),
+          const SizedBox(height: 8),
+
+          /// WHITE CARD CONTAINER
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 6,
+                )
+              ],
+            ),
+            child: Column(
+              children: [
+                /// ITEMS
+                ...docs.map((doc) {
+                  final data = doc.data() as Map<String, dynamic>;
+
+                  return ListTile(
+                    leading: Icon(
+                      type == "category"
+                          ? Icons.folder
+                          : type == "service"
+                              ? Icons.miscellaneous_services
+                              : Icons.inventory,
+                      color: const Color(0xFF1E4FA3),
+                    ),
+                    title: Text(data["name"]),
+                    onTap: () {
+                      if (type == "category") {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => InventoryScreen(
+                              parentId: doc.id,
+                              title: data["name"],
+                            ),
+                          ),
+                        );
+                      } else if (type == "item") {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ItemDetailScreen(
+                              itemData: data,
+                              itemId: doc.id,
+                            ),
+                          ),
+                        );
+                      } else if (type == "service") {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ServiceDetailScreen(
+                              serviceData: data,
+                              serviceId: doc.id,
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                  );
+                }),
+
+                /// DIVIDER BEFORE MORE
+                const Divider(height: 1),
+
+                /// MORE BUTTON INSIDE CARD
+                ListTile(
+                  leading: const Icon(
+                    Icons.arrow_forward,
+                    color: Color(0xFF1E4FA3),
+                  ),
+                  title: const Text(
+                    "More",
+                    style: TextStyle(
+                      color: Color(0xFF1E4FA3),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  onTap: () {
+                    setState(() {
+                      filterMode = type;
+                    });
+                  },
                 ),
-                title: Text(data["name"]),
-                onTap: () {
-                  if (type == "category") {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => InventoryScreen(
-                          parentId: doc.id,
-                          title: data["name"],
-                        ),
-                      ),
-                    );
-                  } else if (type == "item") {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ItemDetailScreen(
-                          itemData: data,
-                          itemId: doc.id,
-                        ),
-                      ),
-                    );
-                  } else if (type == "service") {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ServiceDetailScreen(
-                          serviceData: data,
-                          serviceId: doc.id,
-                        ),
-                      ),
-                    );
-                  }
-                },
-              );
-            }).toList(),
-          )
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -405,24 +436,49 @@ class _InventoryScreenState extends State<InventoryScreen> {
 
           /// SEARCH BAR
           Padding(
-            padding: const EdgeInsets.all(10),
-            child: TextField(
-              controller: searchController,
-              decoration: InputDecoration(
-                hintText: "Search inventory...",
-                prefixIcon: const Icon(Icons.search),
-                filled: true,
-                fillColor: Colors.grey.shade200,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide.none,
-                ),
+            padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 6,
+                  )
+                ],
               ),
-              onChanged: (value) {
-                setState(() {
-                  searchText = value.toLowerCase();
-                });
-              },
+              child: TextField(
+                controller: searchController,
+                decoration: InputDecoration(
+                  hintText: "Search inventory",
+                  prefixIcon: const Icon(Icons.search),
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 10,
+                    horizontal: 12,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(
+                      color: Color(0xFF1E4FA3),
+                      width: 1,
+                    ),
+                  ),
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    searchText = value.toLowerCase();
+                  });
+                },
+              ),
             ),
           ),
 
