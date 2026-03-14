@@ -30,6 +30,96 @@ class _InventoryScreenState extends State<InventoryScreen> {
   TextEditingController searchController = TextEditingController();
   String searchText = "";
 
+  Widget _filterButton(String label, String mode) {
+    bool selected = filterMode == mode;
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          filterMode = mode;
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: selected ? const Color(0xFF1E4FA3) : Colors.white,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: selected ? Colors.white : Colors.black,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAllSections(List docs) {
+    List items = docs.where((d) => d["type"] == "item").take(2).toList();
+    List services = docs.where((d) => d["type"] == "service").take(2).toList();
+    List categories =
+        docs.where((d) => d["type"] == "category").take(2).toList();
+
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          _section("Items", "item", items),
+          _section("Services", "service", services),
+          _section("Categories", "category", categories),
+        ],
+      ),
+    );
+  }
+
+  Widget _section(String title, String type, List docs) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    filterMode = type;
+                  });
+                },
+                child: const Text("More"),
+              )
+            ],
+          ),
+          Column(
+            children: docs.map((doc) {
+              final data = doc.data() as Map<String, dynamic>;
+
+              return ListTile(
+                leading: Icon(
+                  type == "category"
+                      ? Icons.folder
+                      : type == "service"
+                          ? Icons.miscellaneous_services
+                          : Icons.inventory,
+                ),
+                title: Text(data["name"]),
+              );
+            }).toList(),
+          )
+        ],
+      ),
+    );
+  }
+
   /// ADD OPTIONS
   void _showAddOptions(BuildContext context) {
     showModalBottomSheet(
@@ -235,53 +325,15 @@ class _InventoryScreenState extends State<InventoryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
-        actions: [
-          TextButton(
-            onPressed: () {
-              setState(() {
-                filterMode = "all";
-              });
-            },
-            child: const Text(
-              "All",
-              style: TextStyle(color: Colors.black),
-            ),
+        backgroundColor: const Color(0xFF1E4FA3),
+        centerTitle: true,
+        title: const Text(
+          "Inventory",
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
           ),
-          TextButton(
-            onPressed: () {
-              setState(() {
-                filterMode = "category";
-              });
-            },
-            child: const Text(
-              "Categories",
-              style: TextStyle(color: Colors.black),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              setState(() {
-                filterMode = "item";
-              });
-            },
-            child: const Text(
-              "Items",
-              style: TextStyle(color: Colors.black),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              setState(() {
-                filterMode = "service";
-              });
-            },
-            child: const Text(
-              "Services",
-              style: TextStyle(color: Colors.black),
-            ),
-          ),
-        ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -291,6 +343,32 @@ class _InventoryScreenState extends State<InventoryScreen> {
       ),
       body: Column(
         children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 6,
+                  )
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _filterButton("All", "all"),
+                  _filterButton("Categories", "category"),
+                  _filterButton("Items", "item"),
+                  _filterButton("Services", "service"),
+                ],
+              ),
+            ),
+          ),
+
           /// SEARCH BAR
           Padding(
             padding: const EdgeInsets.all(10),
@@ -360,6 +438,10 @@ class _InventoryScreenState extends State<InventoryScreen> {
                       return const Center(
                         child: Text("No Inventory Yet"),
                       );
+                    }
+
+                    if (filterMode == "all") {
+                      return _buildAllSections(docs);
                     }
 
                     return ListView.builder(
