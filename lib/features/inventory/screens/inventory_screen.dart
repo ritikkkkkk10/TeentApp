@@ -110,8 +110,42 @@ class _InventoryScreenState extends State<InventoryScreen> {
                       : type == "service"
                           ? Icons.miscellaneous_services
                           : Icons.inventory,
+                  color: const Color(0xFF1E4FA3),
                 ),
                 title: Text(data["name"]),
+                onTap: () {
+                  if (type == "category") {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => InventoryScreen(
+                          parentId: doc.id,
+                          title: data["name"],
+                        ),
+                      ),
+                    );
+                  } else if (type == "item") {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ItemDetailScreen(
+                          itemData: data,
+                          itemId: doc.id,
+                        ),
+                      ),
+                    );
+                  } else if (type == "service") {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ServiceDetailScreen(
+                          serviceData: data,
+                          serviceId: doc.id,
+                        ),
+                      ),
+                    );
+                  }
+                },
               );
             }).toList(),
           )
