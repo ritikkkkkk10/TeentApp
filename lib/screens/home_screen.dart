@@ -264,101 +264,39 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   const SizedBox(height: 10),
 
-/// NEW BOOKING BUTTON
-Padding(
-  padding: const EdgeInsets.symmetric(horizontal: 12),
-  child: SizedBox(
-    width: double.infinity,
-    height: 52,
-    child: ElevatedButton.icon(
-      icon: const Icon(Icons.add),
-      label: const Text(
-        "New Booking",
-        style: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF1E4FA3),
-        foregroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        elevation: 2,
-      ),
-      onPressed: () async {
-        await Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => const CreateBookingScreen(),
-          ),
-        );
-      },
-    ),
-  ),
-),
-
-                  const SizedBox(height: 20),
-
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => BookingsListScreen(
-                            businessId: businessId!,
+                  /// NEW BOOKING BUTTON
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 52,
+                      child: ElevatedButton.icon(
+                        icon: const Icon(Icons.add),
+                        label: const Text(
+                          "New Booking",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
-                      );
-                    },
-                    child: const Text("Bookings"),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const InventoryScreen(),
-                        ),
-                      );
-                    },
-                    child: const Text("Update Inventory"),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  ElevatedButton.icon(
-                    icon: const Icon(Icons.payments),
-                    label: const Text("Pending Payments"),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => PendingPaymentsScreen(
-                            businessId: businessId!,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF1E4FA3),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
+                          elevation: 2,
                         ),
-                      );
-                    },
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  ElevatedButton.icon(
-                    icon: const Icon(Icons.business),
-                    label: const Text("Business Profile"),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const BusinessProfileScreen(),
-                        ),
-                      );
-                    },
+                        onPressed: () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const CreateBookingScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
                   ),
                 ],
               ),
