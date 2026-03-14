@@ -264,40 +264,40 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   const SizedBox(height: 10),
 
-                  /// NEW BOOKING BUTTON
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: 52,
-                      child: ElevatedButton.icon(
-                        icon: const Icon(Icons.add),
-                        label: const Text(
-                          "New Booking",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF1E4FA3),
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 2,
-                        ),
-                        onPressed: () async {
-                          await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const CreateBookingScreen(),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
+/// NEW BOOKING BUTTON
+Padding(
+  padding: const EdgeInsets.symmetric(horizontal: 12),
+  child: SizedBox(
+    width: double.infinity,
+    height: 52,
+    child: ElevatedButton.icon(
+      icon: const Icon(Icons.add),
+      label: const Text(
+        "New Booking",
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color(0xFF1E4FA3),
+        foregroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        elevation: 2,
+      ),
+      onPressed: () async {
+        await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const CreateBookingScreen(),
+          ),
+        );
+      },
+    ),
+  ),
+),
 
                   const SizedBox(height: 20),
 
