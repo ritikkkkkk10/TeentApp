@@ -71,17 +71,7 @@ class _BookingsListScreenState extends State<BookingsListScreen>
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.add),
-        onPressed: () async {
-          await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => const CreateBookingScreen(),
-            ),
-          );
-        },
-      ),
+      
       body: Column(
         children: [
           /// SEARCH BAR
