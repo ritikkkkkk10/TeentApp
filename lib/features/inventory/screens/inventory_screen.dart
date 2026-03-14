@@ -188,6 +188,12 @@ class _InventoryScreenState extends State<InventoryScreen> {
   /// ADD OPTIONS
   void _showAddOptions(BuildContext context) {
     showModalBottomSheet(
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(16),
+        ),
+      ),
       context: context,
       builder: (_) {
         return SafeArea(
@@ -195,24 +201,36 @@ class _InventoryScreenState extends State<InventoryScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: const Icon(Icons.create_new_folder),
-                title: const Text("Add Category"),
+                leading: const Icon(
+                  Icons.create_new_folder,
+                  color: Color(0xFF1E4FA3),
+                ),
+                title: const Text(
+                  "Add Category",
+                  style: TextStyle(
+                    color: Color(0xFF1E4FA3),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
                 onTap: () {
                   Navigator.pop(context);
                   _showAddCategoryDialog(context);
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.inventory),
-                title: const Text("Add Item"),
+                leading: const Icon(Icons.inventory, color: Color(0xFF1E4FA3)),
+                title: const Text("Add Item",
+                    style: TextStyle(color: Color(0xFF1E4FA3))),
                 onTap: () {
                   Navigator.pop(context);
                   _showAddItemDialog(context);
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.miscellaneous_services),
-                title: const Text("Add Service"),
+                leading: const Icon(Icons.miscellaneous_services,
+                    color: Color(0xFF1E4FA3)),
+                title: const Text("Add Service",
+                    style: TextStyle(color: Color(0xFF1E4FA3))),
                 onTap: () {
                   Navigator.pop(context);
 
@@ -486,6 +504,28 @@ class _InventoryScreenState extends State<InventoryScreen> {
               ),
             ),
           ),
+
+          if (widget.parentId != null)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.folder,
+                    color: Color(0xFF1E4FA3),
+                    size: 18,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    "Category: ${widget.title}",
+                    style: const TextStyle(
+                      color: Color(0xFF1E4FA3),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
 
           Expanded(
             child: FutureBuilder(
