@@ -103,20 +103,7 @@ class _BookingsCalendarScreenState extends State<BookingsCalendarScreen> {
       body: Column(
         children: [
           /// CALENDAR
-          Padding(
-  padding: const EdgeInsets.fromLTRB(12, 12, 12, 6),
-  child: Card(
-    elevation: 2,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(12),
-    ),
-    child: Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      padding: const EdgeInsets.all(10),
-      child: BookingsCalendarWidget(
+      BookingsCalendarWidget(
         businessId: widget.businessId,
         onDaySelected: (day) {
           setState(() {
@@ -125,9 +112,6 @@ class _BookingsCalendarScreenState extends State<BookingsCalendarScreen> {
           });
         },
       ),
-    ),
-  ),
-),
 
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 16),
