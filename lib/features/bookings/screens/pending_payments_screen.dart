@@ -16,6 +16,22 @@ class PendingPaymentsScreen extends StatefulWidget {
 
 class _PendingPaymentsScreenState extends State<PendingPaymentsScreen>
     with SingleTickerProviderStateMixin {
+  Color getStatusColor(String status) {
+    switch (status) {
+      case "dispatched":
+        return Colors.blue;
+
+      case "receiving":
+        return Colors.orange;
+
+      case "completed":
+        return Colors.green;
+
+      default:
+        return Colors.grey;
+    }
+  }
+
   Future<double> calculateTotalPending(
       List<QueryDocumentSnapshot> bookings, String? statusFilter) async {
     final firestore = FirebaseFirestore.instance;
@@ -254,32 +270,120 @@ class _PendingPaymentsScreenState extends State<PendingPaymentsScreen>
                     String dateText =
                         "${startDate.day}/${startDate.month}/${startDate.year}";
 
-                    return ListTile(
-                      leading: const Icon(Icons.payments),
-                      title: Text(data["eventName"] ?? ""),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(data["customerName"] ?? ""),
-                          Text("Date: $dateText"),
-                          Text("Status: $status"),
-                          Text(
-                            "Remaining: ₹${remaining.toStringAsFixed(2)}",
-                          ),
-                        ],
+                    return Card(
+                      color: Colors.white,
+                      elevation: 2,
+                      margin: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      trailing: const Text("View"),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => BookingDetailScreen(
-                              bookingId: booking.id,
-                              businessId: widget.businessId,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => BookingDetailScreen(
+                                bookingId: booking.id,
+                                businessId: widget.businessId,
+                              ),
                             ),
+                          );
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(14),
+                          child: Row(
+                            children: [
+                              /// BLUE ICON
+                              Icon(
+                                Icons.event,
+                                color: Theme.of(context)
+                                        .appBarTheme
+                                        .backgroundColor ??
+                                    Theme.of(context).primaryColor,
+                                size: 28,
+                              ),
+
+                              const SizedBox(width: 12),
+
+                              /// LEFT SIDE DETAILS
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    /// CUSTOMER NAME
+                                    Text(
+                                      data["customerName"] ?? "",
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+
+                                    const SizedBox(height: 4),
+
+                                    /// EVENT NAME
+                                    Text(
+                                      data["eventName"] ?? "",
+                                      style: const TextStyle(
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+
+                                    const SizedBox(height: 4),
+
+                                    /// DATE
+                                    Text(
+                                      "Date: $dateText",
+                                      style: const TextStyle(
+                                        color: Colors.grey,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              /// RIGHT SIDE
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  /// STATUS
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: getStatusColor(status)
+                                          .withOpacity(0.15),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text(
+                                      status.toUpperCase(),
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.bold,
+                                        color: getStatusColor(status),
+                                      ),
+                                    ),
+                                  ),
+
+                                  const SizedBox(height: 8),
+
+                                  /// REMAINING
+                                  Text(
+                                    "₹${remaining.toStringAsFixed(0)}",
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
-                        );
-                      },
+                        ),
+                      ),
                     );
                   },
                 );
