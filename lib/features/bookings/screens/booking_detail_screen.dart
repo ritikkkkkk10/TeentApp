@@ -265,37 +265,6 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
           return Column(
             children: [
               /// BOOKING INFO
-              Container(
-                width: double.infinity,
-                margin: const EdgeInsets.all(10),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      bookingData["eventName"] ?? "",
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text("Customer: ${bookingData["customerName"] ?? ""}"),
-                    Text("Phone: ${bookingData["customerPhone"] ?? ""}"),
-                    Text("Address: ${bookingData["customerAddress"] ?? ""}"),
-                    const SizedBox(height: 6),
-                    Text(
-                      "Event Date: ${(bookingData["startDate"] as Timestamp).toDate().day}/"
-                      "${(bookingData["startDate"] as Timestamp).toDate().month}/"
-                      "${(bookingData["startDate"] as Timestamp).toDate().year}",
-                    ),
-                  ],
-                ),
-              ),
 
               if (isCompleted)
                 Container(
@@ -392,6 +361,107 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
 
                     return ListView(
                       children: [
+                        Container(
+                          margin: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 8),
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(14),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 8,
+                                offset: const Offset(0, 3),
+                              )
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              /// EVENT NAME
+                              Row(
+                                children: [
+                                  const Icon(Icons.event,
+                                      color: Color(0xFF1E4FA3)),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      bookingData["eventName"] ?? "",
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              const SizedBox(height: 14),
+
+                              /// CUSTOMER NAME
+                              Row(
+                                children: [
+                                  const Icon(Icons.person_outline, size: 20),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    bookingData["customerName"] ?? "",
+                                    style: const TextStyle(fontSize: 15),
+                                  ),
+                                ],
+                              ),
+
+                              const SizedBox(height: 8),
+
+                              /// PHONE
+                              Row(
+                                children: [
+                                  const Icon(Icons.phone_outlined, size: 20),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    bookingData["customerPhone"] ?? "",
+                                    style: const TextStyle(fontSize: 15),
+                                  ),
+                                ],
+                              ),
+
+                              const SizedBox(height: 8),
+
+                              /// ADDRESS
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Icon(Icons.location_on_outlined,
+                                      size: 20),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      bookingData["customerAddress"] ?? "",
+                                      style: const TextStyle(fontSize: 15),
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              const SizedBox(height: 12),
+
+                              /// EVENT DATE
+                              Row(
+                                children: [
+                                  const Icon(Icons.calendar_today_outlined,
+                                      size: 18),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    "${(bookingData["startDate"] as Timestamp).toDate().day}/"
+                                    "${(bookingData["startDate"] as Timestamp).toDate().month}/"
+                                    "${(bookingData["startDate"] as Timestamp).toDate().year}",
+                                    style: const TextStyle(fontSize: 14),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
                         StreamBuilder<QuerySnapshot>(
                           stream: servicesRef.snapshots(),
                           builder: (context, serviceSnapshot) {
@@ -414,210 +484,199 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                 (bookingData["totalPaid"] ?? 0).toDouble();
 
                             return Container(
-                              padding: const EdgeInsets.all(12),
-                              margin: const EdgeInsets.all(10),
+                              margin: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 8),
+                              padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    "Estimated Bill",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                      "Items Total: ₹${estimatedTotal.toStringAsFixed(2)}"),
-                                  Text(
-                                      "Services Total: ₹${serviceTotal.toStringAsFixed(2)}"),
-                                  const Divider(),
-                                  Text(
-                                    "Total: ₹${grandTotal.toStringAsFixed(2)}",
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  Text("Paid: ₹$paid"),
-                                  Text(
-                                      "Remaining: ₹${(grandTotal - paid).toStringAsFixed(2)}"),
-                                  const SizedBox(height: 10),
-                                  Column(
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: ElevatedButton(
-                                              onPressed: () {
-                                                showPaymentDialog(
-                                                  context,
-                                                  bookingRef,
-                                                  paid,
-                                                  grandTotal,
-                                                );
-                                              },
-                                              child: const Text("Make Payment"),
-                                            ),
-                                          ),
-                                          const SizedBox(width: 10),
-                                          Expanded(
-                                            child: OutlinedButton(
-                                              onPressed: () {
-                                                Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (_) =>
-                                                        PaymentHistoryScreen(
-                                                      bookingId:
-                                                          widget.bookingId,
-                                                      businessId:
-                                                          widget.businessId,
-                                                    ),
-                                                  ),
-                                                );
-                                              },
-                                              child: const Text("History"),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 10),
-                                      SizedBox(
-                                        width: double.infinity,
-                                        child: ElevatedButton(
-                                            child:
-                                                const Text("Generate Invoice"),
-                                            onPressed: () async {
-                                              final profileService =
-                                                  BusinessProfileService();
-                                              final profile =
-                                                  await profileService
-                                                      .getProfile(
-                                                          widget.businessId);
-
-                                              if (profile == null) {
-                                                ScaffoldMessenger.of(context)
-                                                    .showSnackBar(
-                                                  const SnackBar(
-                                                      content: Text(
-                                                          "Please fill Business Profile first")),
-                                                );
-                                                return;
-                                              }
-
-                                              generateInvoice(
-                                                context,
-                                                businessName:
-                                                    profile.businessName,
-                                                ownerName: profile.ownerName,
-                                                businessPhone: profile.phone,
-                                                businessAddress:
-                                                    profile.address,
-                                                gst: profile.gst,
-                                                customerName:
-                                                    bookingData["customerName"],
-                                                customerPhone: bookingData[
-                                                    "customerPhone"],
-                                                customerAddress: bookingData[
-                                                    "customerAddress"],
-                                                eventName:
-                                                    bookingData["eventName"],
-                                                startDate:
-                                                    (bookingData["startDate"]
-                                                            as Timestamp)
-                                                        .toDate(),
-                                                endDate: (bookingData["endDate"]
-                                                        as Timestamp)
-                                                    .toDate(),
-                                                items: items.map((doc) {
-                                                  final data = doc.data()
-                                                      as Map<String, dynamic>;
-
-                                                  return {
-                                                    "name": data["itemName"],
-                                                    "requested": data[
-                                                        "requestedQuantity"],
-                                                    "dispatched": data[
-                                                        "dispatchedQuantity"],
-                                                    "price": data[
-                                                        "rentPriceSnapshot"],
-                                                  };
-                                                }).toList(),
-                                                services: services.map((doc) {
-                                                  final data = doc.data()
-                                                      as Map<String, dynamic>;
-
-                                                  return {
-                                                    "name": data["serviceName"],
-                                                    "price":
-                                                        data["priceSnapshot"],
-                                                  };
-                                                }).toList(),
-                                                total: grandTotal,
-                                                paid: paid,
-                                              );
-                                            }),
-                                      ),
-                                      if (status == "receiving" &&
-                                          hasMissingItems)
-                                        Padding(
-                                          padding:
-                                              const EdgeInsets.only(top: 10),
-                                          child: SizedBox(
-                                            width: double.infinity,
-                                            child: ElevatedButton(
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor: Colors.orange,
-                                              ),
-                                              child:
-                                                  const Text("Close Booking"),
-                                              onPressed: () async {
-                                                bool confirm = await showDialog(
-                                                      context: context,
-                                                      builder: (_) =>
-                                                          AlertDialog(
-                                                        title: const Text(
-                                                            "Close Booking"),
-                                                        content: const Text(
-                                                            "Some items are missing.\n\nClose this booking?"),
-                                                        actions: [
-                                                          TextButton(
-                                                            child: const Text(
-                                                                "Cancel"),
-                                                            onPressed: () =>
-                                                                Navigator.pop(
-                                                                    context,
-                                                                    false),
-                                                          ),
-                                                          TextButton(
-                                                            child: const Text(
-                                                                "Close"),
-                                                            onPressed: () =>
-                                                                Navigator.pop(
-                                                                    context,
-                                                                    true),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ) ??
-                                                    false;
-
-                                                if (!confirm) return;
-
-                                                await bookingRef.update({
-                                                  "status": "completed",
-                                                });
-                                              },
-                                            ),
-                                          ),
-                                        ),
-                                    ],
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(14),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.05),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 3),
                                   )
                                 ],
                               ),
+                              child: Column(
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: [
+
+    Row(
+      children: const [
+        Icon(Icons.receipt_long, color: Color(0xFF1E4FA3)),
+        SizedBox(width: 8),
+        Text(
+          "Estimated Bill",
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    ),
+
+    const SizedBox(height: 14),
+
+    Text("Items Total: ₹${estimatedTotal.toStringAsFixed(2)}"),
+    Text("Services Total: ₹${serviceTotal.toStringAsFixed(2)}"),
+
+    const Divider(height: 24),
+
+    Text(
+      "Total: ₹${grandTotal.toStringAsFixed(2)}",
+      style: const TextStyle(fontWeight: FontWeight.bold),
+    ),
+
+    const SizedBox(height: 4),
+
+    Text("Paid: ₹$paid"),
+
+    Text(
+      "Remaining: ₹${(grandTotal - paid).toStringAsFixed(2)}",
+      style: const TextStyle(fontWeight: FontWeight.w600),
+    ),
+
+    const SizedBox(height: 16),
+
+    /// PAYMENT BUTTONS
+    Row(
+      children: [
+
+        Expanded(
+          child: SizedBox(
+            height: 48,
+            child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF1E4FA3),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              icon: const Icon(Icons.payments, color: Colors.white),
+              label: const Text(
+                "Make Payment",
+                style: TextStyle(color: Colors.white),
+              ),
+              onPressed: () {
+                showPaymentDialog(
+                  context,
+                  bookingRef,
+                  paid,
+                  grandTotal,
+                );
+              },
+            ),
+          ),
+        ),
+
+        const SizedBox(width: 10),
+
+        Expanded(
+          child: SizedBox(
+            height: 48,
+            child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF1E4FA3),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              icon: const Icon(Icons.history, color: Colors.white),
+              label: const Text(
+                "History",
+                style: TextStyle(color: Colors.white),
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => PaymentHistoryScreen(
+                      bookingId: widget.bookingId,
+                      businessId: widget.businessId,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      ],
+    ),
+
+    const SizedBox(height: 10),
+
+    /// INVOICE BUTTON
+    SizedBox(
+      width: double.infinity,
+      height: 48,
+      child: ElevatedButton.icon(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF1E4FA3),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+        icon: const Icon(Icons.receipt, color: Colors.white),
+        label: const Text(
+          "Generate Invoice",
+          style: TextStyle(color: Colors.white),
+        ),
+        onPressed: () async {
+
+          final profileService = BusinessProfileService();
+          final profile = await profileService.getProfile(widget.businessId);
+
+          if (profile == null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text("Please fill Business Profile first"),
+              ),
+            );
+            return;
+          }
+
+          generateInvoice(
+            context,
+            businessName: profile.businessName,
+            ownerName: profile.ownerName,
+            businessPhone: profile.phone,
+            businessAddress: profile.address,
+            gst: profile.gst,
+            customerName: bookingData["customerName"],
+            customerPhone: bookingData["customerPhone"],
+            customerAddress: bookingData["customerAddress"],
+            eventName: bookingData["eventName"],
+            startDate:
+                (bookingData["startDate"] as Timestamp).toDate(),
+            endDate:
+                (bookingData["endDate"] as Timestamp).toDate(),
+            items: items.map((doc) {
+              final data = doc.data() as Map<String, dynamic>;
+
+              return {
+                "name": data["itemName"],
+                "requested": data["requestedQuantity"],
+                "dispatched": data["dispatchedQuantity"],
+                "price": data["rentPriceSnapshot"],
+              };
+            }).toList(),
+            services: services.map((doc) {
+              final data = doc.data() as Map<String, dynamic>;
+
+              return {
+                "name": data["serviceName"],
+                "price": data["priceSnapshot"],
+              };
+            }).toList(),
+            total: grandTotal,
+            paid: paid,
+          );
+        },
+      ),
+    ),
+  ],
+)
                             );
                           },
                         ),
