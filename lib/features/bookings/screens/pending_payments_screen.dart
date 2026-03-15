@@ -71,7 +71,10 @@ class _PendingPaymentsScreenState extends State<PendingPaymentsScreen>
 
       bool eventStarted = !startDate.isAfter(today);
 
-      if (!(eventStarted || status == "dispatched" || status == "receiving" || status == "completed")) {
+      if (!(eventStarted ||
+          status == "dispatched" ||
+          status == "receiving" ||
+          status == "completed")) {
         continue;
       }
 
@@ -97,23 +100,51 @@ class _PendingPaymentsScreenState extends State<PendingPaymentsScreen>
     return Scaffold(
       appBar: AppBar(
         title: const Text("Pending Payments"),
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(text: "All"),
-            Tab(text: "Dispatched"),
-            Tab(text: "Receiving"),
-            Tab(text: "Completed"),
-          ],
-        ),
       ),
-      body: TabBarView(
-        controller: _tabController,
+      body: Column(
         children: [
-          buildBookingsList(null),
-          buildBookingsList("dispatched"),
-          buildBookingsList("receiving"),
-          buildBookingsList("completed"),
+          /// TAB BUTTONS
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade200,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: TabBar(
+                controller: _tabController,
+                indicator: BoxDecoration(
+                  color: Theme.of(context).appBarTheme.backgroundColor ??
+                      Theme.of(context).primaryColor,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                labelColor: Colors.white,
+                unselectedLabelColor: Colors.black87,
+                indicatorSize: TabBarIndicatorSize.tab,
+                dividerColor: Colors.transparent,
+                tabs: const [
+                  Tab(text: "All"),
+                  Tab(text: "Dispatched"),
+                  Tab(text: "Receiving"),
+                  Tab(text: "Completed"),
+                ],
+              ),
+            ),
+          ),
+
+          /// TAB CONTENT
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                buildBookingsList(null),
+                buildBookingsList("dispatched"),
+                buildBookingsList("receiving"),
+                buildBookingsList("completed"),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -267,21 +298,45 @@ class _PendingPaymentsScreenState extends State<PendingPaymentsScreen>
                 }
 
                 return Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(12),
-                  color: Colors.orange.shade100,
-                  child: Text(
-                    "Total Pending: ₹${snap.data!.toStringAsFixed(2)}",
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                  margin: const EdgeInsets.fromLTRB(12, 12, 12, 8),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    gradient: const LinearGradient(
+                      colors: [
+                        Color(0xFFDCEBFF),
+                        Color(0xFFF1F7FF),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        "Total Pending",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        "₹${snap.data!.toStringAsFixed(2)}",
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue,
+                        ),
+                      ),
+                    ],
                   ),
                 );
               },
             ),
             Expanded(
               child: ListView(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
                 children: tiles,
               ),
             ),

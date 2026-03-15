@@ -316,60 +316,59 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     return WillPopScope(
-  onWillPop: () async {
+      onWillPop: () async {
+        /// if not on home tab → go to home
+        if (_selectedIndex != 0) {
+          setState(() {
+            _selectedIndex = 0;
+          });
+          return false;
+        }
 
-    /// if not on home tab → go to home
-    if (_selectedIndex != 0) {
-      setState(() {
-        _selectedIndex = 0;
-      });
-      return false;
-    }
-
-    /// if already on home → allow app close
-    return true;
-  },
-  child: Scaffold(
-      backgroundColor: const Color(0xFFF5F6FA),
-      body: _getScreen(),
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 8,
-            )
-          ],
-        ),
-        child: BottomNavigationBar(
-          currentIndex: _selectedIndex,
-          onTap: _onTabTapped,
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: Colors.white,
-          selectedItemColor: const Color(0xFF1E4FA3),
-          unselectedItemColor: Colors.grey,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: "Home",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.book),
-              label: "Bookings",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.inventory),
-              label: "Inventory",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.payments),
-              label: "Payments",
-            ),
-          ],
+        /// if already on home → allow app close
+        return true;
+      },
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF5F6FA),
+        body: _getScreen(),
+        bottomNavigationBar: Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black12,
+                blurRadius: 8,
+              )
+            ],
+          ),
+          child: BottomNavigationBar(
+            currentIndex: _selectedIndex,
+            onTap: _onTabTapped,
+            type: BottomNavigationBarType.fixed,
+            backgroundColor: Colors.white,
+            selectedItemColor: const Color(0xFF1E4FA3),
+            unselectedItemColor: Colors.grey,
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home),
+                label: "Home",
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.book),
+                label: "Bookings",
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.inventory),
+                label: "Inventory",
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.payments),
+                label: "Payments",
+              ),
+            ],
+          ),
         ),
       ),
-  ),
     );
   }
 }
