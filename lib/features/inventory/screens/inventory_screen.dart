@@ -498,22 +498,21 @@ class _InventoryScreenState extends State<InventoryScreen> {
                   hintText: "Search inventory",
                   prefixIcon: const Icon(Icons.search),
 
-
                   /// CLEAR BUTTON
-  suffixIcon: searchController.text.isNotEmpty
-      ? IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: () {
-            searchController.clear();
+                  suffixIcon: searchController.text.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () {
+                            searchController.clear();
 
-            setState(() {
-              searchText = "";
-            });
+                            setState(() {
+                              searchText = "";
+                            });
 
-            FocusScope.of(context).unfocus(); // closes keyboard
-          },
-        )
-      : null,
+                            FocusScope.of(context).unfocus(); // closes keyboard
+                          },
+                        )
+                      : null,
 
                   contentPadding: const EdgeInsets.symmetric(
                     vertical: 10,
