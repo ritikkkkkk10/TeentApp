@@ -368,18 +368,38 @@ class _PendingPaymentsScreenState extends State<PendingPaymentsScreen>
                                     ),
                                   ),
 
-                                  const SizedBox(height: 8),
+                                  const SizedBox(height: 6),
 
-                                  /// REMAINING
+                                  /// REMAINING LABEL
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 3),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.shade200,
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                    child: const Text(
+                                      "Remaining",
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        color: Colors.black54,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+
+                                  const SizedBox(height: 4),
+
+                                  /// AMOUNT
                                   Text(
                                     "₹${remaining.toStringAsFixed(0)}",
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      fontSize: 15,
+                                      fontSize: 16,
                                     ),
                                   ),
                                 ],
-                              ),
+                              )
                             ],
                           ),
                         ),

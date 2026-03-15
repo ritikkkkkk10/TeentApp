@@ -54,40 +54,129 @@ class TodayPaymentsScreen extends StatelessWidget {
                     Timestamp ts = data["timestamp"];
                     DateTime time = ts.toDate();
 
-                    if (time.isAfter(startOfDay) &&
-                        time.isBefore(endOfDay)) {
+                    if (time.isAfter(startOfDay) && time.isBefore(endOfDay)) {
                       final bookingData =
                           booking.data() as Map<String, dynamic>;
 
-                      double amount =
-                          (data["amount"] ?? 0).toDouble();
+                      double amount = (data["amount"] ?? 0).toDouble();
 
                       tiles.add(
-                        ListTile(
-                          leading: const Icon(Icons.payments),
-                          title: Text(bookingData["eventName"] ?? ""),
-                          subtitle: Column(
-                            crossAxisAlignment:
-                                CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                  bookingData["customerName"] ?? ""),
-                              Text("Paid: ₹$amount"),
-                              Text("${time.hour.toString().padLeft(2,'0')}:${time.minute.toString().padLeft(2,'0')}"),
-                            ],
+                        Card(
+                          color: Colors.white,
+                          elevation: 2,
+                          margin: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          trailing: const Text("View"),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => BookingDetailScreen(
-                                  bookingId: booking.id,
-                                  businessId: businessId,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(12),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => BookingDetailScreen(
+                                    bookingId: booking.id,
+                                    businessId: businessId,
+                                  ),
                                 ),
+                              );
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(14),
+                              child: Row(
+                                children: [
+                                  /// BLUE ICON
+                                  Icon(
+                                    Icons.payments,
+                                    color: Theme.of(context)
+                                            .appBarTheme
+                                            .backgroundColor ??
+                                        Theme.of(context).primaryColor,
+                                    size: 26,
+                                  ),
+
+                                  const SizedBox(width: 12),
+
+                                  /// LEFT SIDE DETAILS
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        /// CUSTOMER NAME
+                                        Text(
+                                          bookingData["customerName"] ?? "",
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+
+                                        const SizedBox(height: 4),
+
+                                        /// EVENT
+                                        Text(
+                                          bookingData["eventName"] ?? "",
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.black87,
+                                          ),
+                                        ),
+
+                                        const SizedBox(height: 4),
+
+                                        /// TIME
+                                        Text(
+                                          "${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}",
+                                          style: const TextStyle(
+                                            fontSize: 13,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+                                  /// RIGHT SIDE
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      /// PAID BADGE
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: Colors.green.withOpacity(0.15),
+                                          borderRadius:
+                                              BorderRadius.circular(6),
+                                        ),
+                                        child: const Text(
+                                          "PAID TODAY",
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.green,
+                                          ),
+                                        ),
+                                      ),
+
+                                      const SizedBox(height: 6),
+
+                                      /// AMOUNT
+                                      Text(
+                                        "₹${amount.toStringAsFixed(0)}",
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
-                            );
-                          },
+                            ),
+                          ),
                         ),
                       );
                     }
