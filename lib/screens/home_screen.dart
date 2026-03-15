@@ -315,7 +315,21 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
 
-    return Scaffold(
+    return WillPopScope(
+  onWillPop: () async {
+
+    /// if not on home tab → go to home
+    if (_selectedIndex != 0) {
+      setState(() {
+        _selectedIndex = 0;
+      });
+      return false;
+    }
+
+    /// if already on home → allow app close
+    return true;
+  },
+  child: Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
       body: _getScreen(),
       bottomNavigationBar: Container(
@@ -355,6 +369,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
+  ),
     );
   }
 }

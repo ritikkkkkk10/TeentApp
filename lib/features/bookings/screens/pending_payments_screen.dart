@@ -71,7 +71,7 @@ class _PendingPaymentsScreenState extends State<PendingPaymentsScreen>
 
       bool eventStarted = !startDate.isAfter(today);
 
-      if (!(eventStarted || status == "dispatched" || status == "receiving")) {
+      if (!(eventStarted || status == "dispatched" || status == "receiving" || status == "completed")) {
         continue;
       }
 
@@ -213,7 +213,8 @@ class _PendingPaymentsScreenState extends State<PendingPaymentsScreen>
 
                     if (!(eventStarted ||
                         status == "dispatched" ||
-                        status == "receiving")) {
+                        status == "receiving" ||
+                        status == "completed")) {
                       return const SizedBox();
                     }
 
