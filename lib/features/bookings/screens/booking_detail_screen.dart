@@ -747,55 +747,6 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                         ),
 
                         /// INVENTORY ITEMS
-                        ...items.map((item) {
-                          final data = item.data() as Map<String, dynamic>;
-
-                          bool isManual = data["isManual"] ?? false;
-
-                          final requestedQty = data["requestedQuantity"] ?? 0;
-
-                          final dispatchedQty = data["dispatchedQuantity"] ?? 0;
-
-                          final displayQty =
-                              dispatchedQty > 0 ? dispatchedQty : requestedQty;
-
-                          return ListTile(
-                            leading: const Icon(Icons.inventory),
-                            title: Text(data["itemName"] ?? ""),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text("Qty: $displayQty"),
-                                if ((data["missingQuantity"] ?? 0) > 0)
-                                  Text(
-                                    "Missing: ${data["missingQuantity"]}",
-                                    style: const TextStyle(color: Colors.red),
-                                  ),
-                              ],
-                            ),
-                            onTap: (isDispatched || isCompleted || isReceiving)
-                                ? null
-                                : () => editQuantity(context, item, isManual),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                if ((data["shortageQuantity"] ?? 0) > 0)
-                                  Text(
-                                    "Shortage: ${data["shortageQuantity"]}",
-                                    style: const TextStyle(color: Colors.red),
-                                  ),
-                                if (!(isDispatched ||
-                                    isCompleted ||
-                                    isReceiving))
-                                  IconButton(
-                                    icon: const Icon(Icons.edit),
-                                    onPressed: () =>
-                                        editQuantity(context, item, isManual),
-                                  ),
-                              ],
-                            ),
-                          );
-                        }),
 
                         /// SERVICES
                         StreamBuilder<QuerySnapshot>(
@@ -807,66 +758,191 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
 
                             var services = serviceSnapshot.data!.docs;
 
-                            double serviceTotal = 0;
+                            return Container(
+                              margin: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 8),
+                              padding: const EdgeInsets.all(14),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(14),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.05),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 3),
+                                  )
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  /// ITEMS
+                                  ...items.map((item) {
+                                    final data =
+                                        item.data() as Map<String, dynamic>;
 
-                            for (var service in services) {
-                              serviceTotal +=
-                                  (service["priceSnapshot"] ?? 0).toDouble();
-                            }
+                                    bool isManual = data["isManual"] ?? false;
 
-                            return Column(
-                              children: services.map((service) {
-                                return ListTile(
-                                  leading:
-                                      const Icon(Icons.miscellaneous_services),
+                                    final requestedQty =
+                                        data["requestedQuantity"] ?? 0;
+                                    final dispatchedQty =
+                                        data["dispatchedQuantity"] ?? 0;
 
-                                  title: Text(service["serviceName"]),
+                                    final displayQty = dispatchedQty > 0
+                                        ? dispatchedQty
+                                        : requestedQty;
 
-                                  subtitle:
-                                      Text("₹ ${service["priceSnapshot"]}"),
-
-                                  /// DISABLE DELETE AFTER DISPATCH
-                                  onLongPress: (isDispatched || isCompleted)
-                                      ? null
-                                      : () async {
-                                          bool confirm = await showDialog(
-                                                context: context,
-                                                builder: (_) => AlertDialog(
-                                                  title: const Text(
-                                                      "Remove Service"),
-                                                  content: const Text(
-                                                      "Delete this service from booking?"),
-                                                  actions: [
-                                                    TextButton(
-                                                      child:
-                                                          const Text("Cancel"),
-                                                      onPressed: () {
-                                                        Navigator.pop(
-                                                            context, false);
-                                                      },
-                                                    ),
-                                                    TextButton(
-                                                      child:
-                                                          const Text("Delete"),
-                                                      onPressed: () {
-                                                        Navigator.pop(
-                                                            context, true);
-                                                      },
-                                                    ),
-                                                  ],
+                                    return Column(
+                                      children: [
+                                        Row(
+                                          children: [
+                                            const Icon(Icons.inventory,
+                                                size: 20),
+                                            const SizedBox(width: 8),
+                                            Expanded(
+                                              child: Text(
+                                                data["itemName"] ?? "",
+                                                style: const TextStyle(
+                                                    fontSize: 15),
+                                              ),
+                                            ),
+                                            Text(
+                                              "Qty: $displayQty",
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 10),
+                                            if (!(isDispatched ||
+                                                isCompleted ||
+                                                isReceiving))
+                                              GestureDetector(
+                                                onTap: () => editQuantity(
+                                                    context, item, isManual),
+                                                child: Container(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      horizontal: 10,
+                                                      vertical: 4),
+                                                  decoration: BoxDecoration(
+                                                    border: Border.all(
+                                                        color: Colors
+                                                            .grey.shade400),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            6),
+                                                  ),
+                                                  child: const Text(
+                                                    "Edit",
+                                                    style:
+                                                        TextStyle(fontSize: 12),
+                                                  ),
                                                 ),
-                                              ) ??
-                                              false;
+                                              ),
+                                          ],
+                                        ),
+                                        if ((data["missingQuantity"] ?? 0) > 0)
+                                          Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.only(top: 4),
+                                              child: Text(
+                                                "Missing: ${data["missingQuantity"]}",
+                                                style: const TextStyle(
+                                                    color: Colors.red),
+                                              ),
+                                            ),
+                                          ),
+                                        const Divider(height: 22),
+                                      ],
+                                    );
+                                  }),
 
-                                          if (confirm) {
-                                            await service.reference.delete();
-                                          }
-                                        },
-                                );
-                              }).toList(),
+                                  /// SERVICES TITLE
+                                  if (services.isNotEmpty)
+                                    const Padding(
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 6),
+                                      child: Text(
+                                        "Services",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 15,
+                                        ),
+                                      ),
+                                    ),
+
+                                  /// SERVICES LIST
+                                  ...services.map((service) {
+                                    return GestureDetector(
+                                      onLongPress: (isDispatched || isCompleted)
+                                          ? null
+                                          : () async {
+                                              bool confirm = await showDialog(
+                                                    context: context,
+                                                    builder: (_) => AlertDialog(
+                                                      title: const Text(
+                                                          "Remove Service"),
+                                                      content: const Text(
+                                                          "Delete this service from booking?"),
+                                                      actions: [
+                                                        TextButton(
+                                                          child: const Text(
+                                                              "Cancel"),
+                                                          onPressed: () =>
+                                                              Navigator.pop(
+                                                                  context,
+                                                                  false),
+                                                        ),
+                                                        TextButton(
+                                                          child: const Text(
+                                                              "Delete"),
+                                                          onPressed: () =>
+                                                              Navigator.pop(
+                                                                  context,
+                                                                  true),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ) ??
+                                                  false;
+
+                                              if (confirm) {
+                                                await service.reference
+                                                    .delete();
+                                              }
+                                            },
+                                      child: Column(
+                                        children: [
+                                          Row(
+                                            children: [
+                                              const Icon(
+                                                  Icons.miscellaneous_services,
+                                                  size: 20),
+                                              const SizedBox(width: 8),
+                                              Expanded(
+                                                child: Text(
+                                                    service["serviceName"]),
+                                              ),
+                                              Text(
+                                                "₹ ${service["priceSnapshot"]}",
+                                                style: const TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.w500),
+                                              ),
+                                            ],
+                                          ),
+                                          const Divider(height: 22),
+                                        ],
+                                      ),
+                                    );
+                                  }).toList(),
+                                ],
+                              ),
                             );
                           },
-                        ),
+                        )
                       ],
                     );
                   },
