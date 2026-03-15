@@ -287,35 +287,73 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
               /// DISPATCH / RECEIVE BUTTON
 
               if (status == "confirmed" || status == "dispatching")
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => DispatchItemsScreen(
-                          businessId: widget.businessId,
-                          bookingId: widget.bookingId,
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF1E4FA3),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                    );
-                  },
-                  child: const Text("Dispatch Items"),
+                      icon:
+                          const Icon(Icons.local_shipping, color: Colors.white),
+                      label: const Text(
+                        "Dispatch Items",
+                        style: TextStyle(color: Colors.white, fontSize: 16),
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => DispatchItemsScreen(
+                              businessId: widget.businessId,
+                              bookingId: widget.bookingId,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
                 ),
 
               if (status == "dispatched")
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ReceiveItemsScreen(
-                          businessId: widget.businessId,
-                          bookingId: widget.bookingId,
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF1E4FA3),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                    );
-                  },
-                  child: const Text("Receive Items"),
+                      icon: const Icon(Icons.assignment_return,
+                          color: Colors.white),
+                      label: const Text(
+                        "Receive Items",
+                        style: TextStyle(color: Colors.white, fontSize: 16),
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ReceiveItemsScreen(
+                              businessId: widget.businessId,
+                              bookingId: widget.bookingId,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
                 ),
 
               /// ITEMS
@@ -484,200 +522,227 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                 (bookingData["totalPaid"] ?? 0).toDouble();
 
                             return Container(
-                              margin: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 8),
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(14),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.05),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 3),
-                                  )
-                                ],
-                              ),
-                              child: Column(
-  crossAxisAlignment: CrossAxisAlignment.start,
-  children: [
+                                margin: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 8),
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(14),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.05),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 3),
+                                    )
+                                  ],
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: const [
+                                        Icon(Icons.receipt_long,
+                                            color: Color(0xFF1E4FA3)),
+                                        SizedBox(width: 8),
+                                        Text(
+                                          "Estimated Bill",
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
 
-    Row(
-      children: const [
-        Icon(Icons.receipt_long, color: Color(0xFF1E4FA3)),
-        SizedBox(width: 8),
-        Text(
-          "Estimated Bill",
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
-    ),
+                                    const SizedBox(height: 14),
 
-    const SizedBox(height: 14),
+                                    Text(
+                                        "Items Total: ₹${estimatedTotal.toStringAsFixed(2)}"),
+                                    Text(
+                                        "Services Total: ₹${serviceTotal.toStringAsFixed(2)}"),
 
-    Text("Items Total: ₹${estimatedTotal.toStringAsFixed(2)}"),
-    Text("Services Total: ₹${serviceTotal.toStringAsFixed(2)}"),
+                                    const Divider(height: 24),
 
-    const Divider(height: 24),
+                                    Text(
+                                      "Total: ₹${grandTotal.toStringAsFixed(2)}",
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
 
-    Text(
-      "Total: ₹${grandTotal.toStringAsFixed(2)}",
-      style: const TextStyle(fontWeight: FontWeight.bold),
-    ),
+                                    const SizedBox(height: 4),
 
-    const SizedBox(height: 4),
+                                    Text("Paid: ₹$paid"),
 
-    Text("Paid: ₹$paid"),
+                                    Text(
+                                      "Remaining: ₹${(grandTotal - paid).toStringAsFixed(2)}",
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.w600),
+                                    ),
 
-    Text(
-      "Remaining: ₹${(grandTotal - paid).toStringAsFixed(2)}",
-      style: const TextStyle(fontWeight: FontWeight.w600),
-    ),
+                                    const SizedBox(height: 16),
 
-    const SizedBox(height: 16),
+                                    /// PAYMENT BUTTONS
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: SizedBox(
+                                            height: 48,
+                                            child: ElevatedButton.icon(
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor:
+                                                    const Color(0xFF1E4FA3),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                ),
+                                              ),
+                                              icon: const Icon(Icons.payments,
+                                                  color: Colors.white),
+                                              label: const Text(
+                                                "Make Payment",
+                                                style: TextStyle(
+                                                    color: Colors.white),
+                                              ),
+                                              onPressed: () {
+                                                showPaymentDialog(
+                                                  context,
+                                                  bookingRef,
+                                                  paid,
+                                                  grandTotal,
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Expanded(
+                                          child: SizedBox(
+                                            height: 48,
+                                            child: ElevatedButton.icon(
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor:
+                                                    const Color(0xFF1E4FA3),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                ),
+                                              ),
+                                              icon: const Icon(Icons.history,
+                                                  color: Colors.white),
+                                              label: const Text(
+                                                "History",
+                                                style: TextStyle(
+                                                    color: Colors.white),
+                                              ),
+                                              onPressed: () {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (_) =>
+                                                        PaymentHistoryScreen(
+                                                      bookingId:
+                                                          widget.bookingId,
+                                                      businessId:
+                                                          widget.businessId,
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
 
-    /// PAYMENT BUTTONS
-    Row(
-      children: [
+                                    const SizedBox(height: 10),
 
-        Expanded(
-          child: SizedBox(
-            height: 48,
-            child: ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1E4FA3),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              icon: const Icon(Icons.payments, color: Colors.white),
-              label: const Text(
-                "Make Payment",
-                style: TextStyle(color: Colors.white),
-              ),
-              onPressed: () {
-                showPaymentDialog(
-                  context,
-                  bookingRef,
-                  paid,
-                  grandTotal,
-                );
-              },
-            ),
-          ),
-        ),
+                                    /// INVOICE BUTTON
+                                    SizedBox(
+                                      width: double.infinity,
+                                      height: 48,
+                                      child: ElevatedButton.icon(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor:
+                                              const Color(0xFF1E4FA3),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                        ),
+                                        icon: const Icon(Icons.receipt,
+                                            color: Colors.white),
+                                        label: const Text(
+                                          "Generate Invoice",
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                        onPressed: () async {
+                                          final profileService =
+                                              BusinessProfileService();
+                                          final profile = await profileService
+                                              .getProfile(widget.businessId);
 
-        const SizedBox(width: 10),
+                                          if (profile == null) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              const SnackBar(
+                                                content: Text(
+                                                    "Please fill Business Profile first"),
+                                              ),
+                                            );
+                                            return;
+                                          }
 
-        Expanded(
-          child: SizedBox(
-            height: 48,
-            child: ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1E4FA3),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              icon: const Icon(Icons.history, color: Colors.white),
-              label: const Text(
-                "History",
-                style: TextStyle(color: Colors.white),
-              ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => PaymentHistoryScreen(
-                      bookingId: widget.bookingId,
-                      businessId: widget.businessId,
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ),
-      ],
-    ),
+                                          generateInvoice(
+                                            context,
+                                            businessName: profile.businessName,
+                                            ownerName: profile.ownerName,
+                                            businessPhone: profile.phone,
+                                            businessAddress: profile.address,
+                                            gst: profile.gst,
+                                            customerName:
+                                                bookingData["customerName"],
+                                            customerPhone:
+                                                bookingData["customerPhone"],
+                                            customerAddress:
+                                                bookingData["customerAddress"],
+                                            eventName: bookingData["eventName"],
+                                            startDate: (bookingData["startDate"]
+                                                    as Timestamp)
+                                                .toDate(),
+                                            endDate: (bookingData["endDate"]
+                                                    as Timestamp)
+                                                .toDate(),
+                                            items: items.map((doc) {
+                                              final data = doc.data()
+                                                  as Map<String, dynamic>;
 
-    const SizedBox(height: 10),
+                                              return {
+                                                "name": data["itemName"],
+                                                "requested":
+                                                    data["requestedQuantity"],
+                                                "dispatched":
+                                                    data["dispatchedQuantity"],
+                                                "price":
+                                                    data["rentPriceSnapshot"],
+                                              };
+                                            }).toList(),
+                                            services: services.map((doc) {
+                                              final data = doc.data()
+                                                  as Map<String, dynamic>;
 
-    /// INVOICE BUTTON
-    SizedBox(
-      width: double.infinity,
-      height: 48,
-      child: ElevatedButton.icon(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF1E4FA3),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-        icon: const Icon(Icons.receipt, color: Colors.white),
-        label: const Text(
-          "Generate Invoice",
-          style: TextStyle(color: Colors.white),
-        ),
-        onPressed: () async {
-
-          final profileService = BusinessProfileService();
-          final profile = await profileService.getProfile(widget.businessId);
-
-          if (profile == null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text("Please fill Business Profile first"),
-              ),
-            );
-            return;
-          }
-
-          generateInvoice(
-            context,
-            businessName: profile.businessName,
-            ownerName: profile.ownerName,
-            businessPhone: profile.phone,
-            businessAddress: profile.address,
-            gst: profile.gst,
-            customerName: bookingData["customerName"],
-            customerPhone: bookingData["customerPhone"],
-            customerAddress: bookingData["customerAddress"],
-            eventName: bookingData["eventName"],
-            startDate:
-                (bookingData["startDate"] as Timestamp).toDate(),
-            endDate:
-                (bookingData["endDate"] as Timestamp).toDate(),
-            items: items.map((doc) {
-              final data = doc.data() as Map<String, dynamic>;
-
-              return {
-                "name": data["itemName"],
-                "requested": data["requestedQuantity"],
-                "dispatched": data["dispatchedQuantity"],
-                "price": data["rentPriceSnapshot"],
-              };
-            }).toList(),
-            services: services.map((doc) {
-              final data = doc.data() as Map<String, dynamic>;
-
-              return {
-                "name": data["serviceName"],
-                "price": data["priceSnapshot"],
-              };
-            }).toList(),
-            total: grandTotal,
-            paid: paid,
-          );
-        },
-      ),
-    ),
-  ],
-)
-                            );
+                                              return {
+                                                "name": data["serviceName"],
+                                                "price": data["priceSnapshot"],
+                                              };
+                                            }).toList(),
+                                            total: grandTotal,
+                                            paid: paid,
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ));
                           },
                         ),
 
