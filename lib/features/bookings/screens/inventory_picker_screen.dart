@@ -6,6 +6,7 @@ import '../repository/booking_repository.dart';
 import '../models/booked_item_model.dart';
 import 'dart:async';
 import '../../../core/config/app_config.dart';
+import 'booking_detail_screen.dart';
 
 /// =====================================================
 /// WIDGET
@@ -45,6 +46,34 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
   void initState() {
     super.initState();
     initialize();
+  }
+
+  Stream<Set<String>> bookedItemsStream() {
+    return FirebaseFirestore.instance
+        .collection("businesses")
+        .doc(businessId)
+        .collection("bookings")
+        .doc(widget.bookingId)
+        .collection("bookedItems")
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs
+          .map((doc) => doc["inventoryItemId"] as String)
+          .toSet();
+    });
+  }
+
+  Stream<Set<String>> bookedServicesStream() {
+    return FirebaseFirestore.instance
+        .collection("businesses")
+        .doc(businessId)
+        .collection("bookings")
+        .doc(widget.bookingId)
+        .collection("bookingServices")
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) => doc["serviceId"] as String).toSet();
+    });
   }
 
   void openManualItemDialog() {
@@ -419,156 +448,238 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
           /// YOUR EXISTING STREAMBUILDER
           Expanded(
             child: StreamBuilder(
-              stream: query.snapshots(),
-              builder: (context, inventorySnap) {
-                if (!inventorySnap.hasData) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
-
-                var nodes = inventorySnap.data!.docs;
-
-                /// SEARCH FILTER
-                if (searchText.isNotEmpty) {
-                  nodes = nodes.where((doc) {
-                    String name = (doc["name"] ?? "").toLowerCase();
-
-                    /// apply filter buttons also
-                    if (filterMode != "category" && doc["type"] != filterMode) {
-                      return false;
-                    }
-
-                    return name.contains(searchText);
-                  }).toList();
-                }
-
-                List categories = [];
-                List items = [];
-                List services = [];
-
-                for (var node in nodes) {
-                  if (node["type"] == "category") {
-                    categories.add(node);
-                  } else if (node["type"] == "item") {
-                    items.add(node);
-                  } else if (node["type"] == "service") {
-                    services.add(node);
-                  }
-                }
-
-                return StreamBuilder<Map<String, int>>(
-                  stream: dateAwareBookedItemsStream(),
-                  builder: (context, bookedSnap) {
-                    final bookedMap = bookedSnap.data ?? {};
-
-                    return ListView(
-                      children: [
-                        /// CATEGORIES
-                        if (categories.isNotEmpty)
-                          const Padding(
-                            padding: EdgeInsets.all(8),
-                            child: Text(
-                              "Categories",
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
-                            ),
-                          ),
-
-                        ...categories.map((node) {
-                          return ListTile(
-                            leading: const Icon(Icons.folder),
-                            title: Text(node["name"]),
-                            trailing: const Icon(Icons.arrow_forward),
-                            onTap: () {
-                              /// if searching, clear search and open folder
-                              if (searchText.isNotEmpty) {
-                                searchController.clear();
-                                searchText = "";
-                              }
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => InventoryPickerScreen(
-                                    bookingId: widget.bookingId,
-                                    parentId: node.id,
-                                  ),
-                                ),
-                              );
-                            },
-                          );
-                        }),
-
-                        /// ITEMS
-                        if (items.isNotEmpty)
-                          const Padding(
-                            padding: EdgeInsets.all(8),
-                            child: Text(
-                              "Items",
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
-                            ),
-                          ),
-
-                        ...items.map((node) {
-                          int total = (node["quantity"] as num?)?.toInt() ?? 0;
-                          int booked = bookedMap[node.id] ?? 0;
-                          int available = total - booked;
-
-                          return ListTile(
-                            leading: const Icon(Icons.inventory),
-                            title: Text(node["name"]),
-                            subtitle: Text("Available: $available"),
-                            onTap: () => openQtyDialog(context, node),
-                          );
-                        }),
-
-                        /// SERVICES
-                        if (services.isNotEmpty)
-                          const Padding(
-                            padding: EdgeInsets.all(8),
-                            child: Text(
-                              "Services",
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
-                            ),
-                          ),
-
-                        ...services.map((node) {
-                          return ListTile(
-                            leading: const Icon(Icons.miscellaneous_services),
-                            title: Text(node["name"]),
-                            subtitle: Text(
-                                "₹ ${(node["price"] as num?)?.toDouble() ?? 0}"),
-                            onTap: () async {
-                              final service = BookingServiceModel(
-                                id: const Uuid().v4(),
-                                serviceId: node.id,
-                                serviceName: node["name"],
-                                priceSnapshot:
-                                    (node["price"] as num?)?.toDouble() ?? 0,
-                                createdAt: Timestamp.now(),
-                              );
-
-                              await repo.addBookingService(
-                                bookingId: widget.bookingId,
-                                service: service,
-                              );
-
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text("Service Added")),
-                              );
-                            },
-                          );
-                        }),
-                      ],
+                stream: query.snapshots(),
+                builder: (context, inventorySnap) {
+                  if (!inventorySnap.hasData) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
                     );
-                  },
-                );
-              },
-            ),
+                  }
+
+                  var nodes = inventorySnap.data!.docs;
+
+                  /// SEARCH FILTER
+                  if (searchText.isNotEmpty) {
+                    nodes = nodes.where((doc) {
+                      String name = (doc["name"] ?? "").toLowerCase();
+
+                      /// apply filter buttons also
+                      if (filterMode != "category" &&
+                          doc["type"] != filterMode) {
+                        return false;
+                      }
+
+                      return name.contains(searchText);
+                    }).toList();
+                  }
+
+                  List categories = [];
+                  List items = [];
+                  List services = [];
+
+                  for (var node in nodes) {
+                    if (node["type"] == "category") {
+                      categories.add(node);
+                    } else if (node["type"] == "item") {
+                      items.add(node);
+                    } else if (node["type"] == "service") {
+                      services.add(node);
+                    }
+                  }
+
+                  return StreamBuilder<Map<String, int>>(
+                      stream: dateAwareBookedItemsStream(),
+                      builder: (context, bookedSnap) {
+                        final bookedMap = bookedSnap.data ?? {};
+
+                        return StreamBuilder<Set<String>>(
+                          stream: bookedItemsStream(),
+                          builder: (context, itemSnap) {
+                            final bookedItemIds = itemSnap.data ?? {};
+
+                            return StreamBuilder<Set<String>>(
+                              stream: bookedServicesStream(),
+                              builder: (context, serviceSnap) {
+                                final bookedServiceIds = serviceSnap.data ?? {};
+
+                                return ListView(
+                                  children: [
+                                    /// CATEGORIES
+                                    if (categories.isNotEmpty)
+                                      const Padding(
+                                        padding: EdgeInsets.all(8),
+                                        child: Text(
+                                          "Categories",
+                                          style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+
+                                    ...categories.map((node) {
+                                      return ListTile(
+                                        leading: const Icon(Icons.folder),
+                                        title: Text(node["name"]),
+                                        trailing:
+                                            const Icon(Icons.arrow_forward),
+                                        onTap: () {
+                                          /// if searching, clear search and open folder
+                                          if (searchText.isNotEmpty) {
+                                            searchController.clear();
+                                            searchText = "";
+                                          }
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (_) =>
+                                                  InventoryPickerScreen(
+                                                bookingId: widget.bookingId,
+                                                parentId: node.id,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    }),
+
+                                    /// ITEMS
+                                    if (items.isNotEmpty)
+                                      const Padding(
+                                        padding: EdgeInsets.all(8),
+                                        child: Text(
+                                          "Items",
+                                          style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+
+                                    ...items.map((node) {
+                                      int total =
+                                          (node["quantity"] as num?)?.toInt() ??
+                                              0;
+                                      int booked = bookedMap[node.id] ?? 0;
+                                      int available = total - booked;
+
+                                      bool isBooked =
+                                          bookedItemIds.contains(node.id);
+
+                                      return ListTile(
+                                        leading: const Icon(Icons.inventory),
+                                        title: Text(node["name"]),
+                                        subtitle: Text("Available: $available"),
+                                        trailing: isBooked
+                                            ? Container(
+                                                width: 10,
+                                                height: 10,
+                                                decoration: const BoxDecoration(
+                                                  color: Colors.green,
+                                                  shape: BoxShape.circle,
+                                                ),
+                                              )
+                                            : null,
+                                        onTap: () =>
+                                            openQtyDialog(context, node),
+                                      );
+                                    }),
+
+                                    /// SERVICES
+                                    if (services.isNotEmpty)
+                                      const Padding(
+                                        padding: EdgeInsets.all(8),
+                                        child: Text(
+                                          "Services",
+                                          style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+
+                                    ...services.map((node) {
+                                      bool isBooked =
+                                          bookedServiceIds.contains(node.id);
+
+                                      return ListTile(
+                                        leading: const Icon(
+                                            Icons.miscellaneous_services),
+                                        title: Text(node["name"]),
+                                        subtitle: Text(
+                                            "₹ ${(node["price"] as num?)?.toDouble() ?? 0}"),
+                                        trailing: isBooked
+                                            ? Container(
+                                                width: 10,
+                                                height: 10,
+                                                decoration: const BoxDecoration(
+                                                  color: Colors.green,
+                                                  shape: BoxShape.circle,
+                                                ),
+                                              )
+                                            : null,
+                                        onTap: () async {
+                                          final service = BookingServiceModel(
+                                            id: const Uuid().v4(),
+                                            serviceId: node.id,
+                                            serviceName: node["name"],
+                                            priceSnapshot:
+                                                (node["price"] as num?)
+                                                        ?.toDouble() ??
+                                                    0,
+                                            createdAt: Timestamp.now(),
+                                          );
+
+                                          await repo.addBookingService(
+                                            bookingId: widget.bookingId,
+                                            service: service,
+                                          );
+
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                                content: Text("Service Added")),
+                                          );
+                                        },
+                                      );
+                                    }),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                        );
+                      });
+                }),
           ),
         ],
+      ),
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.all(12),
+        child: SizedBox(
+          height: 50,
+          width: double.infinity,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF1E4FA3),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            child: const Text(
+              "Done",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+            onPressed: () async {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => BookingDetailScreen(
+                    bookingId: widget.bookingId,
+                    businessId: businessId!,
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
       ),
     );
   }
