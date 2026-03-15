@@ -22,6 +22,28 @@ class _BookingsCalendarScreenState extends State<BookingsCalendarScreen> {
   DateTime selectedDay = DateTime.now();
   DateTime focusedDay = DateTime.now();
 
+  Color _statusColor(String status) {
+    switch (status) {
+      case "confirmed":
+        return Colors.orange;
+
+      case "dispatching":
+        return Colors.blue;
+
+      case "dispatched":
+        return Colors.green;
+
+      case "receiving":
+        return Colors.purple;
+
+      case "completed":
+        return Colors.grey;
+
+      default:
+        return Colors.black;
+    }
+  }
+
   List<QueryDocumentSnapshot> selectedEvents = [];
 
   DateTime normalize(DateTime d) {
@@ -81,17 +103,36 @@ class _BookingsCalendarScreenState extends State<BookingsCalendarScreen> {
       body: Column(
         children: [
           /// CALENDAR
-          BookingsCalendarWidget(
-            businessId: widget.businessId,
-            onDaySelected: (day) {
-              setState(() {
-                selectedDay = day;
-                selectedEvents = getEventsForDay(day);
-              });
-            },
-          ),
+          Padding(
+  padding: const EdgeInsets.fromLTRB(12, 12, 12, 6),
+  child: Card(
+    elevation: 2,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      padding: const EdgeInsets.all(10),
+      child: BookingsCalendarWidget(
+        businessId: widget.businessId,
+        onDaySelected: (day) {
+          setState(() {
+            selectedDay = day;
+            selectedEvents = getEventsForDay(day);
+          });
+        },
+      ),
+    ),
+  ),
+),
 
-          const SizedBox(height: 10),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Divider(thickness: 1),
+          ),
           Expanded(
             child: selectedEvents.isEmpty
                 ? const Center(child: Text("No bookings"))
@@ -103,23 +144,95 @@ class _BookingsCalendarScreenState extends State<BookingsCalendarScreen> {
                       DateTime start =
                           (booking["startDate"] as Timestamp).toDate();
 
-                      return ListTile(
-                        title: Text(booking["eventName"]),
-                        subtitle: Text(
-                          "${booking["customerName"]}\n"
-                          "${start.day}/${start.month}/${start.year}",
+                      String status = booking["status"] ?? "confirmed";
+
+                      return Card(
+                        color: Colors.white,
+                        elevation: 2,
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 6),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => BookingDetailScreen(
-                                businessId: widget.businessId,
-                                bookingId: booking.id,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(12),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => BookingDetailScreen(
+                                  businessId: widget.businessId,
+                                  bookingId: booking.id,
+                                ),
                               ),
+                            );
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.all(14),
+                            child: Row(
+                              children: [
+                                /// LEFT SIDE
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      /// CUSTOMER NAME
+                                      Text(
+                                        booking["customerName"],
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+
+                                      const SizedBox(height: 4),
+
+                                      /// EVENT
+                                      Text(
+                                        booking["eventName"],
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+
+                                      const SizedBox(height: 4),
+
+                                      /// DATE
+                                      Text(
+                                        "${start.day}/${start.month}/${start.year}",
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                /// STATUS BADGE
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color:
+                                        _statusColor(status).withOpacity(0.15),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Text(
+                                    status.toUpperCase(),
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                      color: _statusColor(status),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                          );
-                        },
+                          ),
+                        ),
                       );
                     },
                   ),
