@@ -196,9 +196,28 @@ class _ReceiveItemsScreenState extends State<ReceiveItemsScreen> {
 
           return Column(
             children: [
-              ElevatedButton(
-                onPressed: () => receiveAllItems(docs),
-                child: const Text("Receive All"),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 45,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      elevation: 0,
+                      backgroundColor: Colors.blue.shade50,
+                      foregroundColor: Colors.blue,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    onPressed: () => receiveAllItems(docs),
+                    child: const Text(
+                      "Receive All",
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ),
               ),
               Expanded(
                 child: ListView.builder(
@@ -217,93 +236,186 @@ class _ReceiveItemsScreenState extends State<ReceiveItemsScreen> {
                     quantityControllers.putIfAbsent(
                         doc.id, () => TextEditingController(text: "0"));
 
-                    return Card(
-                      child: ListTile(
-                        title: Text(name),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("Dispatched: $dispatched"),
-                            Text("Received: $received"),
-                            Text("Remaining: $remaining"),
-                            const SizedBox(height: 6),
-                            Row(
+                    return Container(
+                      margin: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 8,
+                            offset: const Offset(0, 3),
+                          )
+                        ],
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          /// LEFT SIDE (ITEM INFO)
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                IconButton(
-                                  icon: const Icon(Icons.remove),
-                                  onPressed: () {
-                                    int value = int.parse(
-                                        quantityControllers[doc.id]!.text);
-
-                                    if (value > 0) {
-                                      quantityControllers[doc.id]!.text =
-                                          (value - 1).toString();
-                                      setState(() {});
-                                    }
-                                  },
+                                Text(
+                                  name,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
-                                SizedBox(
-                                  width: 50,
-                                  child: TextField(
-                                    controller: quantityControllers[doc.id],
-                                    keyboardType: TextInputType.number,
-                                    textAlign: TextAlign.center,
-                                    decoration: const InputDecoration(
-                                      border: InputBorder.none,
-                                    ),
-                                    onChanged: (value) {
-                                      int current = int.tryParse(value) ?? 0;
-                                      int remaining = dispatched - received;
+                                const SizedBox(height: 6),
+                                Text("Dispatched: $dispatched"),
+                                Text("Received: $received"),
+                                Text(
+                                  "Remaining: $remaining",
+                                  style: TextStyle(
+                                    color: remaining == 0
+                                        ? Colors.green
+                                        : Colors.blue,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
 
-                                      if (current > remaining) {
+                          const SizedBox(width: 10),
+
+                          /// RIGHT SIDE CONTROLS
+                          Column(
+                            children: [
+                              /// GREEN TICK
+                              if (remaining == 0)
+                                const Icon(
+                                  Icons.check_circle,
+                                  color: Colors.green,
+                                  size: 26,
+                                ),
+
+                              const SizedBox(height: 8),
+
+                              /// QUANTITY CONTROLS
+                              Row(
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.remove),
+                                    onPressed: () {
+                                      int value = int.parse(
+                                          quantityControllers[doc.id]!.text);
+
+                                      if (value > 0) {
                                         quantityControllers[doc.id]!.text =
-                                            remaining.toString();
-                                        quantityControllers[doc.id]!.selection =
-                                            TextSelection.fromPosition(
-                                          TextPosition(
-                                              offset:
-                                                  remaining.toString().length),
-                                        );
+                                            (value - 1).toString();
+                                        setState(() {});
                                       }
                                     },
                                   ),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.add),
-                                  onPressed: () {
-                                    int value = int.parse(
-                                        quantityControllers[doc.id]!.text);
+                                  SizedBox(
+                                    width: 40,
+                                    child: TextField(
+                                      controller: quantityControllers[doc.id],
+                                      keyboardType: TextInputType.number,
+                                      textAlign: TextAlign.center,
+                                      decoration: const InputDecoration(
+                                        isDense: true,
+                                        border: UnderlineInputBorder(),
+                                        enabledBorder: UnderlineInputBorder(
+                                          borderSide:
+                                              BorderSide(color: Colors.blue),
+                                        ),
+                                        focusedBorder: UnderlineInputBorder(
+                                          borderSide: BorderSide(
+                                              color: Colors.blue, width: 2),
+                                        ),
+                                      ),
+                                      onChanged: (value) {
+                                        int current = int.tryParse(value) ?? 0;
+                                        int remaining = dispatched - received;
 
-                                    int remaining = dispatched - received;
+                                        if (current > remaining) {
+                                          quantityControllers[doc.id]!.text =
+                                              remaining.toString();
+                                          quantityControllers[doc.id]!
+                                                  .selection =
+                                              TextSelection.fromPosition(
+                                            TextPosition(
+                                                offset: remaining
+                                                    .toString()
+                                                    .length),
+                                          );
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.add),
+                                    onPressed: () {
+                                      int value = int.parse(
+                                          quantityControllers[doc.id]!.text);
 
-                                    if (value < remaining) {
-                                      quantityControllers[doc.id]!.text =
-                                          (value + 1).toString();
-                                      setState(() {});
-                                    }
-                                  },
-                                ),
-                              ],
-                            )
-                          ],
-                        ),
+                                      int remaining = dispatched - received;
+
+                                      if (value < remaining) {
+                                        quantityControllers[doc.id]!.text =
+                                            (value + 1).toString();
+                                        setState(() {});
+                                      }
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     );
                   },
                 ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: () => saveProgress(docs),
-                    child: const Text("Save Progress"),
-                  ),
-                  ElevatedButton(
-                    onPressed: () => confirmReceiveDialog(docs),
-                    child: const Text("Confirm Receive"),
-                  ),
-                ],
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        height: 45,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            foregroundColor: Colors.blue,
+                            elevation: 0,
+                            side: const BorderSide(color: Colors.blue),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          onPressed: () => saveProgress(docs),
+                          child: const Text("Save Progress"),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: SizedBox(
+                        height: 45,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          onPressed: () => confirmReceiveDialog(docs),
+                          child: const Text("Confirm Receive"),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 20),
             ],
