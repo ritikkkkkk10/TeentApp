@@ -95,7 +95,7 @@ class _ReceiveItemsScreenState extends State<ReceiveItemsScreen> {
 
       if (!isManual) {
         String inventoryId = data["inventoryItemId"];
- 
+
         final inventoryRef = FirebaseFirestore.instance
             .collection("businesses")
             .doc(widget.businessId)
@@ -242,9 +242,31 @@ class _ReceiveItemsScreenState extends State<ReceiveItemsScreen> {
                                     }
                                   },
                                 ),
-                                Text(
-                                  quantityControllers[doc.id]!.text,
-                                  style: const TextStyle(fontSize: 18),
+                                SizedBox(
+                                  width: 50,
+                                  child: TextField(
+                                    controller: quantityControllers[doc.id],
+                                    keyboardType: TextInputType.number,
+                                    textAlign: TextAlign.center,
+                                    decoration: const InputDecoration(
+                                      border: InputBorder.none,
+                                    ),
+                                    onChanged: (value) {
+                                      int current = int.tryParse(value) ?? 0;
+                                      int remaining = dispatched - received;
+
+                                      if (current > remaining) {
+                                        quantityControllers[doc.id]!.text =
+                                            remaining.toString();
+                                        quantityControllers[doc.id]!.selection =
+                                            TextSelection.fromPosition(
+                                          TextPosition(
+                                              offset:
+                                                  remaining.toString().length),
+                                        );
+                                      }
+                                    },
+                                  ),
                                 ),
                                 IconButton(
                                   icon: const Icon(Icons.add),
