@@ -38,6 +38,10 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
       context: context,
       builder: (_) {
         return AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           title: const Text("Edit Item"),
           content: SingleChildScrollView(
             child: Column(
@@ -89,7 +93,10 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
 
                 setState(() {});
               },
-              child: const Text("Save"),
+              child: const Text(
+                "Save",
+                style: TextStyle(color: Colors.blue),
+              ),
             ),
           ],
         );
@@ -104,6 +111,10 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
       context: context,
       builder: (_) {
         return AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           title: Text(
             isAdding ? "Add Stock" : "Remove Stock",
           ),
@@ -117,7 +128,10 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text("Cancel"),
+              child: const Text(
+                "Cancel",
+                style: TextStyle(color: Colors.blue),
+              ),
             ),
             TextButton(
               onPressed: () async {
