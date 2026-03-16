@@ -71,36 +71,91 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
 
     return Scaffold(
       appBar: AppBar(title: const Text("Business Profile")),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: ListView(
-          children: [
-            TextField(
-              controller: businessNameController,
-              decoration: const InputDecoration(labelText: "Business Name"),
-            ),
-            TextField(
-              controller: ownerNameController,
-              decoration: const InputDecoration(labelText: "Owner Name"),
-            ),
-            TextField(
-              controller: phoneController,
-              decoration: const InputDecoration(labelText: "Phone"),
-            ),
-            TextField(
-              controller: addressController,
-              decoration: const InputDecoration(labelText: "Address"),
-            ),
-            TextField(
-              controller: gstController,
-              decoration: const InputDecoration(labelText: "GST (optional)"),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: saveProfile,
-              child: const Text("Save"),
-            )
-          ],
+      body: Container(
+        color: Colors.grey.shade200,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: ListView(
+            children: [
+              buildField(
+                icon: Icons.business,
+                hint: "Business Name",
+                controller: businessNameController,
+              ),
+              const SizedBox(height: 14),
+              buildField(
+                icon: Icons.person,
+                hint: "Owner Name",
+                controller: ownerNameController,
+              ),
+              const SizedBox(height: 14),
+              buildField(
+                icon: Icons.phone,
+                hint: "Phone",
+                controller: phoneController,
+              ),
+              const SizedBox(height: 14),
+              buildField(
+                icon: Icons.location_on,
+                hint: "Business Address",
+                controller: addressController,
+              ),
+              const SizedBox(height: 14),
+              buildField(
+                icon: Icons.receipt_long,
+                hint: "GST (optional)",
+                controller: gstController,
+              ),
+              const SizedBox(height: 30),
+              SizedBox(
+                height: 55,
+                child: ElevatedButton(
+                  onPressed: saveProfile,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF1E4FA3),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    "Save Profile",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildField({
+    required IconData icon,
+    required String hint,
+    required TextEditingController controller,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 6,
+          )
+        ],
+      ),
+      child: TextField(
+        controller: controller,
+        decoration: InputDecoration(
+          icon: Icon(icon, color: const Color(0xFF1E4FA3)),
+          hintText: hint,
+          border: InputBorder.none,
         ),
       ),
     );
