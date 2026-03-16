@@ -197,11 +197,28 @@ class _DispatchItemsScreenState extends State<DispatchItemsScreen> {
               return Column(
                 children: [
                   /// Dispatch All button
-                  ElevatedButton(
-                    onPressed:
-                        isDispatched ? null : () => dispatchAllItems(docs),
-                    child: Text(
-                      isDispatched ? "Dispatched" : "Dispatch All",
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 10),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 45,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          elevation: 0,
+                          backgroundColor: Colors.blue.shade50,
+                          foregroundColor: Colors.blue,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        onPressed:
+                            isDispatched ? null : () => dispatchAllItems(docs),
+                        child: Text(
+                          isDispatched ? "Dispatched" : "Dispatch All",
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ),
                     ),
                   ),
 
@@ -224,100 +241,171 @@ class _DispatchItemsScreenState extends State<DispatchItemsScreen> {
                           () => TextEditingController(text: "0"),
                         );
 
-                        return Card(
-                          child: ListTile(
-                            leading: const Icon(Icons.inventory),
-                            title: Text(itemName),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text("Ordered: $requestedQty"),
-                                Text("Already Dispatched: $dispatchedQty"),
-                                Text("Remaining: $remainingQty"),
-                                const SizedBox(height: 6),
-                                Row(
+                        return Container(
+                          margin: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(14),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 8,
+                                offset: const Offset(0, 3),
+                              )
+                            ],
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              /// LEFT SIDE (ITEM INFO)
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    /// MINUS BUTTON
-                                    IconButton(
-                                      icon: const Icon(Icons.remove),
-                                      onPressed: isDispatched
-                                          ? null
-                                          : () {
-                                              int current = int.tryParse(
-                                                      quantityControllers[
-                                                              doc.id]!
-                                                          .text) ??
-                                                  0;
-
-                                              if (current > 0) {
-                                                quantityControllers[doc.id]!
-                                                        .text =
-                                                    (current - 1).toString();
-                                                setState(() {});
-                                              }
-                                            },
-                                    ),
-
-                                    /// TEXT FIELD (still editable)
-                                    SizedBox(
-                                      width: 70,
-                                      child: TextField(
-                                        controller: quantityControllers[doc.id],
-                                        enabled: !isDispatched,
-                                        keyboardType: TextInputType.number,
-                                        textAlign: TextAlign.center,
-                                        decoration: const InputDecoration(
-                                          labelText: "Qty",
-                                        ),
+                                    Text(
+                                      itemName,
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
                                       ),
                                     ),
-
-                                    /// PLUS BUTTON
-                                    IconButton(
-                                      icon: const Icon(Icons.add),
-                                      onPressed: isDispatched
-                                          ? null
-                                          : () {
-                                              int current = int.tryParse(
-                                                      quantityControllers[
-                                                              doc.id]!
-                                                          .text) ??
-                                                  0;
-
-                                              if (current < remainingQty) {
-                                                quantityControllers[doc.id]!
-                                                        .text =
-                                                    (current + 1).toString();
-                                              }
-
-                                              setState(() {});
-                                            },
-                                    ),
+                                    const SizedBox(height: 6),
+                                    Text("Ordered: $requestedQty"),
+                                    Text("Already Dispatched: $dispatchedQty"),
+                                    Text("Remaining: $remainingQty"),
                                   ],
-                                )
-                              ],
-                            ),
+                                ),
+                              ),
+
+                              const SizedBox(width: 10),
+
+                              /// RIGHT SIDE (TICK + CONTROLS)
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  /// GREEN TICK
+                                  if (remainingQty == 0)
+                                    const Icon(
+                                      Icons.check_circle,
+                                      color: Colors.green,
+                                      size: 26,
+                                    ),
+
+                                  const SizedBox(height: 8),
+
+                                  /// QUANTITY CONTROLS
+                                  Row(
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.remove),
+                                        onPressed: isDispatched
+                                            ? null
+                                            : () {
+                                                int current = int.tryParse(
+                                                        quantityControllers[
+                                                                doc.id]!
+                                                            .text) ??
+                                                    0;
+
+                                                if (current > 0) {
+                                                  quantityControllers[doc.id]!
+                                                          .text =
+                                                      (current - 1).toString();
+                                                  setState(() {});
+                                                }
+                                              },
+                                      ),
+                                      SizedBox(
+                                        width: 40,
+                                        child: TextField(
+                                          controller:
+                                              quantityControllers[doc.id],
+                                          enabled: !isDispatched,
+                                          keyboardType: TextInputType.number,
+                                          textAlign: TextAlign.center,
+                                          decoration: const InputDecoration(
+                                            border: UnderlineInputBorder(),
+                                            isDense: true,
+                                          ),
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.add),
+                                        onPressed: isDispatched
+                                            ? null
+                                            : () {
+                                                int current = int.tryParse(
+                                                        quantityControllers[
+                                                                doc.id]!
+                                                            .text) ??
+                                                    0;
+
+                                                if (current < remainingQty) {
+                                                  quantityControllers[doc.id]!
+                                                          .text =
+                                                      (current + 1).toString();
+                                                  setState(() {});
+                                                }
+                                              },
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                         );
                       },
                     ),
                   ),
 
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ElevatedButton(
-                        onPressed:
-                            isDispatched ? null : () => saveProgress(docs),
-                        child: const Text("Save Progress"),
-                      ),
-                      ElevatedButton(
-                        onPressed: isDispatched
-                            ? null
-                            : () => confirmDispatchDialog(docs),
-                        child: const Text("Confirm Dispatch"),
-                      ),
-                    ],
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 10),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: SizedBox(
+                            height: 45,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                foregroundColor: Colors.blue,
+                                elevation: 0,
+                                side: const BorderSide(color: Colors.blue),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              onPressed: isDispatched
+                                  ? null
+                                  : () => saveProgress(docs),
+                              child: const Text("Save Progress"),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: SizedBox(
+                            height: 45,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              onPressed: isDispatched
+                                  ? null
+                                  : () => confirmDispatchDialog(docs),
+                              child: const Text("Confirm Dispatch"),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
 
                   const SizedBox(height: 20)
