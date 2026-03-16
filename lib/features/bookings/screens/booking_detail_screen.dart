@@ -36,6 +36,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
       context: context,
       builder: (_) {
         return AlertDialog(
+          backgroundColor: Colors.white,
           title: const Text("Enter Payment Amount"),
           content: TextField(
             controller: controller,
@@ -46,12 +47,18 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
           ),
           actions: [
             TextButton(
-              child: const Text("Cancel"),
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFF1E4FA3),
+              ),
               onPressed: () {
                 Navigator.pop(context);
               },
+              child: const Text("Cancel"),
             ),
             TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFF1E4FA3),
+              ),
               child: isSavingPayment
                   ? const SizedBox(
                       height: 16,
@@ -145,6 +152,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
+              backgroundColor: Colors.white,
               title: Text("${data["itemName"]} (Current: $qty)"),
               content: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -176,6 +184,9 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
               actions: [
                 /// DELETE ITEM
                 TextButton(
+                  style: TextButton.styleFrom(
+                    foregroundColor: const Color(0xFF1E4FA3),
+                  ),
                   child: const Text("Delete"),
                   onPressed: () async {
                     await item.reference.delete();
@@ -186,6 +197,9 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
 
                 /// SAVE CHANGES
                 TextButton(
+                  style: TextButton.styleFrom(
+                    foregroundColor: const Color(0xFF1E4FA3),
+                  ),
                   child: const Text("Save"),
                   onPressed: () async {
                     int newQty = qty;
@@ -882,12 +896,20 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                               bool confirm = await showDialog(
                                                     context: context,
                                                     builder: (_) => AlertDialog(
+                                                      backgroundColor:
+                                                          Colors.white,
                                                       title: const Text(
                                                           "Remove Service"),
                                                       content: const Text(
                                                           "Delete this service from booking?"),
                                                       actions: [
                                                         TextButton(
+                                                          style: TextButton
+                                                              .styleFrom(
+                                                            foregroundColor:
+                                                                const Color(
+                                                                    0xFF1E4FA3),
+                                                          ),
                                                           child: const Text(
                                                               "Cancel"),
                                                           onPressed: () =>
@@ -896,6 +918,12 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                                                   false),
                                                         ),
                                                         TextButton(
+                                                          style: TextButton
+                                                              .styleFrom(
+                                                            foregroundColor:
+                                                                const Color(
+                                                                    0xFF1E4FA3),
+                                                          ),
                                                           child: const Text(
                                                               "Delete"),
                                                           onPressed: () =>
@@ -968,7 +996,11 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
           }
 
           return FloatingActionButton(
-            child: const Icon(Icons.add),
+            backgroundColor: Colors.white,
+            child: const Icon(
+              Icons.add,
+              color: Color(0xFF1E4FA3),
+              ),
             onPressed: () {
               Navigator.push(
                 context,
