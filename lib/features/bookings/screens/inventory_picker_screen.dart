@@ -39,6 +39,8 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
   DateTime? endDate;
   String filterMode = "category";
 
+  String selectedManualType = "";
+
   /// =====================================================
   /// LOAD BOOKING DATES
   /// =====================================================
@@ -310,140 +312,266 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Container(
-          height: 40,
-          decoration: BoxDecoration(
-            color: Colors.grey.shade200,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: TextField(
-            controller: searchController,
-            decoration: InputDecoration(
-              hintText: "Search inventory...",
-              prefixIcon: const Icon(Icons.search),
-              border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(vertical: 10),
-              suffixIcon: searchText.isNotEmpty
-                  ? IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () {
-                        searchController.clear();
-                        setState(() {
-                          searchText = "";
-                        });
-                      },
-                    )
-                  : null,
-            ),
-            onChanged: (value) {
-              if (_debounce?.isActive ?? false) {
-                _debounce!.cancel();
-              }
-
-              _debounce = Timer(const Duration(milliseconds: 300), () {
-                setState(() {
-                  searchText = value.toLowerCase();
-                });
-              });
-            },
+        title: const Text(
+          "Pick Items",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
           ),
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 10),
-            child: Row(
-              children: [
-                ChoiceChip(
-                  label: const Text("Items"),
-                  selected: filterMode == "item",
-                  onSelected: (_) {
-                    setState(() {
-                      filterMode = "item";
-                    });
-                  },
-                ),
-                const SizedBox(width: 6),
-                ChoiceChip(
-                  label: const Text("Categories"),
-                  selected: filterMode == "category",
-                  onSelected: (_) {
-                    setState(() {
-                      filterMode = "category";
-                    });
-                  },
-                ),
-                const SizedBox(width: 6),
-                ChoiceChip(
-                  label: const Text("Services"),
-                  selected: filterMode == "service",
-                  onSelected: (_) {
-                    setState(() {
-                      filterMode = "service";
-                    });
-                  },
-                ),
-              ],
-            ),
-          )
-        ],
       ),
       body: Column(
         children: [
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              border: Border(
+                bottom: BorderSide(color: Colors.grey.shade300),
+              ),
+            ),
+            child: Row(
+              children: [
+                // Items
+                Expanded(
+                  child: ChoiceChip(
+                    label: const Text("Items"),
+                    selected: filterMode == "item",
+                    selectedColor: Colors.blue,
+                    backgroundColor: Colors.white,
+                    labelStyle: TextStyle(
+                      color: filterMode == "item" ? Colors.white : Colors.black,
+                    ),
+                    onSelected: (_) {
+                      setState(() {
+                        filterMode = "item";
+                      });
+                    },
+                  ),
+                ),
+
+                const SizedBox(width: 8),
+
+                // Categories
+                Expanded(
+                  child: ChoiceChip(
+                    label: const Text("Categories"),
+                    selected: filterMode == "category",
+                    selectedColor: Colors.blue,
+                    backgroundColor: Colors.white,
+                    labelStyle: TextStyle(
+                      color: filterMode == "category"
+                          ? Colors.white
+                          : Colors.black,
+                    ),
+                    onSelected: (_) {
+                      setState(() {
+                        filterMode = "category";
+                      });
+                    },
+                  ),
+                ),
+
+                const SizedBox(width: 8),
+
+                // Services
+                Expanded(
+                  child: ChoiceChip(
+                    label: const Text("Services"),
+                    selected: filterMode == "service",
+                    selectedColor: Colors.blue,
+                    backgroundColor: Colors.white,
+                    labelStyle: TextStyle(
+                      color:
+                          filterMode == "service" ? Colors.white : Colors.black,
+                    ),
+                    onSelected: (_) {
+                      setState(() {
+                        filterMode = "service";
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+
           /// SEARCH BAR
           ///
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             child: Row(
               children: [
+                // Manual Item
                 Expanded(
-                  child: ElevatedButton.icon(
-                    icon: const Icon(Icons.add),
-                    label: const Text("Manual Item"),
-                    onPressed: () {
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        selectedManualType = "item";
+                      });
                       openManualItemDialog();
                     },
+                    child: Container(
+                      height: 50,
+                      decoration: BoxDecoration(
+                        gradient: selectedManualType == "item"
+                            ? const LinearGradient(
+                                colors: [Color(0xFF1976D2), Color(0xFF42A5F5)],
+                              )
+                            : null,
+                        color:
+                            selectedManualType == "item" ? null : Colors.white,
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: Colors.blue),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.add,
+                            color: selectedManualType == "item"
+                                ? Colors.white
+                                : Colors.blue,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            "Manual Item",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: selectedManualType == "item"
+                                  ? Colors.white
+                                  : Colors.blue,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
+
                 const SizedBox(width: 10),
+
+                // Manual Service
                 Expanded(
-                  child: ElevatedButton.icon(
-                    icon: const Icon(Icons.miscellaneous_services),
-                    label: const Text("Manual Service"),
-                    onPressed: () {
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        selectedManualType = "service";
+                      });
                       openManualServiceDialog();
                     },
+                    child: Container(
+                      height: 50,
+                      decoration: BoxDecoration(
+                        gradient: selectedManualType == "service"
+                            ? const LinearGradient(
+                                colors: [Color(0xFF1976D2), Color(0xFF42A5F5)],
+                              )
+                            : null,
+                        color: selectedManualType == "service"
+                            ? null
+                            : Colors.white,
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: Colors.blue),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.add,
+                            color: selectedManualType == "service"
+                                ? Colors.white
+                                : Colors.blue,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            "Manual Service",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: selectedManualType == "service"
+                                  ? Colors.white
+                                  : Colors.blue,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ],
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(10),
-            child: TextField(
-              controller: searchController,
-              decoration: InputDecoration(
-                hintText: "Search inventory...",
-                prefixIcon: const Icon(Icons.search),
-                filled: true,
-                fillColor: Colors.grey.shade200,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-              onChanged: (value) {
-                if (_debounce?.isActive ?? false) {
-                  _debounce!.cancel();
-                }
+  padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
+  child: Container(
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(12),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.05),
+          blurRadius: 6,
+        )
+      ],
+    ),
+    child: TextField(
+      controller: searchController,
+      decoration: InputDecoration(
+        hintText: "Search inventory...",
+        prefixIcon: const Icon(Icons.search),
 
-                _debounce = Timer(const Duration(milliseconds: 300), () {
+        // clear button (same logic)
+        suffixIcon: searchController.text.isNotEmpty
+            ? IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () {
+                  searchController.clear();
+
                   setState(() {
-                    searchText = value.toLowerCase();
+                    searchText = "";
                   });
-                });
-              },
-            ),
+
+                  FocusScope.of(context).unfocus();
+                },
+              )
+            : null,
+
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 10,
+          horizontal: 12,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(
+            color: Color(0xFF1E4FA3),
+            width: 1,
           ),
+        ),
+      ),
+
+      // ORIGINAL debounce logic preserved
+      onChanged: (value) {
+        if (_debounce?.isActive ?? false) {
+          _debounce!.cancel();
+        }
+
+        _debounce = Timer(const Duration(milliseconds: 300), () {
+          setState(() {
+            searchText = value.toLowerCase();
+          });
+        });
+      },
+    ),
+  ),
+),
 
           /// YOUR EXISTING STREAMBUILDER
           Expanded(
