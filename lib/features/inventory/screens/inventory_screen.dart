@@ -138,6 +138,32 @@ class _InventoryScreenState extends State<InventoryScreen> {
                       color: const Color(0xFF1E4FA3),
                     ),
                     title: Text(data["name"]),
+                    onLongPress: () async {
+                      bool confirm = await showDialog(
+                            context: context,
+                            builder: (_) => AlertDialog(
+                              title: const Text("Delete"),
+                              content:
+                                  const Text("Delete this item permanently?"),
+                              actions: [
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.pop(context, false),
+                                  child: const Text("Cancel"),
+                                ),
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context, true),
+                                  child: const Text("Delete"),
+                                ),
+                              ],
+                            ),
+                          ) ??
+                          false;
+
+                      if (!confirm) return;
+
+                      await deleteNodeRecursive(doc.id);
+                    },
                     onTap: () {
                       if (type == "category") {
                         Navigator.push(
@@ -351,33 +377,42 @@ class _InventoryScreenState extends State<InventoryScreen> {
                 ),
                 TextButton(
                   onPressed: () async {
-                    final service = InventoryService();
+                    try {
+                      final service = InventoryService();
 
-                    String? imageUrl = defaultItemImage;
+                      String? imageUrl = defaultItemImage;
 
-                    if (selectedImage != null) {
-                      final compressed = await compressImage(selectedImage!);
+                      if (selectedImage != null) {
+                        final compressed = await compressImage(selectedImage!);
 
-                      if (compressed != null) {
-                        imageUrl = await CloudinaryService.uploadImage(
-                          compressed,
-                        );
+                        if (compressed != null) {
+                          imageUrl =
+                              await CloudinaryService.uploadImage(compressed);
+                        }
                       }
+
+                      await service.addItem(
+                        name: name.text,
+                        quantity: int.parse(qty.text),
+                        rentPrice: double.parse(rent.text),
+                        parentId: widget.parentId,
+                        description: description.text,
+                        imageUrl: imageUrl,
+                      );
+
+                      Navigator.pop(context);
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            e.toString().replaceAll("Exception:", "").trim(),
+                          ),
+                        ),
+                      );
                     }
-
-                    await service.addItem(
-                      name: name.text,
-                      quantity: int.parse(qty.text),
-                      rentPrice: double.parse(rent.text),
-                      parentId: widget.parentId,
-                      description: description.text,
-                      imageUrl: imageUrl,
-                    );
-
-                    Navigator.pop(context);
                   },
                   child: const Text("Save"),
-                ),
+                )
               ],
             );
           },
@@ -408,14 +443,24 @@ class _InventoryScreenState extends State<InventoryScreen> {
             ),
             TextButton(
               onPressed: () async {
-                final service = InventoryService();
+                try {
+                  final service = InventoryService();
 
-                await service.addCategory(
-                  name: controller.text,
-                  parentId: widget.parentId,
-                );
+                  await service.addCategory(
+                    name: controller.text,
+                    parentId: widget.parentId,
+                  );
 
-                Navigator.pop(context);
+                  Navigator.pop(context);
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        e.toString().replaceAll("Exception:", "").trim(),
+                      ),
+                    ),
+                  );
+                }
               },
               child: const Text("Create"),
             ),

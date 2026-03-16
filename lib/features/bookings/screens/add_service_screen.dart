@@ -67,9 +67,12 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
   }
 
   Future<void> saveService() async {
-    if (nameController.text.isEmpty || priceController.text.isEmpty) {
-      return;
-    }
+
+  if (nameController.text.isEmpty || priceController.text.isEmpty) {
+    return;
+  }
+
+  try {
 
     setState(() => isLoading = true);
 
@@ -88,7 +91,21 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
     setState(() => isLoading = false);
 
     Navigator.pop(context);
+
+  } catch (e) {
+
+    setState(() => isLoading = false);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          e.toString().replaceAll("Exception:", "").trim(),
+        ),
+      ),
+    );
+
   }
+}
 
   @override
   Widget build(BuildContext context) {
