@@ -7,7 +7,6 @@ import '../../../core/services/cloudinary_service.dart';
 import '../../../core/utils/image_compressor.dart';
 
 class ServiceDetailScreen extends StatefulWidget {
-
   final Map<String, dynamic> serviceData;
   final String serviceId;
 
@@ -18,15 +17,12 @@ class ServiceDetailScreen extends StatefulWidget {
   });
 
   @override
-  State<ServiceDetailScreen> createState() =>
-      _ServiceDetailScreenState();
+  State<ServiceDetailScreen> createState() => _ServiceDetailScreenState();
 }
 
-class _ServiceDetailScreenState
-    extends State<ServiceDetailScreen> {
-
-      final ImagePicker _picker = ImagePicker();
-      int currentImageIndex = 0;
+class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
+  final ImagePicker _picker = ImagePicker();
+  int currentImageIndex = 0;
 
   List<String> imageUrls = [];
   List<File> newImages = [];
@@ -36,84 +32,74 @@ class _ServiceDetailScreenState
   late TextEditingController descController;
 
   @override
-void initState() {
-  super.initState();
+  void initState() {
+    super.initState();
 
-  nameController =
-      TextEditingController(text: widget.serviceData["name"]);
+    nameController = TextEditingController(text: widget.serviceData["name"]);
 
-  priceController =
-      TextEditingController(
-          text: widget.serviceData["price"].toString());
+    priceController =
+        TextEditingController(text: widget.serviceData["price"].toString());
 
-  descController =
-      TextEditingController(
-          text: widget.serviceData["description"] ?? "");
+    descController =
+        TextEditingController(text: widget.serviceData["description"] ?? "");
 
     imageUrls = List<String>.from(
-    widget.serviceData["imageUrls"] ?? [],
-  );
-}
+      widget.serviceData["imageUrls"] ?? [],
+    );
+  }
 
   Future<void> updateService() async {
+    String businessId = await getBusinessId();
 
-  String businessId = await getBusinessId();
+    List<String> updatedImages = List.from(imageUrls);
 
-  List<String> updatedImages = List.from(imageUrls);
+    /// upload new images
+    for (File file in newImages) {
+      String? url = await CloudinaryService.uploadImage(file);
 
-  /// upload new images
-  for (File file in newImages) {
-
-    String? url =
-        await CloudinaryService.uploadImage(file);
-
-    if (url != null) {
-      updatedImages.add(url);
+      if (url != null) {
+        updatedImages.add(url);
+      }
     }
+
+    await FirebaseFirestore.instance
+        .collection("businesses")
+        .doc(businessId)
+        .collection("inventoryNodes")
+        .doc(widget.serviceId)
+        .update({
+      "name": nameController.text,
+      "price": double.parse(priceController.text),
+      "description": descController.text,
+      "imageUrls": updatedImages,
+    });
+
+    Navigator.pop(context);
   }
-
-  await FirebaseFirestore.instance
-      .collection("businesses")
-      .doc(businessId)
-      .collection("inventoryNodes")
-      .doc(widget.serviceId)
-      .update({
-    "name": nameController.text,
-    "price": double.parse(priceController.text),
-    "description": descController.text,
-    "imageUrls": updatedImages,
-  });
-
-  Navigator.pop(context);
-}
 
   Future<void> pickImage() async {
+    int remaining = 5 - (imageUrls.length + newImages.length);
 
-  int remaining = 5 - (imageUrls.length + newImages.length);
+    if (remaining <= 0) return;
 
-  if (remaining <= 0) return;
+    final List<XFile> picked = await _picker.pickMultiImage();
 
-  final List<XFile> picked =
-      await _picker.pickMultiImage();
+    if (picked.isEmpty) return;
 
-  if (picked.isEmpty) return;
+    for (var img in picked.take(remaining)) {
+      File file = File(img.path);
 
-  for (var img in picked.take(remaining)) {
+      File? compressed = await compressImage(file);
 
-    File file = File(img.path);
-
-    File? compressed = await compressImage(file);
-
-    if (compressed != null) {
-      newImages.add(compressed);
+      if (compressed != null) {
+        newImages.add(compressed);
+      }
     }
+
+    setState(() {});
   }
 
-  setState(() {});
-}
-
   Future<void> deleteService() async {
-
     String businessId = await getBusinessId();
 
     await FirebaseFirestore.instance
@@ -126,160 +112,312 @@ void initState() {
     Navigator.pop(context);
   }
 
+  Widget sectionCard({required Widget child}) {
+  return Container(
+    margin: const EdgeInsets.only(bottom: 18),
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(14),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.05),
+          blurRadius: 8,
+          offset: const Offset(0, 4),
+        ),
+      ],
+    ),
+    child: child,
+  );
+}
+
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
+      backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
         title: const Text("Service Details"),
+        backgroundColor: Colors.blue.shade600,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-
-            TextField(
-              controller: nameController,
-              decoration:
-                  const InputDecoration(labelText: "Service Name"),
-            ),
-
-            const SizedBox(height: 12),
-
-            TextField(
-              controller: priceController,
-              keyboardType: TextInputType.number,
-              decoration:
-                  const InputDecoration(labelText: "Price"),
-            ),
-
-            const SizedBox(height: 12),
-
-            TextField(
-              controller: descController,
-              maxLines: 3,
-              decoration:
-                  const InputDecoration(labelText: "Description"),
-            ),
-
-            const SizedBox(height: 16),
-
-/// IMAGE PREVIEW
-if (imageUrls.isNotEmpty || newImages.isNotEmpty)
-SizedBox(
-  height: 220,
-  child: PageView(
-    onPageChanged: (index) {
-      setState(() {
-        currentImageIndex = index;
-      });
-    },
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              /// SERVICE NAME
+              sectionCard(
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-
-      ...imageUrls.map((url) {
-        return Stack(
-          children: [
-
-            Positioned.fill(
-              child: Image.network(
-                url,
-                fit: BoxFit.cover,
-              ),
-            ),
-
-            Positioned(
-              top: 10,
-              right: 10,
-              child: IconButton(
-                icon: const Icon(Icons.delete,
-                    color: Colors.red),
-                onPressed: () {
-                  setState(() {
-                    imageUrls.remove(url);
-                  });
-                },
-              ),
-            ),
-          ],
-        );
-      }),
-
-      ...newImages.map((file) {
-        return Stack(
-          children: [
-
-            Positioned.fill(
-              child: Image.file(
-                file,
-                fit: BoxFit.cover,
-              ),
-            ),
-
-            Positioned(
-              top: 10,
-              right: 10,
-              child: IconButton(
-                icon: const Icon(Icons.delete,
-                    color: Colors.red),
-                onPressed: () {
-                  setState(() {
-                    newImages.remove(file);
-                  });
-                },
-              ),
-            ),
-          ],
-        );
-      }),
+      const Text(
+        "Service Name",
+        style: TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 15,
+          color: Colors.black54,
+        ),
+      ),
+      const SizedBox(height: 10),
+      TextField(
+        controller: nameController,
+        decoration: InputDecoration(
+          filled: true,
+          fillColor: Colors.grey.shade100,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none,
+          ),
+        ),
+      ),
     ],
   ),
 ),
 
-/// STEP 4 → DOT INDICATOR
-Row(
-  mainAxisAlignment: MainAxisAlignment.center,
-  children: List.generate(
-    imageUrls.length + newImages.length,
-    (index) => Container(
-      margin: const EdgeInsets.symmetric(horizontal: 4),
-      width: currentImageIndex == index ? 10 : 6,
-      height: currentImageIndex == index ? 10 : 6,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: currentImageIndex == index
-            ? Colors.blue
-            : Colors.grey,
+              const SizedBox(height: 20),
+
+              /// PRICE ROW
+              sectionCard(
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const Text(
+        "Price",
+        style: TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 15,
+          color: Colors.black54,
+        ),
       ),
-    ),
+      const SizedBox(height: 10),
+      Row(
+        children: [
+          const Text(
+            "₹",
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: TextField(
+              controller: priceController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.grey.shade100,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    ],
   ),
 ),
 
-const SizedBox(height: 16),
+              const SizedBox(height: 20),
 
-ElevatedButton.icon(
-  onPressed: pickImage,
-  icon: const Icon(Icons.photo_library),
-  label: Text(
-    "Add Photos (${imageUrls.length + newImages.length}/5)",
+              /// DESCRIPTION
+              sectionCard(
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const Text(
+        "Description",
+        style: TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 15,
+          color: Colors.black54,
+        ),
+      ),
+      const SizedBox(height: 10),
+      TextField(
+        controller: descController,
+        maxLines: 4,
+        decoration: InputDecoration(
+          filled: true,
+          fillColor: Colors.grey.shade100,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none,
+          ),
+        ),
+      ),
+    ],
   ),
 ),
 
-const SizedBox(height: 24),
+              const SizedBox(height: 24),
 
-            ElevatedButton(
-              onPressed: updateService,
-              child: const Text("Update"),
-            ),
+              /// IMAGE PREVIEW
+              if (imageUrls.isNotEmpty || newImages.isNotEmpty)
+                SizedBox(
+                  height: 220,
+                  child: PageView(
+                    onPageChanged: (index) {
+                      setState(() {
+                        currentImageIndex = index;
+                      });
+                    },
+                    children: [
+                      ...imageUrls.map((url) {
+                        return Stack(
+                          children: [
+                            Positioned.fill(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(14),
+                                child: Image.network(
+                                  url,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              top: 10,
+                              right: 10,
+                              child: IconButton(
+                                icon: const Icon(
+                                  Icons.delete,
+                                  color: Colors.red,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    imageUrls.remove(url);
+                                  });
+                                },
+                              ),
+                            ),
+                          ],
+                        );
+                      }),
+                      ...newImages.map((file) {
+                        return Stack(
+                          children: [
+                            Positioned.fill(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(14),
+                                child: Image.file(
+                                  file,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              top: 10,
+                              right: 10,
+                              child: IconButton(
+                                icon: const Icon(
+                                  Icons.delete,
+                                  color: Colors.red,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    newImages.remove(file);
+                                  });
+                                },
+                              ),
+                            ),
+                          ],
+                        );
+                      }),
+                    ],
+                  ),
+                ),
 
-            const SizedBox(height: 12),
+              const SizedBox(height: 10),
 
-            ElevatedButton(
-              onPressed: deleteService,
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red),
-              child: const Text("Delete"),
-            ),
-          ],
+              /// DOT INDICATOR
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(
+                  imageUrls.length + newImages.length,
+                  (index) => Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    width: currentImageIndex == index ? 10 : 6,
+                    height: currentImageIndex == index ? 10 : 6,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: currentImageIndex == index
+                          ? Colors.blue
+                          : Colors.grey,
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 18),
+
+              /// ADD PHOTOS BUTTON (GRADIENT)
+              SizedBox(
+                width: double.infinity,
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [
+                        Color(0xFF1976D2),
+                        Color(0xFF42A5F5),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: ElevatedButton.icon(
+                    onPressed: pickImage,
+                    icon: const Icon(Icons.photo_library),
+                    label: Text(
+                      "Add Photos (${imageUrls.length + newImages.length}/5)",
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 26),
+
+              /// UPDATE + DELETE BUTTONS
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: updateService,
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        backgroundColor: Colors.blue,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text("Update"),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: deleteService,
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        backgroundColor: Colors.red,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text("Delete"),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 20),
+            ],
+          ),
         ),
       ),
     );
