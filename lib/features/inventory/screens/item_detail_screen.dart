@@ -235,71 +235,172 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
 
               final data = snap.data!.data()!;
 
-              return Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (data['imageUrl'] != null)
-                      Center(
-                        child: Column(
-                          children: [
-                            Image.network(
+              return SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      /// IMAGE CARD
+                      GestureDetector(
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (_) => Dialog(
+                              backgroundColor: Colors.black,
+                              insetPadding: const EdgeInsets.all(10),
+                              child: InteractiveViewer(
+                                child: Image.network(
+                                  data['imageUrl'],
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          height: 260,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: Image.network(
                               data['imageUrl'],
-                              height: 180,
                               fit: BoxFit.cover,
                             ),
-                            const SizedBox(height: 10),
-                            ElevatedButton.icon(
-                              icon: const Icon(Icons.image),
-                              label: const Text("Change Image"),
-                              onPressed: () {
-                                _changeItemImage();
-                              },
-                            ),
-                            const SizedBox(height: 20),
-                          ],
+                          ),
                         ),
                       ),
-                    Text(
-                      "Total Quantity: "
-                      "${data['quantity']}",
-                      style: const TextStyle(fontSize: 18),
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        ElevatedButton.icon(
+
+                      const SizedBox(height: 14),
+
+                      /// CHANGE IMAGE BUTTON
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            backgroundColor: Colors.white,
+                            foregroundColor: Colors.blue,
+                            elevation: 1,
+                          ),
+                          icon: const Icon(Icons.image),
+                          label: const Text("Change Image"),
                           onPressed: () {
-                            _adjustStock(true);
+                            _changeItemImage();
                           },
-                          icon: const Icon(Icons.add),
-                          label: const Text("Add"),
                         ),
-                        ElevatedButton.icon(
-                          onPressed: () {
-                            _adjustStock(false);
-                          },
-                          icon: const Icon(Icons.remove),
-                          label: const Text("Remove"),
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      /// TOTAL QUANTITY
+                      Text(
+                        "Total Quantity: ${data['quantity']}",
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
                         ),
-                      ],
-                    ),
-                    Text(
-                      "Rent Price: ₹"
-                      "${data['rentPrice']}",
-                      style: const TextStyle(fontSize: 18),
-                    ),
-                    const SizedBox(height: 20),
-                    const Text(
-                      "Description:",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      data['description'] ?? "-",
-                    ),
-                  ],
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      /// ADD / REMOVE STOCK BUTTONS
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 14),
+                                backgroundColor: Colors.green,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              onPressed: () {
+                                _adjustStock(true);
+                              },
+                              child: const Text(
+                                "Add Stock",
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 14),
+                                backgroundColor: Colors.red,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              onPressed: () {
+                                _adjustStock(false);
+                              },
+                              child: const Text(
+                                "Remove Stock",
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      /// RENT PRICE
+                      Text(
+                        "Rent Price: ₹${data['rentPrice']}",
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      /// DESCRIPTION TITLE
+                      const Text(
+                        "Description:",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      /// DESCRIPTION BOX
+                      Card(
+                        color: Colors.white,
+                        elevation: 1.5,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(14),
+                          child: Text(
+                            data['description'] ?? "-",
+                            style: const TextStyle(
+                              fontSize: 15,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+                    ],
+                  ),
                 ),
               );
             },
