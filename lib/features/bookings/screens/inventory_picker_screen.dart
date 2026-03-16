@@ -322,15 +322,21 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
       ),
       body: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              border: Border(
-                bottom: BorderSide(color: Colors.grey.shade300),
-              ),
-            ),
-            child: Row(
+          Padding(
+  padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
+  child: Container(
+    padding: const EdgeInsets.all(8),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(12),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.05),
+          blurRadius: 6,
+        ),
+      ],
+    ),
+    child: Row(
               children: [
                 // Items
                 Expanded(
@@ -394,6 +400,7 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
                 ),
               ],
             ),
+          ),
           ),
 
           /// SEARCH BAR
