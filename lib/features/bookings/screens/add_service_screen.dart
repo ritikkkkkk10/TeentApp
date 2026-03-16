@@ -32,6 +32,36 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
 
   bool isLoading = false;
 
+  InputDecoration inputStyle(String label) {
+  return InputDecoration(
+    labelText: label,
+    floatingLabelBehavior: FloatingLabelBehavior.auto,
+
+    labelStyle: const TextStyle(
+      color: Colors.grey,
+      fontSize: 16,
+    ),
+
+    floatingLabelStyle: const TextStyle(
+      color: Color(0xFF2563EB),
+      fontWeight: FontWeight.w500,
+    ),
+
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(14),
+      borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
+    ),
+
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(14),
+      borderSide: const BorderSide(
+        color: Color(0xFF2563EB),
+        width: 2,
+      ),
+    ),
+  );
+}
+
   Future<void> pickImage() async {
     int remaining = 5 - selectedImages.length;
 
@@ -113,109 +143,162 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
       appBar: AppBar(
         title: const Text("Add Service"),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(labelText: "Service Name"),
-            ),
+      body: SingleChildScrollView(
+  child: Padding(
+    padding: const EdgeInsets.all(20),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
 
-            const SizedBox(height: 12),
+        /// SERVICE NAME
+        TextField(
+          controller: nameController,
+          cursorColor: const Color(0xFF2563EB),
+          style: const TextStyle(color: Colors.black),
+          decoration: inputStyle("Service Name"),
+        ),
 
-            TextField(
-              controller: priceController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: "Price"),
-            ),
+        const SizedBox(height: 18),
 
-            const SizedBox(height: 12),
+        /// PRICE
+        TextField(
+          controller: priceController,
+          keyboardType: TextInputType.number,
+          cursorColor: const Color(0xFF2563EB),
+          style: const TextStyle(color: Colors.black),
+          decoration: inputStyle("Price"),
+        ),
 
-            TextField(
-              controller: descController,
-              maxLines: 3,
-              decoration: const InputDecoration(labelText: "Description"),
-            ),
+        const SizedBox(height: 18),
 
-            const SizedBox(height: 16),
+        /// DESCRIPTION
+        TextField(
+          controller: descController,
+          maxLines: 4,
+          cursorColor: const Color(0xFF2563EB),
+          style: const TextStyle(color: Colors.black),
+          decoration: inputStyle("Description"),
+        ),
 
-            /// ADD PHOTO BUTTON
-            ElevatedButton.icon(
-              onPressed: pickImage,
-              icon: const Icon(Icons.photo_library),
-              label: Text(
-                "Add Photos (${selectedImages.length}/5)",
-              ),
-            ),
+        const SizedBox(height: 24),
 
-            const SizedBox(height: 16),
-
-            /// IMAGE PREVIEW SLIDER
-            if (selectedImages.isNotEmpty)
-              Column(
-                children: [
-                  SizedBox(
-                    height: 200,
-                    child: PageView.builder(
-                      itemCount: selectedImages.length,
-                      onPageChanged: (index) {
-                        setState(() {
-                          currentImageIndex = index;
-                        });
-                      },
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.all(8),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: Image.file(
-                              selectedImages[index],
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-
-                  const SizedBox(height: 8),
-
-                  /// DOT INDICATOR
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(
-                      selectedImages.length,
-                      (index) => Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                        width: currentImageIndex == index ? 10 : 6,
-                        height: currentImageIndex == index ? 10 : 6,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: currentImageIndex == index
-                              ? Colors.blue
-                              : Colors.grey,
-                        ),
-                      ),
-                    ),
-                  ),
+        /// ADD PHOTOS BUTTON
+        SizedBox(
+          width: double.infinity,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [
+                  Color(0xFF3B82F6),
+                  Color(0xFF2563EB),
                 ],
               ),
-
-            const SizedBox(height: 24),
-
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: isLoading ? null : saveService,
-                child: isLoading
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text("Save Service"),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: ElevatedButton.icon(
+              onPressed: pickImage,
+              icon: const Icon(Icons.photo_library),
+              label: Text("Add Photos (${selectedImages.length}/5)"),
+              style: ElevatedButton.styleFrom(
+                elevation: 0,
+                backgroundColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                foregroundColor: Colors.white,
               ),
-            )
-          ],
+            ),
+          ),
         ),
-      ),
+
+        const SizedBox(height: 20),
+
+        /// IMAGE PREVIEW
+        if (selectedImages.isNotEmpty)
+          Column(
+            children: [
+              SizedBox(
+                height: 200,
+                child: PageView.builder(
+                  itemCount: selectedImages.length,
+                  onPageChanged: (index) {
+                    setState(() {
+                      currentImageIndex = index;
+                    });
+                  },
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.file(
+                          selectedImages[index],
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(
+                  selectedImages.length,
+                  (index) => Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    width: currentImageIndex == index ? 10 : 6,
+                    height: currentImageIndex == index ? 10 : 6,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: currentImageIndex == index
+                          ? Colors.blue
+                          : Colors.grey,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+        const SizedBox(height: 30),
+
+        /// SAVE SERVICE BUTTON
+        SizedBox(
+          width: double.infinity,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [
+                  Color(0xFF3B82F6),
+                  Color(0xFF2563EB),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: ElevatedButton(
+              onPressed: isLoading ? null : saveService,
+              style: ElevatedButton.styleFrom(
+                elevation: 0,
+                backgroundColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                foregroundColor: Colors.white,
+              ),
+              child: isLoading
+                  ? const CircularProgressIndicator(color: Colors.white)
+                  : const Text(
+                      "Save Service",
+                      style: TextStyle(fontSize: 16),
+                    ),
+            ),
+          ),
+        ),
+      ],
+    ),
+  ),
+),
     );
   }
 }
