@@ -84,6 +84,7 @@ class _SelectItemsScreenState extends State<SelectItemsScreen> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
+        backgroundColor: Colors.white,
         title: Text(item["name"]),
         content: TextField(
           controller: controller,
@@ -92,6 +93,9 @@ class _SelectItemsScreenState extends State<SelectItemsScreen> {
         ),
         actions: [
           TextButton(
+            style: TextButton.styleFrom(
+    foregroundColor: const Color(0xFF1E4FA3),
+  ),
             child: const Text("OK"),
             onPressed: () {
               int qty = int.parse(controller.text);

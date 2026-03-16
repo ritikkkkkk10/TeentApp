@@ -71,10 +71,16 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
           ),
           actions: [
             TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFF1E4FA3),
+              ),
               onPressed: () => Navigator.pop(context),
               child: const Text("Cancel"),
             ),
             TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFF1E4FA3),
+              ),
               onPressed: () async {
                 String businessId = await getBusinessId();
 
@@ -127,6 +133,9 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
           ),
           actions: [
             TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFF1E4FA3),
+              ),
               onPressed: () => Navigator.pop(context),
               child: const Text(
                 "Cancel",
@@ -134,6 +143,9 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
               ),
             ),
             TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFF1E4FA3),
+              ),
               onPressed: () async {
                 int change = int.parse(qty.text);
 

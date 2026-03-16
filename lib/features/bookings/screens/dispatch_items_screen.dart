@@ -131,17 +131,24 @@ class _DispatchItemsScreenState extends State<DispatchItemsScreen> {
           context: context,
           builder: (context) {
             return AlertDialog(
+              backgroundColor: Colors.white,
               title: const Text("Confirm Dispatch"),
               content: const Text(
                   "Once confirmed, dispatch cannot be edited.\n\nAre you sure you want to confirm dispatch?"),
               actions: [
                 TextButton(
+                  style: TextButton.styleFrom(
+                    foregroundColor: const Color(0xFF1E4FA3),
+                  ),
                   onPressed: () {
                     Navigator.pop(context, false);
                   },
                   child: const Text("Cancel"),
                 ),
                 TextButton(
+                  style: TextButton.styleFrom(
+                    foregroundColor: const Color(0xFF1E4FA3),
+                  ),
                   onPressed: () {
                     Navigator.pop(context, true);
                   },

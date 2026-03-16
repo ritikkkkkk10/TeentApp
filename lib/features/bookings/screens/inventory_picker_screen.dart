@@ -86,6 +86,7 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
+        backgroundColor: Colors.white,
         title: const Text("Add Manual Item"),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -108,10 +109,16 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
         ),
         actions: [
           TextButton(
+            style: TextButton.styleFrom(
+    foregroundColor: const Color(0xFF1E4FA3),
+  ),
             child: const Text("Cancel"),
             onPressed: () => Navigator.pop(context),
           ),
           TextButton(
+            style: TextButton.styleFrom(
+    foregroundColor: const Color(0xFF1E4FA3),
+  ),
             child: const Text("Add"),
             onPressed: () async {
               String name = nameController.text;
@@ -153,6 +160,7 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
+        backgroundColor: Colors.white,
         title: const Text("Add Manual Service"),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -170,10 +178,16 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
         ),
         actions: [
           TextButton(
+            style: TextButton.styleFrom(
+    foregroundColor: const Color(0xFF1E4FA3),
+  ),
             child: const Text("Cancel"),
             onPressed: () => Navigator.pop(context),
           ),
           TextButton(
+            style: TextButton.styleFrom(
+    foregroundColor: const Color(0xFF1E4FA3),
+  ),
             child: const Text("Add"),
             onPressed: () async {
               final service = BookingServiceModel(
@@ -828,6 +842,7 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
+        backgroundColor: Colors.white,
         title: Text(item["name"]),
         content: TextField(
           controller: controller,
@@ -836,6 +851,9 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
         ),
         actions: [
           TextButton(
+            style: TextButton.styleFrom(
+    foregroundColor: const Color(0xFF1E4FA3),
+  ),
             child: const Text("Add"),
             onPressed: () async {
               int qty = int.parse(controller.text);

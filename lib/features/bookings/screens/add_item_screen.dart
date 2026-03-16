@@ -98,6 +98,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
+        backgroundColor: Colors.white,
         title: Text(item["name"]),
         content: TextField(
           controller: controller,
@@ -106,6 +107,9 @@ class _AddItemScreenState extends State<AddItemScreen> {
         ),
         actions: [
           TextButton(
+            style: TextButton.styleFrom(
+    foregroundColor: const Color(0xFF1E4FA3),
+  ),
             child: const Text("Add"),
             onPressed: () async {
               int requested = int.parse(controller.text);
@@ -117,16 +121,23 @@ class _AddItemScreenState extends State<AddItemScreen> {
                 bool? proceed = await showDialog<bool>(
                   context: context,
                   builder: (_) => AlertDialog(
+                    backgroundColor: Colors.white,
                     title: const Text("Stock Shortage"),
                     content: Text("Only $available available.\n"
                         "Short by $shortage items.\n\n"
                         "Continue booking?"),
                     actions: [
                       TextButton(
+                        style: TextButton.styleFrom(
+    foregroundColor: const Color(0xFF1E4FA3),
+  ),
                         onPressed: () => Navigator.pop(context, false),
                         child: const Text("Cancel"),
                       ),
                       TextButton(
+                        style: TextButton.styleFrom(
+    foregroundColor: const Color(0xFF1E4FA3),
+  ),
                         onPressed: () => Navigator.pop(context, true),
                         child: const Text("Proceed"),
                       ),

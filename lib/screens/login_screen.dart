@@ -94,6 +94,10 @@ Future<void> showResetPasswordDialog() async {
     builder: (context) {
 
       return AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
         title: const Text("Reset Password"),
 
         content: TextField(
@@ -106,6 +110,9 @@ Future<void> showResetPasswordDialog() async {
         actions: [
 
           TextButton(
+            style: TextButton.styleFrom(
+    foregroundColor: const Color(0xFF1E4FA3),
+  ),
             onPressed: () {
               Navigator.pop(context);
             },

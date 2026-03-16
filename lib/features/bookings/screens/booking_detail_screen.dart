@@ -94,17 +94,24 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                         bool confirm = await showDialog(
                               context: context,
                               builder: (_) => AlertDialog(
+                                backgroundColor: Colors.white,
                                 title: const Text("Advance exceeds remaining"),
                                 content: const Text(
                                   "This payment exceeds remaining amount.\n\nContinue?",
                                 ),
                                 actions: [
                                   TextButton(
+                                    style: TextButton.styleFrom(
+                                      foregroundColor: const Color(0xFF1E4FA3),
+                                    ),
                                     child: const Text("Cancel"),
                                     onPressed: () =>
                                         Navigator.pop(context, false),
                                   ),
                                   TextButton(
+                                    style: TextButton.styleFrom(
+                                      foregroundColor: const Color(0xFF1E4FA3),
+                                    ),
                                     child: const Text("Confirm"),
                                     onPressed: () =>
                                         Navigator.pop(context, true),
@@ -1000,7 +1007,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
             child: const Icon(
               Icons.add,
               color: Color(0xFF1E4FA3),
-              ),
+            ),
             onPressed: () {
               Navigator.push(
                 context,

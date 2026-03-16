@@ -367,17 +367,26 @@ class _BookingsListScreenState extends State<BookingsListScreen>
                                     bool confirm = await showDialog(
                                           context: context,
                                           builder: (_) => AlertDialog(
+                                            backgroundColor: Colors.white,
                                             title: const Text("Delete Booking"),
                                             content: const Text(
                                                 "Delete this booking? Inventory will be freed."),
                                             actions: [
                                               TextButton(
+                                                style: TextButton.styleFrom(
+                                                  foregroundColor:
+                                                      const Color(0xFF1E4FA3),
+                                                ),
                                                 onPressed: () {
                                                   Navigator.pop(context, false);
                                                 },
                                                 child: const Text("Cancel"),
                                               ),
                                               TextButton(
+                                                style: TextButton.styleFrom(
+                                                  foregroundColor:
+                                                      const Color(0xFF1E4FA3),
+                                                ),
                                                 onPressed: () {
                                                   Navigator.pop(context, true);
                                                 },

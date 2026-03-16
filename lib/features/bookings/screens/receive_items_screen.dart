@@ -147,17 +147,24 @@ class _ReceiveItemsScreenState extends State<ReceiveItemsScreen> {
     bool confirm = await showDialog(
           context: context,
           builder: (_) => AlertDialog(
+            backgroundColor: Colors.white,
             title: const Text("Confirm Receive"),
             content: const Text(
                 "Once confirmed, receive quantities cannot be edited."),
             actions: [
               TextButton(
+                style: TextButton.styleFrom(
+    foregroundColor: const Color(0xFF1E4FA3),
+  ),
                 onPressed: () {
                   Navigator.pop(context, false);
                 },
                 child: const Text("Cancel"),
               ),
               TextButton(
+                style: TextButton.styleFrom(
+    foregroundColor: const Color(0xFF1E4FA3),
+  ),
                 onPressed: () {
                   Navigator.pop(context, true);
                 },

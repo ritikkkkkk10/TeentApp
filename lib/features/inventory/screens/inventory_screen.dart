@@ -165,16 +165,23 @@ class _InventoryScreenState extends State<InventoryScreen> {
                       bool confirm = await showDialog(
                             context: context,
                             builder: (_) => AlertDialog(
+                              backgroundColor: Colors.white,
                               title: const Text("Delete"),
                               content:
                                   const Text("Delete this item permanently?"),
                               actions: [
                                 TextButton(
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: const Color(0xFF1E4FA3),
+                                  ),
                                   onPressed: () =>
                                       Navigator.pop(context, false),
                                   child: const Text("Cancel"),
                                 ),
                                 TextButton(
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: const Color(0xFF1E4FA3),
+                                  ),
                                   onPressed: () => Navigator.pop(context, true),
                                   child: const Text("Delete"),
                                 ),
@@ -466,6 +473,9 @@ class _InventoryScreenState extends State<InventoryScreen> {
                   const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               actions: [
                 TextButton(
+                  style: TextButton.styleFrom(
+                    foregroundColor: const Color(0xFF1E4FA3),
+                  ),
                   onPressed: () => Navigator.pop(context),
                   child: const Text(
                     "Cancel",
@@ -476,6 +486,9 @@ class _InventoryScreenState extends State<InventoryScreen> {
                   ),
                 ),
                 TextButton(
+                  style: TextButton.styleFrom(
+                    foregroundColor: const Color(0xFF1E4FA3),
+                  ),
                   onPressed: () async {
                     try {
                       final service = InventoryService();
@@ -535,6 +548,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
       context: context,
       builder: (_) {
         return AlertDialog(
+          backgroundColor: Colors.white,
           title: const Text("New Category"),
           content: TextField(
             controller: controller,
@@ -544,10 +558,16 @@ class _InventoryScreenState extends State<InventoryScreen> {
           ),
           actions: [
             TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFF1E4FA3),
+              ),
               onPressed: () => Navigator.pop(context),
               child: const Text("Cancel"),
             ),
             TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFF1E4FA3),
+              ),
               onPressed: () async {
                 try {
                   final service = InventoryService();
@@ -801,16 +821,25 @@ class _InventoryScreenState extends State<InventoryScreen> {
                               bool confirm = await showDialog(
                                     context: context,
                                     builder: (_) => AlertDialog(
+                                      backgroundColor: Colors.white,
                                       title: const Text("Delete"),
                                       content: const Text("Delete this item?"),
                                       actions: [
                                         TextButton(
+                                          style: TextButton.styleFrom(
+                                            foregroundColor:
+                                                const Color(0xFF1E4FA3),
+                                          ),
                                           onPressed: () {
                                             Navigator.pop(context, false);
                                           },
                                           child: const Text("Cancel"),
                                         ),
                                         TextButton(
+                                          style: TextButton.styleFrom(
+                                            foregroundColor:
+                                                const Color(0xFF1E4FA3),
+                                          ),
                                           onPressed: () {
                                             Navigator.pop(context, true);
                                           },
