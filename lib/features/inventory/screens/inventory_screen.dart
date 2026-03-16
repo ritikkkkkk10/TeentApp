@@ -34,6 +34,29 @@ class _InventoryScreenState extends State<InventoryScreen> {
   bool showAllServices = false;
   bool showAllCategories = false;
 
+  InputDecoration inputStyle(String label) {
+    return InputDecoration(
+      labelText: label,
+      floatingLabelBehavior: FloatingLabelBehavior.auto,
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(
+          color: Color(0xFF2563EB),
+          width: 2,
+        ),
+      ),
+      labelStyle: const TextStyle(color: Colors.grey),
+      floatingLabelStyle: const TextStyle(
+        color: Color(0xFF2563EB),
+        fontWeight: FontWeight.w500,
+      ),
+    );
+  }
+
   Widget _filterButton(String label, String mode) {
     bool selected = filterMode == mode;
 
@@ -313,41 +336,76 @@ class _InventoryScreenState extends State<InventoryScreen> {
         return StatefulBuilder(
           builder: (context, setStateDialog) {
             return AlertDialog(
-              title: const Text("New Item"),
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              titlePadding: EdgeInsets.zero,
+              title: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                decoration: const BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(color: Color(0xFFEAEAEA)),
+                  ),
+                ),
+                child: const Text(
+                  "New Item",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
               content: SingleChildScrollView(
                 child: Column(
                   children: [
+                    /// ITEM NAME
                     TextField(
                       controller: name,
-                      decoration: const InputDecoration(
-                        labelText: "Item Name",
-                      ),
+                      cursorColor: const Color(0xFF2563EB),
+                      style: const TextStyle(color: Colors.black),
+                      decoration: inputStyle("Item Name"),
                     ),
+
+                    const SizedBox(height: 14),
+
+                    /// QUANTITY
                     TextField(
                       controller: qty,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: "Quantity",
-                      ),
+                      cursorColor: const Color(0xFF2563EB),
+                      style: const TextStyle(color: Colors.black),
+                      decoration: inputStyle("Quantity"),
                     ),
+
+                    const SizedBox(height: 14),
+
+                    /// RENT PRICE
                     TextField(
                       controller: rent,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: "Rent Price",
-                      ),
+                      cursorColor: const Color(0xFF2563EB),
+                      style: const TextStyle(color: Colors.black),
+                      decoration: inputStyle("Rent Price"),
                     ),
+
+                    const SizedBox(height: 14),
+
+                    /// DESCRIPTION
                     TextField(
                       controller: description,
-                      decoration: const InputDecoration(
-                        labelText: "Description",
-                      ),
+                      maxLines: 3,
+                      cursorColor: const Color(0xFF2563EB),
+                      style: const TextStyle(color: Colors.black),
+                      decoration: inputStyle("Description"),
                     ),
-                    const SizedBox(height: 12),
-                    ElevatedButton.icon(
-                      icon: const Icon(Icons.image),
-                      label: const Text("Select Image"),
-                      onPressed: () async {
+
+                    const SizedBox(height: 16),
+
+                    /// IMAGE PICKER CARD
+                    InkWell(
+                      onTap: () async {
                         final picker = ImagePicker();
 
                         final picked = await picker.pickImage(
@@ -360,20 +418,62 @@ class _InventoryScreenState extends State<InventoryScreen> {
                           });
                         }
                       },
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [
+                              Color(0xFF3B82F6),
+                              Color(0xFF2563EB),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.image, color: Colors.white),
+                            SizedBox(width: 10),
+                            Text(
+                              "Select Image",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                    const SizedBox(height: 10),
+
+                    const SizedBox(height: 12),
+
                     if (selectedImage != null)
-                      Image.file(
-                        selectedImage!,
-                        height: 100,
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image.file(
+                          selectedImage!,
+                          height: 100,
+                        ),
                       ),
                   ],
                 ),
               ),
+
+              /// ACTIONS (Toolbar style)
+              actionsPadding:
+                  const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text("Cancel"),
+                  child: const Text(
+                    "Cancel",
+                    style: TextStyle(
+                      color: Color(0xFF2563EB),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
                 TextButton(
                   onPressed: () async {
@@ -411,8 +511,14 @@ class _InventoryScreenState extends State<InventoryScreen> {
                       );
                     }
                   },
-                  child: const Text("Save"),
-                )
+                  child: const Text(
+                    "Save",
+                    style: TextStyle(
+                      color: Color(0xFF2563EB),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
               ],
             );
           },
