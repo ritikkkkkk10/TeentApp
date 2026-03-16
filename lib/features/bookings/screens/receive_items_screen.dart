@@ -95,7 +95,7 @@ class _ReceiveItemsScreenState extends State<ReceiveItemsScreen> {
 
       if (!isManual) {
         String inventoryId = data["inventoryItemId"];
-
+ 
         final inventoryRef = FirebaseFirestore.instance
             .collection("businesses")
             .doc(widget.businessId)

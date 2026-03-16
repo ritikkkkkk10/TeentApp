@@ -235,17 +235,66 @@ class _DispatchItemsScreenState extends State<DispatchItemsScreen> {
                                 Text("Already Dispatched: $dispatchedQty"),
                                 Text("Remaining: $remainingQty"),
                                 const SizedBox(height: 6),
-                                SizedBox(
-                                  width: 120,
-                                  child: TextField(
-                                    controller: quantityControllers[doc.id],
-                                    enabled: !isDispatched,
-                                    keyboardType: TextInputType.number,
-                                    decoration: const InputDecoration(
-                                      labelText: "Dispatch Qty",
+                                Row(
+                                  children: [
+                                    /// MINUS BUTTON
+                                    IconButton(
+                                      icon: const Icon(Icons.remove),
+                                      onPressed: isDispatched
+                                          ? null
+                                          : () {
+                                              int current = int.tryParse(
+                                                      quantityControllers[
+                                                              doc.id]!
+                                                          .text) ??
+                                                  0;
+
+                                              if (current > 0) {
+                                                quantityControllers[doc.id]!
+                                                        .text =
+                                                    (current - 1).toString();
+                                                setState(() {});
+                                              }
+                                            },
                                     ),
-                                  ),
-                                ),
+
+                                    /// TEXT FIELD (still editable)
+                                    SizedBox(
+                                      width: 70,
+                                      child: TextField(
+                                        controller: quantityControllers[doc.id],
+                                        enabled: !isDispatched,
+                                        keyboardType: TextInputType.number,
+                                        textAlign: TextAlign.center,
+                                        decoration: const InputDecoration(
+                                          labelText: "Qty",
+                                        ),
+                                      ),
+                                    ),
+
+                                    /// PLUS BUTTON
+                                    IconButton(
+                                      icon: const Icon(Icons.add),
+                                      onPressed: isDispatched
+                                          ? null
+                                          : () {
+                                              int current = int.tryParse(
+                                                      quantityControllers[
+                                                              doc.id]!
+                                                          .text) ??
+                                                  0;
+
+                                              if (current < remainingQty) {
+                                                quantityControllers[doc.id]!
+                                                        .text =
+                                                    (current + 1).toString();
+                                              }
+
+                                              setState(() {});
+                                            },
+                                    ),
+                                  ],
+                                )
                               ],
                             ),
                           ),
