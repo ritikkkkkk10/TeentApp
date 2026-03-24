@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../features/bookings/screens/business_profile_screen.dart';
+import '../config/app_config.dart';
+import '../widgets/qr_inventory_dialog.dart';
 
 class AppMenu extends StatelessWidget {
   const AppMenu({super.key});
@@ -8,10 +10,20 @@ class AppMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<String>(
-      color: Colors.white, 
+      color: Colors.white,
       icon: const Icon(Icons.more_vert, color: Colors.white),
       onSelected: (value) async {
+        if (value == "qr") {
+          String businessId = await getBusinessId();
 
+          /// 🔥 IMPORTANT: CHANGE THIS DOMAIN LATER
+          String url = "http://10.0.2.2:3000/inventory/$businessId";
+
+          showDialog(
+            context: context,
+            builder: (_) => QRInventoryDialog(url: url),
+          );
+        }
         if (value == "profile") {
           Navigator.push(
             context,
@@ -26,6 +38,10 @@ class AppMenu extends StatelessWidget {
         }
       },
       itemBuilder: (context) => const [
+        PopupMenuItem(
+          value: "qr",
+          child: Text("Generate QR"),
+        ),
         PopupMenuItem(
           value: "profile",
           child: Text("Business Profile"),
