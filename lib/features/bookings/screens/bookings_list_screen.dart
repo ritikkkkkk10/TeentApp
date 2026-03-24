@@ -210,6 +210,7 @@ class _BookingsListScreenState extends State<BookingsListScreen>
                       var bookings = snapshot.data!.docs;
 
                       /// SEARCH FILTER
+                      /// ✅ IF SEARCHING → IGNORE TABS
                       if (searchText.isNotEmpty) {
                         bookings = bookings.where((b) {
                           String eventName =
@@ -227,40 +228,42 @@ class _BookingsListScreenState extends State<BookingsListScreen>
                               customerName.contains(searchText) ||
                               phone.contains(searchText);
                         }).toList();
-                      }
+                      } else {
+                        /// ✅ ONLY APPLY TAB FILTER WHEN NOT SEARCHING
 
-                      if (filter == "pending") {
-                        bookings = bookings
-                            .where((b) =>
-                                b["status"] == "confirmed" ||
-                                b["status"] == "dispatching")
-                            .toList();
-                      }
+                        if (filter == "pending") {
+                          bookings = bookings
+                              .where((b) =>
+                                  b["status"] == "confirmed" ||
+                                  b["status"] == "dispatching")
+                              .toList();
+                        }
 
-                      if (filter == "dispatched") {
-                        bookings = bookings
-                            .where((b) => b["status"] == "dispatched")
-                            .toList();
-                      }
+                        if (filter == "dispatched") {
+                          bookings = bookings
+                              .where((b) => b["status"] == "dispatched")
+                              .toList();
+                        }
 
-                      if (filter == "receiving") {
-                        bookings = bookings
-                            .where((b) => b["status"] == "receiving")
-                            .toList();
-                      }
+                        if (filter == "receiving") {
+                          bookings = bookings
+                              .where((b) => b["status"] == "receiving")
+                              .toList();
+                        }
 
-                      if (filter == "history") {
-                        bookings = bookings
-                            .where((b) => b["status"] == "completed")
-                            .toList();
-                      }
+                        if (filter == "history") {
+                          bookings = bookings
+                              .where((b) => b["status"] == "completed")
+                              .toList();
+                        }
 
-                      if (filter == "all") {
-                        bookings = bookings
-                            .where((b) =>
-                                b["status"] != "completed" &&
-                                b["status"] != "receiving")
-                            .toList();
+                        if (filter == "all") {
+                          bookings = bookings
+                              .where((b) =>
+                                  b["status"] != "completed" &&
+                                  b["status"] != "receiving")
+                              .toList();
+                        }
                       }
                       if (bookings.isEmpty) {
                         return const Center(
