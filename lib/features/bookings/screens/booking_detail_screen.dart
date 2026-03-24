@@ -6,6 +6,9 @@ import 'receive_items_screen.dart';
 import 'payment_history_screen.dart';
 import '../../../core/utils/invoice_generator.dart';
 import 'package:tent_app/features/inventory/services/business_profile_service.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 class BookingDetailScreen extends StatefulWidget {
   final String bookingId;
@@ -679,89 +682,155 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
 
                                     /// INVOICE BUTTON
                                     SizedBox(
-                                      width: double.infinity,
-                                      height: 48,
-                                      child: ElevatedButton.icon(
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor:
-                                              const Color(0xFF1E4FA3),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                          ),
-                                        ),
-                                        icon: const Icon(Icons.receipt,
-                                            color: Colors.white),
-                                        label: const Text(
-                                          "Generate Invoice",
-                                          style: TextStyle(color: Colors.white),
-                                        ),
-                                        onPressed: () async {
-                                          final profileService =
-                                              BusinessProfileService();
-                                          final profile = await profileService
-                                              .getProfile(widget.businessId);
+  width: double.infinity,
+  height: 48,
+  child: Row(
+    children: [
 
-                                          if (profile == null) {
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(
-                                              const SnackBar(
-                                                content: Text(
-                                                    "Please fill Business Profile first"),
-                                              ),
-                                            );
-                                            return;
-                                          }
+      /// 🔹 PREVIEW BUTTON
+      Expanded(
+        child: ElevatedButton.icon(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF1E4FA3),
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(8),
+                bottomLeft: Radius.circular(8),
+              ),
+            ),
+          ),
+          icon: const Icon(Icons.visibility, color: Colors.white),
+          label: const Text(
+            "Preview",
+            style: TextStyle(color: Colors.white),
+          ),
+          onPressed: () async {
+            final profileService = BusinessProfileService();
+            final profile =
+                await profileService.getProfile(widget.businessId);
 
-                                          generateInvoice(
-                                            context,
-                                            businessName: profile.businessName,
-                                            ownerName: profile.ownerName,
-                                            businessPhone: profile.phone,
-                                            businessAddress: profile.address,
-                                            gst: profile.gst,
-                                            customerName:
-                                                bookingData["customerName"],
-                                            customerPhone:
-                                                bookingData["customerPhone"],
-                                            customerAddress:
-                                                bookingData["customerAddress"],
-                                            eventName: bookingData["eventName"],
-                                            startDate: (bookingData["startDate"]
-                                                    as Timestamp)
-                                                .toDate(),
-                                            endDate: (bookingData["endDate"]
-                                                    as Timestamp)
-                                                .toDate(),
-                                            items: items.map((doc) {
-                                              final data = doc.data()
-                                                  as Map<String, dynamic>;
+            if (profile == null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content:
+                      Text("Please fill Business Profile first"),
+                ),
+              );
+              return;
+            }
 
-                                              return {
-                                                "name": data["itemName"],
-                                                "requested":
-                                                    data["requestedQuantity"],
-                                                "dispatched":
-                                                    data["dispatchedQuantity"],
-                                                "price":
-                                                    data["rentPriceSnapshot"],
-                                              };
-                                            }).toList(),
-                                            services: services.map((doc) {
-                                              final data = doc.data()
-                                                  as Map<String, dynamic>;
+            generateInvoice(
+              context,
+              isPreview: true, // 👈 IMPORTANT
+              businessName: profile.businessName,
+              ownerName: profile.ownerName,
+              businessPhone: profile.phone,
+              businessAddress: profile.address,
+              gst: profile.gst,
+              customerName: bookingData["customerName"],
+              customerPhone: bookingData["customerPhone"],
+              customerAddress: bookingData["customerAddress"],
+              eventName: bookingData["eventName"],
+              startDate:
+                  (bookingData["startDate"] as Timestamp).toDate(),
+              endDate:
+                  (bookingData["endDate"] as Timestamp).toDate(),
+              items: items.map((doc) {
+                final data = doc.data() as Map<String, dynamic>;
+                return {
+                  "name": data["itemName"],
+                  "requested": data["requestedQuantity"],
+                  "dispatched": data["dispatchedQuantity"],
+                  "price": data["rentPriceSnapshot"],
+                };
+              }).toList(),
+              services: services.map((doc) {
+                final data = doc.data() as Map<String, dynamic>;
+                return {
+                  "name": data["serviceName"],
+                  "price": data["priceSnapshot"],
+                };
+              }).toList(),
+              total: grandTotal,
+              paid: paid,
+            );
+          },
+        ),
+      ),
 
-                                              return {
-                                                "name": data["serviceName"],
-                                                "price": data["priceSnapshot"],
-                                              };
-                                            }).toList(),
-                                            total: grandTotal,
-                                            paid: paid,
-                                          );
-                                        },
-                                      ),
-                                    ),
+      /// 🔹 SEND WHATSAPP BUTTON
+      Expanded(
+        child: ElevatedButton.icon(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.green,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                topRight: Radius.circular(8),
+                bottomRight: Radius.circular(8),
+              ),
+            ),
+          ),
+          icon: const Icon(Icons.send, color: Colors.white),
+          label: const Text(
+            "Send",
+            style: TextStyle(color: Colors.white),
+          ),
+          onPressed: () async {
+            final profileService = BusinessProfileService();
+            final profile =
+                await profileService.getProfile(widget.businessId);
+
+            if (profile == null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content:
+                      Text("Please fill Business Profile first"),
+                ),
+              );
+              return;
+            }
+
+            generateInvoice(
+              context,
+              isPreview: false, // 👈 IMPORTANT
+              businessName: profile.businessName,
+              ownerName: profile.ownerName,
+              businessPhone: profile.phone,
+              businessAddress: profile.address,
+              gst: profile.gst,
+              customerName: bookingData["customerName"],
+              customerPhone: bookingData["customerPhone"],
+              customerAddress: bookingData["customerAddress"],
+              eventName: bookingData["eventName"],
+              startDate:
+                  (bookingData["startDate"] as Timestamp).toDate(),
+              endDate:
+                  (bookingData["endDate"] as Timestamp).toDate(),
+              items: items.map((doc) {
+                final data = doc.data() as Map<String, dynamic>;
+                return {
+                  "name": data["itemName"],
+                  "requested": data["requestedQuantity"],
+                  "dispatched": data["dispatchedQuantity"],
+                  "price": data["rentPriceSnapshot"],
+                };
+              }).toList(),
+              services: services.map((doc) {
+                final data = doc.data() as Map<String, dynamic>;
+                return {
+                  "name": data["serviceName"],
+                  "price": data["priceSnapshot"],
+                };
+              }).toList(),
+              total: grandTotal,
+              paid: paid,
+            );
+          },
+        ),
+      ),
+    ],
+  ),
+),
                                   ],
                                 ));
                           },

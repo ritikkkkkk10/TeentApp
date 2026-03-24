@@ -2,9 +2,13 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 Future<void> generateInvoice(
   BuildContext context, {
+    required bool isPreview, 
   /// BUSINESS
   required String businessName,
   required String ownerName,
@@ -172,15 +176,28 @@ Future<void> generateInvoice(
     ),
   );
 
+if (isPreview) {
   Navigator.push(
-  context,
-  MaterialPageRoute(
-    builder: (_) => Scaffold(
-      appBar: AppBar(title: const Text("Invoice")),
-      body: PdfPreview(
-        build: (format) async => pdf.save(),
+    context,
+    MaterialPageRoute(
+      builder: (_) => Scaffold(
+        appBar: AppBar(title: const Text("Invoice")),
+        body: PdfPreview(
+          build: (format) async => pdf.save(),
+        ),
       ),
     ),
-  ),
-);
+  );
+} else {
+  final output = await getTemporaryDirectory();
+  final file = File(
+      "${output.path}/invoice_${DateTime.now().millisecondsSinceEpoch}.pdf");
+
+  await file.writeAsBytes(await pdf.save());
+
+  await Share.shareXFiles(
+    [XFile(file.path)],
+    text: "Invoice for your booking",
+  );
+}
 }
