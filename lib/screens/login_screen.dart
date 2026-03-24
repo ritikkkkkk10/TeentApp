@@ -19,6 +19,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool canSendReset = true;
   int resetCooldown = 30;
+  bool isPasswordHidden = true;
 
   Future<void> login() async {
 
@@ -297,33 +298,43 @@ Widget build(BuildContext context) {
 
     /// PASSWORD FIELD
     TextField(
-      controller: passwordController,
-      obscureText: true,
-      decoration: InputDecoration(
-        prefixIcon:
-            const Icon(Icons.lock_outline),
+  controller: passwordController,
+  obscureText: isPasswordHidden,
 
-        suffixIcon:
-            const Icon(Icons.visibility_off),
+  decoration: InputDecoration(
+    prefixIcon: const Icon(Icons.lock_outline),
 
-        hintText: "Enter your password",
-
-        filled: true,
-        fillColor: Colors.grey.shade100,
-
-        border: OutlineInputBorder(
-          borderRadius:
-              BorderRadius.circular(12),
-          borderSide: BorderSide.none,
-        ),
+    suffixIcon: IconButton(
+      icon: Icon(
+        isPasswordHidden
+            ? Icons.visibility_off
+            : Icons.visibility,
       ),
+      onPressed: () {
+        setState(() {
+          isPasswordHidden = !isPasswordHidden;
+        });
+      },
     ),
+
+    hintText: "Enter your password",
+
+    filled: true,
+    fillColor: Colors.grey.shade100,
+
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: BorderSide.none,
+    ),
+  ),
+),
 
     const SizedBox(height: 10),
 
     Align(
       alignment: Alignment.centerRight,
       child: TextButton(
+        
         onPressed: showResetPasswordDialog,
         child:
             const Text("Forgot password?"),
@@ -347,6 +358,7 @@ SizedBox(
     child: const Text(
       "Login",
       style: TextStyle(
+        color: Colors.white,
         fontSize: 16,
         fontWeight: FontWeight.bold,
       ),
