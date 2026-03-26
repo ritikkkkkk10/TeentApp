@@ -17,7 +17,7 @@ class AppMenu extends StatelessWidget {
           String businessId = await getBusinessId();
 
           /// 🔥 IMPORTANT: CHANGE THIS DOMAIN LATER
-          String url = "http://localhost:3000/?id=$businessId";
+          String url = "https://inventory-web-gte4.onrender.com/?id=" + businessId;
 
           showDialog(
             context: context,
