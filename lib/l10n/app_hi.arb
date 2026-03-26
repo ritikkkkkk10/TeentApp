@@ -1,0 +1,100 @@
+{
+  "@@locale": "hi",
+
+  "name": "नाम",
+  "quantity": "मात्रा",
+  "add": "जोड़ें",
+  "stockShortage": "स्टॉक की कमी",
+  "cancel": "रद्द करें",
+  "proceed": "आगे बढ़ें",
+  "selectItem": "सामान चुनें",
+  "checking": "जाँच हो रही है...",
+  "available": "उपलब्ध:",
+
+  "addService": "सर्विस जोड़ें",
+  "serviceName": "सर्विस का नाम",
+  "price": "कीमत",
+  "description": "विवरण",
+  "saveService": "सर्विस सहेजें",
+
+  "enterPaymentAmount": "भुगतान राशि दर्ज करें",
+  "paymentAmount": "भुगतान राशि",
+  "save": "सहेजें",
+  "paymentExceed": "भुगतान शेष राशि से अधिक नहीं हो सकता",
+  "advanceExceed": "एडवांस शेष राशि से अधिक है",
+  "confirm": "पुष्टि करें",
+  "delete": "हटाएं",
+
+  "notEnoughInventory": "पर्याप्त इन्वेंटरी नहीं है",
+  "booking": "बुकिंग",
+  "confirmed": "पुष्टि की गई",
+  "completed": "पूर्ण",
+  "dispatching": "भेजा जा रहा है",
+  "dispatched": "भेज दिया गया",
+  "receiving": "प्राप्त किया जा रहा है",
+  "returned": "वापस किया गया",
+
+  "dispatchItems": "सामान भेजें",
+  "receiveItems": "सामान प्राप्त करें",
+  "estimatedBill": "अनुमानित बिल",
+  "makePayment": "भुगतान करें",
+  "history": "इतिहास",
+  "preview": "पूर्वावलोकन",
+  "send": "भेजें",
+  "edit": "बदलाव करें",
+  "services": "सर्विस",
+  "removeService": "सर्विस हटाएं",
+
+  "bookingsCalendar": "बुकिंग कैलेंडर",
+  "noBookings": "कोई बुकिंग नहीं",
+  "search": "ग्राहक, इवेंट या फोन से खोजें",
+  "noBookingsFound": "कोई बुकिंग नहीं मिली",
+  "deleteBooking": "बुकिंग हटाएं",
+
+  "profileSaved": "प्रोफाइल सहेजी गई",
+  "businessProfile": "व्यवसाय प्रोफाइल",
+  "businessName": "व्यवसाय का नाम",
+  "ownerName": "मालिक का नाम",
+  "phone": "फोन",
+  "businessAddress": "व्यवसाय का पता",
+  "gst": "जीएसटी (वैकल्पिक)",
+  "saveProfile": "प्रोफाइल सहेजें",
+  "saveAddItems": "सहेजें और सामान जोड़ें",
+
+  "createBooking": "बुकिंग बनाएं",
+  "eventName": "इवेंट का नाम",
+  "customerName": "ग्राहक का नाम",
+  "selectStartDate": "शुरुआती तारीख चुनें",
+  "selectEndDate": "अंतिम तारीख चुनें",
+
+  "confirmDispatch": "डिस्पैच की पुष्टि करें",
+  "dispatchAll": "सभी भेजें",
+  "saveProgress": "प्रगति सहेजें",
+
+  "addManualItem": "अलग से सामान जोड़ें",
+  "itemName": "सामान का नाम",
+  "rentPrice": "किराया मूल्य",
+
+  "categories": "श्रेणियां",
+  "items": "सामान",
+  "inventory": "इन्वेंटरी",
+
+  "searchInventory": "इन्वेंटरी खोजें",
+  "noInventory": "कोई इन्वेंटरी नहीं",
+
+  "newItem": "नया सामान",
+  "newCategory": "नई श्रेणी",
+  "categoryName": "श्रेणी का नाम",
+  "create": "बनाएं",
+
+  "editItem": "सामान बदलाव करें",
+  "addStock": "स्टॉक जोड़ें",
+  "removeStock": "स्टॉक हटाएं",
+
+  "serviceDetails": "सर्विस विवरण",
+  "update": "अपडेट करें",
+
+  "goodToSeeYou": "आपको फिर से देखकर अच्छा लगा",
+  "todaysPayments": "आज के भुगतान",
+  "newBooking": "नई बुकिंग"
+}

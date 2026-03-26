@@ -1,0 +1,100 @@
+{
+  "@@locale": "en",
+
+  "name": "Name",
+  "quantity": "Quantity",
+  "add": "Add",
+  "stockShortage": "Stock Shortage",
+  "cancel": "Cancel",
+  "proceed": "Proceed",
+  "selectItem": "Select Item",
+  "checking": "Checking...",
+  "available": "Available:",
+
+  "addService": "Add Service",
+  "serviceName": "Service Name",
+  "price": "Price",
+  "description": "Description",
+  "saveService": "Save Service",
+
+  "enterPaymentAmount": "Enter Payment Amount",
+  "paymentAmount": "Payment Amount",
+  "save": "Save",
+  "paymentExceed": "Payment cannot exceed remaining amount",
+  "advanceExceed": "Advance exceeds remaining",
+  "confirm": "Confirm",
+  "delete": "Delete",
+
+  "notEnoughInventory": "Not enough inventory",
+  "booking": "Booking",
+  "confirmed": "Confirmed",
+  "completed": "Completed",
+  "dispatching": "Dispatching",
+  "dispatched": "Dispatched",
+  "receiving": "Receiving",
+  "returned": "Returned",
+
+  "dispatchItems": "Dispatch Items",
+  "receiveItems": "Receive Items",
+  "estimatedBill": "Estimated Bill",
+  "makePayment": "Make Payment",
+  "history": "History",
+  "preview": "Preview",
+  "send": "Send",
+  "edit": "Edit",
+  "services": "Services",
+  "removeService": "Remove Service",
+
+  "bookingsCalendar": "Bookings Calendar",
+  "noBookings": "No bookings",
+  "search": "Search by customer, event or phone",
+  "noBookingsFound": "No bookings found",
+  "deleteBooking": "Delete Booking",
+
+  "profileSaved": "Profile Saved",
+  "businessProfile": "Business Profile",
+  "businessName": "Business Name",
+  "ownerName": "Owner Name",
+  "phone": "Phone",
+  "businessAddress": "Business Address",
+  "gst": "GST (optional)",
+  "saveProfile": "Save Profile",
+  "saveAddItems": "Save & Add Items",
+
+  "createBooking": "Create Booking",
+  "eventName": "Event Name",
+  "customerName": "Customer Name",
+  "selectStartDate": "Select Start Date",
+  "selectEndDate": "Select End Date",
+
+  "confirmDispatch": "Confirm Dispatch",
+  "dispatchAll": "Dispatch All",
+  "saveProgress": "Save Progress",
+
+  "addManualItem": "Add Manual Item",
+  "itemName": "Item Name",
+  "rentPrice": "Rent Price",
+
+  "categories": "Categories",
+  "items": "Items",
+  "inventory": "Inventory",
+
+  "searchInventory": "Search inventory",
+  "noInventory": "No Inventory Yet",
+
+  "newItem": "New Item",
+  "newCategory": "New Category",
+  "categoryName": "Category Name",
+  "create": "Create",
+
+  "editItem": "Edit Item",
+  "addStock": "Add Stock",
+  "removeStock": "Remove Stock",
+
+  "serviceDetails": "Service Details",
+  "update": "Update",
+
+  "goodToSeeYou": "Good to see you again",
+  "todaysPayments": "Today's Payments",
+  "newBooking": "New Booking"
+}
