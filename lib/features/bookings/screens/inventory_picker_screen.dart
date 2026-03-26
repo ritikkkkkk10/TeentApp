@@ -7,6 +7,7 @@ import '../models/booked_item_model.dart';
 import 'dart:async';
 import '../../../core/config/app_config.dart';
 import 'booking_detail_screen.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 /// =====================================================
 /// WIDGET
@@ -87,23 +88,23 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: Colors.white,
-        title: const Text("Add Manual Item"),
+        title: Text(AppLocalizations.of(context)!.addManualItem),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: nameController,
-              decoration: const InputDecoration(labelText: "Item Name"),
+              decoration: InputDecoration(labelText: AppLocalizations.of(context)!.itemName),
             ),
             TextField(
               controller: qtyController,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: "Quantity"),
+              decoration: InputDecoration(labelText: AppLocalizations.of(context)!.quantity),
             ),
             TextField(
               controller: priceController,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: "Rent Price"),
+              decoration: InputDecoration(labelText: AppLocalizations.of(context)!.rentPrice),
             ),
           ],
         ),
@@ -112,14 +113,14 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
             style: TextButton.styleFrom(
     foregroundColor: const Color(0xFF1E4FA3),
   ),
-            child: const Text("Cancel"),
+            child: Text(AppLocalizations.of(context)!.cancel),
             onPressed: () => Navigator.pop(context),
           ),
           TextButton(
             style: TextButton.styleFrom(
     foregroundColor: const Color(0xFF1E4FA3),
   ),
-            child: const Text("Add"),
+            child: Text(AppLocalizations.of(context)!.add),
             onPressed: () async {
               String name = nameController.text;
               int qty = int.tryParse(qtyController.text) ?? 0;
@@ -161,18 +162,18 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: Colors.white,
-        title: const Text("Add Manual Service"),
+        title: Text(AppLocalizations.of(context)!.addManualService),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: nameController,
-              decoration: const InputDecoration(labelText: "Service Name"),
+              decoration: InputDecoration(labelText: AppLocalizations.of(context)!.serviceName),
             ),
             TextField(
               controller: priceController,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: "Price"),
+              decoration: InputDecoration(labelText: AppLocalizations.of(context)!.price),
             ),
           ],
         ),
@@ -181,14 +182,14 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
             style: TextButton.styleFrom(
     foregroundColor: const Color(0xFF1E4FA3),
   ),
-            child: const Text("Cancel"),
+            child: Text(AppLocalizations.of(context)!.cancel),
             onPressed: () => Navigator.pop(context),
           ),
           TextButton(
             style: TextButton.styleFrom(
     foregroundColor: const Color(0xFF1E4FA3),
   ),
-            child: const Text("Add"),
+            child: Text(AppLocalizations.of(context)!.add),
             onPressed: () async {
               final service = BookingServiceModel(
                 id: const Uuid().v4(),
@@ -326,8 +327,8 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          "Pick Items",
+        title: Text(
+          AppLocalizations.of(context)!.pickItems,
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 20,
@@ -355,7 +356,7 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
                 // Items
                 Expanded(
                   child: ChoiceChip(
-                    label: const Text("Items"),
+                    label: Text(AppLocalizations.of(context)!.items),
                     selected: filterMode == "item",
                     selectedColor: Colors.blue,
                     backgroundColor: Colors.white,
@@ -375,7 +376,7 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
                 // Categories
                 Expanded(
                   child: ChoiceChip(
-                    label: const Text("Categories"),
+                    label: Text(AppLocalizations.of(context)!.categories),
                     selected: filterMode == "category",
                     selectedColor: Colors.blue,
                     backgroundColor: Colors.white,
@@ -397,7 +398,7 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
                 // Services
                 Expanded(
                   child: ChoiceChip(
-                    label: const Text("Services"),
+                    label: Text(AppLocalizations.of(context)!.services),
                     selected: filterMode == "service",
                     selectedColor: Colors.blue,
                     backgroundColor: Colors.white,
@@ -456,7 +457,7 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            "Manual Item",
+                            AppLocalizations.of(context)!.manualItem,
                             style: TextStyle(
                               fontWeight: FontWeight.w600,
                               color: selectedManualType == "item"
@@ -506,7 +507,7 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            "Manual Service",
+                            AppLocalizations.of(context)!.addManualService,
                             style: TextStyle(
                               fontWeight: FontWeight.w600,
                               color: selectedManualType == "service"
@@ -538,7 +539,7 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
     child: TextField(
       controller: searchController,
       decoration: InputDecoration(
-        hintText: "Search inventory...",
+        hintText: AppLocalizations.of(context)!.searchInventory,
         prefixIcon: const Icon(Icons.search),
 
         // clear button (same logic)
@@ -655,10 +656,10 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
                                   children: [
                                     /// CATEGORIES
                                     if (categories.isNotEmpty)
-                                      const Padding(
+                                      Padding(
                                         padding: EdgeInsets.all(8),
                                         child: Text(
-                                          "Categories",
+                                          AppLocalizations.of(context)!.categories,
                                           style: TextStyle(
                                               fontSize: 18,
                                               fontWeight: FontWeight.bold),
@@ -693,10 +694,10 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
 
                                     /// ITEMS
                                     if (items.isNotEmpty)
-                                      const Padding(
+                                      Padding(
                                         padding: EdgeInsets.all(8),
                                         child: Text(
-                                          "Items",
+                                          AppLocalizations.of(context)!.items,
                                           style: TextStyle(
                                               fontSize: 18,
                                               fontWeight: FontWeight.bold),
@@ -716,7 +717,7 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
                                       return ListTile(
                                         leading: const Icon(Icons.inventory),
                                         title: Text(node["name"]),
-                                        subtitle: Text("Available: $available"),
+                                        subtitle: Text("${AppLocalizations.of(context)!.available} $available"),
                                         trailing: isBooked
                                             ? Container(
                                                 width: 10,
@@ -734,10 +735,10 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
 
                                     /// SERVICES
                                     if (services.isNotEmpty)
-                                      const Padding(
+                                      Padding(
                                         padding: EdgeInsets.all(8),
                                         child: Text(
-                                          "Services",
+                                          AppLocalizations.of(context)!.services,
                                           style: TextStyle(
                                               fontSize: 18,
                                               fontWeight: FontWeight.bold),
@@ -783,8 +784,8 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
 
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(
-                                            const SnackBar(
-                                                content: Text("Service Added")),
+                                            SnackBar(
+                                                content: Text(AppLocalizations.of(context)!.serviceAdded)),
                                           );
                                         },
                                       );
@@ -812,8 +813,8 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
-            child: const Text(
-              "Done",
+            child: Text(
+              AppLocalizations.of(context)!.done,
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
             onPressed: () async {
@@ -847,14 +848,14 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
         content: TextField(
           controller: controller,
           keyboardType: TextInputType.number,
-          decoration: const InputDecoration(labelText: "Quantity"),
+          decoration: InputDecoration(labelText: AppLocalizations.of(context)!.quantity),
         ),
         actions: [
           TextButton(
             style: TextButton.styleFrom(
     foregroundColor: const Color(0xFF1E4FA3),
   ),
-            child: const Text("Add"),
+            child: Text(AppLocalizations.of(context)!.add),
             onPressed: () async {
               int qty = int.parse(controller.text);
 

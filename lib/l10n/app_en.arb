@@ -96,5 +96,45 @@
 
   "goodToSeeYou": "Good to see you again",
   "todaysPayments": "Today's Payments",
-  "newBooking": "New Booking"
+  "newBooking": "New Booking",
+
+  "paidToday": "PAID TODAY",
+  "noPaymentsToday": "No payments received today",
+
+  "advanceConfirm": "This payment exceeds remaining amount.\n\nContinue?",
+  "fillBusinessProfile": "Please fill Business Profile first",
+  "deleteServiceConfirm": "Delete this service from booking?",
+  "cannotDeleteDispatched": "Dispatched bookings cannot be deleted",
+  "deleteBookingConfirm": "Delete this booking? Inventory will be freed.",
+
+  "all": "All",
+  "pending": "Pending",
+  "selectDates": "Select dates",
+  "customerAddress": "Customer Address",
+  "confirmDispatchMessage": "Once confirmed, dispatch cannot be edited.\n\nAre you sure you want to confirm dispatch?",
+  "addManualService": "Add Manual Service",
+  "pickItems": "Pick Items",
+  "manualItem": "Manual Item",
+  "serviceAdded": "Service Added",
+  "done": "Done",
+
+  "ordered": "Ordered: {count}",
+  "@ordered": {
+  "placeholders": {
+  "count": {}
+  }
+  },
+  "alreadyDispatched": "Already Dispatched: {count}",
+  "@alreadyDispatched": {
+  "placeholders": {
+  "count": {}
+  }
+  },
+  "remaining": "Remaining: {count}",
+  "@remaining": {
+  "placeholders": {
+  "count": {}
+  }
+  }
+
 }

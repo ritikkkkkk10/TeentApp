@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class DispatchItemsScreen extends StatefulWidget {
   final String businessId;
@@ -132,9 +133,9 @@ class _DispatchItemsScreenState extends State<DispatchItemsScreen> {
           builder: (context) {
             return AlertDialog(
               backgroundColor: Colors.white,
-              title: const Text("Confirm Dispatch"),
-              content: const Text(
-                  "Once confirmed, dispatch cannot be edited.\n\nAre you sure you want to confirm dispatch?"),
+              title: Text(AppLocalizations.of(context)!.confirmDispatch),
+              content:
+                  Text(AppLocalizations.of(context)!.confirmDispatchMessage),
               actions: [
                 TextButton(
                   style: TextButton.styleFrom(
@@ -143,7 +144,9 @@ class _DispatchItemsScreenState extends State<DispatchItemsScreen> {
                   onPressed: () {
                     Navigator.pop(context, false);
                   },
-                  child: const Text("Cancel"),
+                  child: Text(
+                    AppLocalizations.of(context)!.cancel,
+                  ),
                 ),
                 TextButton(
                   style: TextButton.styleFrom(
@@ -152,7 +155,7 @@ class _DispatchItemsScreenState extends State<DispatchItemsScreen> {
                   onPressed: () {
                     Navigator.pop(context, true);
                   },
-                  child: const Text("Confirm"),
+                  child: Text(AppLocalizations.of(context)!.confirm),
                 ),
               ],
             );
@@ -177,7 +180,7 @@ class _DispatchItemsScreenState extends State<DispatchItemsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Dispatch Items"),
+        title: Text(AppLocalizations.of(context)!.dispatchItems),
       ),
       body: StreamBuilder<DocumentSnapshot>(
         stream: bookingRef.snapshots(),
@@ -222,7 +225,9 @@ class _DispatchItemsScreenState extends State<DispatchItemsScreen> {
                         onPressed:
                             isDispatched ? null : () => dispatchAllItems(docs),
                         child: Text(
-                          isDispatched ? "Dispatched" : "Dispatch All",
+                          isDispatched
+                              ? AppLocalizations.of(context)!.dispatched
+                              : AppLocalizations.of(context)!.dispatchAll,
                           style: const TextStyle(fontWeight: FontWeight.w600),
                         ),
                       ),
@@ -279,9 +284,12 @@ class _DispatchItemsScreenState extends State<DispatchItemsScreen> {
                                       ),
                                     ),
                                     const SizedBox(height: 6),
-                                    Text("Ordered: $requestedQty"),
-                                    Text("Already Dispatched: $dispatchedQty"),
-                                    Text("Remaining: $remainingQty"),
+                                    Text(AppLocalizations.of(context)!
+                                        .ordered(requestedQty)),
+                                    Text(AppLocalizations.of(context)!
+                                        .alreadyDispatched(dispatchedQty)),
+                                    Text(AppLocalizations.of(context)!
+                                        .remaining(remainingQty)),
                                   ],
                                 ),
                               ),
@@ -389,7 +397,7 @@ class _DispatchItemsScreenState extends State<DispatchItemsScreen> {
                               onPressed: isDispatched
                                   ? null
                                   : () => saveProgress(docs),
-                              child: const Text("Save Progress"),
+                              child: Text(AppLocalizations.of(context)!.saveProgress),
                             ),
                           ),
                         ),
@@ -407,7 +415,7 @@ class _DispatchItemsScreenState extends State<DispatchItemsScreen> {
                               onPressed: isDispatched
                                   ? null
                                   : () => confirmDispatchDialog(docs),
-                              child: const Text("Confirm Dispatch"),
+                              child: Text(AppLocalizations.of(context)!.confirmDispatch),
                             ),
                           ),
                         ),

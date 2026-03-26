@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../repository/booking_repository.dart';
 import '../models/booked_item_model.dart';
 import '../../../core/config/app_config.dart';
@@ -110,7 +110,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
             style: TextButton.styleFrom(
     foregroundColor: const Color(0xFF1E4FA3),
   ),
-            child: const Text("Add"),
+            child: Text(AppLocalizations.of(context)!.add),
             onPressed: () async {
               int requested = int.parse(controller.text);
 
@@ -122,7 +122,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
                   context: context,
                   builder: (_) => AlertDialog(
                     backgroundColor: Colors.white,
-                    title: const Text("Stock Shortage"),
+                    title: Text(AppLocalizations.of(context)!.stockShortage),
                     content: Text("Only $available available.\n"
                         "Short by $shortage items.\n\n"
                         "Continue booking?"),
@@ -132,14 +132,14 @@ class _AddItemScreenState extends State<AddItemScreen> {
     foregroundColor: const Color(0xFF1E4FA3),
   ),
                         onPressed: () => Navigator.pop(context, false),
-                        child: const Text("Cancel"),
+                        child: Text(AppLocalizations.of(context)!.cancel),
                       ),
                       TextButton(
                         style: TextButton.styleFrom(
     foregroundColor: const Color(0xFF1E4FA3),
   ),
                         onPressed: () => Navigator.pop(context, true),
-                        child: const Text("Proceed"),
+                        child: Text(AppLocalizations.of(context)!.proceed),
                       ),
                     ],
                   ),
@@ -189,7 +189,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Select Item")),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.selectItem)),
       body: StreamBuilder(
         stream: FirebaseFirestore.instance
             .collection("businesses")
@@ -213,7 +213,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
                 stream: bookedQuantityStream(item.id),
                 builder: (context, bookedSnap) {
                   if (!bookedSnap.hasData) {
-                    return const ListTile(title: Text("Checking..."));
+                    return ListTile(title: Text(AppLocalizations.of(context)!.checking));
                   }
 
                   int booked = bookedSnap.data!;
@@ -223,7 +223,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
 
                   return ListTile(
                     title: Text(item["name"]),
-                    subtitle: Text("Available: $available / $total"),
+                    subtitle: Text("${AppLocalizations.of(context)!.available} $available / $total"),
                     onTap: () => addItem(
                       context,
                       item,

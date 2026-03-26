@@ -9,6 +9,7 @@ import 'package:tent_app/features/inventory/services/business_profile_service.da
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class BookingDetailScreen extends StatefulWidget {
   final String bookingId;
@@ -40,12 +41,12 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
       builder: (_) {
         return AlertDialog(
           backgroundColor: Colors.white,
-          title: const Text("Enter Payment Amount"),
+          title: Text(AppLocalizations.of(context)!.enterPaymentAmount),
           content: TextField(
             controller: controller,
             keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              labelText: "Payment Amount",
+            decoration:  InputDecoration(
+              labelText: AppLocalizations.of(context)!.paymentAmount,
             ),
           ),
           actions: [
@@ -56,7 +57,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: const Text("Cancel"),
+              child: Text(AppLocalizations.of(context)!.cancel),
             ),
             TextButton(
               style: TextButton.styleFrom(
@@ -68,7 +69,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                       width: 16,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Text("Save"),
+                  : Text(AppLocalizations.of(context)!.save),
               onPressed: isSavingPayment
                   ? null
                   : () async {
@@ -83,9 +84,9 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
 
                       if (amount > remaining) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content:
-                                Text("Payment cannot exceed remaining amount"),
+                          SnackBar(
+                            content: Text(
+                                AppLocalizations.of(context)!.paymentExceed),
                           ),
                         );
                         return;
@@ -98,16 +99,17 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                               context: context,
                               builder: (_) => AlertDialog(
                                 backgroundColor: Colors.white,
-                                title: const Text("Advance exceeds remaining"),
-                                content: const Text(
-                                  "This payment exceeds remaining amount.\n\nContinue?",
-                                ),
+                                title: Text(AppLocalizations.of(context)!
+                                    .advanceExceed),
+                                content: Text(AppLocalizations.of(context)!
+                                    .advanceConfirm),
                                 actions: [
                                   TextButton(
                                     style: TextButton.styleFrom(
                                       foregroundColor: const Color(0xFF1E4FA3),
                                     ),
-                                    child: const Text("Cancel"),
+                                    child: Text(
+                                        AppLocalizations.of(context)!.cancel),
                                     onPressed: () =>
                                         Navigator.pop(context, false),
                                   ),
@@ -115,7 +117,8 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                     style: TextButton.styleFrom(
                                       foregroundColor: const Color(0xFF1E4FA3),
                                     ),
-                                    child: const Text("Confirm"),
+                                    child: Text(
+                                        AppLocalizations.of(context)!.confirm),
                                     onPressed: () =>
                                         Navigator.pop(context, true),
                                   ),
@@ -197,7 +200,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                   style: TextButton.styleFrom(
                     foregroundColor: const Color(0xFF1E4FA3),
                   ),
-                  child: const Text("Delete"),
+                  child: Text(AppLocalizations.of(context)!.delete),
                   onPressed: () async {
                     await item.reference.delete();
 
@@ -210,7 +213,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                   style: TextButton.styleFrom(
                     foregroundColor: const Color(0xFF1E4FA3),
                   ),
-                  child: const Text("Save"),
+                  child: Text(AppLocalizations.of(context)!.save),
                   onPressed: () async {
                     int newQty = qty;
 
@@ -230,8 +233,9 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                       if (newQty >
                           totalInventory + (data["requestedQuantity"] ?? 0)) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text("Not enough inventory"),
+                          SnackBar(
+                            content: Text(AppLocalizations.of(context)!
+                                .notEnoughInventory),
                           ),
                         );
 
@@ -268,7 +272,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Booking"),
+        title: Text(AppLocalizations.of(context)!.booking),
       ),
 
       body: StreamBuilder<DocumentSnapshot>(
@@ -298,8 +302,8 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                     color: Colors.green,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Text(
-                    "RETURNED",
+                  child: Text(
+                    AppLocalizations.of(context)!.returned,
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 16,
@@ -326,8 +330,8 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                       ),
                       icon:
                           const Icon(Icons.local_shipping, color: Colors.white),
-                      label: const Text(
-                        "Dispatch Items",
+                      label: Text(
+                        AppLocalizations.of(context)!.dispatchItems,
                         style: TextStyle(color: Colors.white, fontSize: 16),
                       ),
                       onPressed: () {
@@ -361,8 +365,8 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                       ),
                       icon: const Icon(Icons.assignment_return,
                           color: Colors.white),
-                      label: const Text(
-                        "Receive Items",
+                      label: Text(
+                        AppLocalizations.of(context)!.receiveItems,
                         style: TextStyle(color: Colors.white, fontSize: 16),
                       ),
                       onPressed: () {
@@ -564,12 +568,13 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
-                                      children: const [
+                                      children: [
                                         Icon(Icons.receipt_long,
                                             color: Color(0xFF1E4FA3)),
                                         SizedBox(width: 8),
                                         Text(
-                                          "Estimated Bill",
+                                          AppLocalizations.of(context)!
+                                              .estimatedBill,
                                           style: TextStyle(
                                             fontSize: 18,
                                             fontWeight: FontWeight.bold,
@@ -622,8 +627,8 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                               ),
                                               icon: const Icon(Icons.payments,
                                                   color: Colors.white),
-                                              label: const Text(
-                                                "Make Payment",
+                                              label: Text(
+                                               AppLocalizations.of(context)!.makePayment,
                                                 style: TextStyle(
                                                     color: Colors.white),
                                               ),
@@ -653,8 +658,9 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                               ),
                                               icon: const Icon(Icons.history,
                                                   color: Colors.white),
-                                              label: const Text(
-                                                "History",
+                                              label: Text(
+                                                AppLocalizations.of(context)!.history
+,
                                                 style: TextStyle(
                                                     color: Colors.white),
                                               ),
@@ -682,155 +688,211 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
 
                                     /// INVOICE BUTTON
                                     SizedBox(
-  width: double.infinity,
-  height: 48,
-  child: Row(
-    children: [
+                                      width: double.infinity,
+                                      height: 48,
+                                      child: Row(
+                                        children: [
+                                          /// 🔹 PREVIEW BUTTON
+                                          Expanded(
+                                            child: ElevatedButton.icon(
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor:
+                                                    const Color(0xFF1E4FA3),
+                                                shape:
+                                                    const RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.only(
+                                                    topLeft: Radius.circular(8),
+                                                    bottomLeft:
+                                                        Radius.circular(8),
+                                                  ),
+                                                ),
+                                              ),
+                                              icon: const Icon(Icons.visibility,
+                                                  color: Colors.white),
+                                              label: Text(
+                                                AppLocalizations.of(context)!.preview
+,
+                                                style: TextStyle(
+                                                    color: Colors.white),
+                                              ),
+                                              onPressed: () async {
+                                                final profileService =
+                                                    BusinessProfileService();
+                                                final profile =
+                                                    await profileService
+                                                        .getProfile(
+                                                            widget.businessId);
 
-      /// 🔹 PREVIEW BUTTON
-      Expanded(
-        child: ElevatedButton.icon(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF1E4FA3),
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(8),
-                bottomLeft: Radius.circular(8),
-              ),
-            ),
-          ),
-          icon: const Icon(Icons.visibility, color: Colors.white),
-          label: const Text(
-            "Preview",
-            style: TextStyle(color: Colors.white),
-          ),
-          onPressed: () async {
-            final profileService = BusinessProfileService();
-            final profile =
-                await profileService.getProfile(widget.businessId);
+                                                if (profile == null) {
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                          AppLocalizations.of(context)!.fillBusinessProfile),
+                                                    ),
+                                                  );
+                                                  return;
+                                                }
 
-            if (profile == null) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content:
-                      Text("Please fill Business Profile first"),
-                ),
-              );
-              return;
-            }
+                                                generateInvoice(
+                                                  context,
+                                                  isPreview:
+                                                      true, // 👈 IMPORTANT
+                                                  businessName:
+                                                      profile.businessName,
+                                                  ownerName: profile.ownerName,
+                                                  businessPhone: profile.phone,
+                                                  businessAddress:
+                                                      profile.address,
+                                                  gst: profile.gst,
+                                                  customerName: bookingData[
+                                                      "customerName"],
+                                                  customerPhone: bookingData[
+                                                      "customerPhone"],
+                                                  customerAddress: bookingData[
+                                                      "customerAddress"],
+                                                  eventName:
+                                                      bookingData["eventName"],
+                                                  startDate:
+                                                      (bookingData["startDate"]
+                                                              as Timestamp)
+                                                          .toDate(),
+                                                  endDate:
+                                                      (bookingData["endDate"]
+                                                              as Timestamp)
+                                                          .toDate(),
+                                                  items: items.map((doc) {
+                                                    final data = doc.data()
+                                                        as Map<String, dynamic>;
+                                                    return {
+                                                      "name": data["itemName"],
+                                                      "requested": data[
+                                                          "requestedQuantity"],
+                                                      "dispatched": data[
+                                                          "dispatchedQuantity"],
+                                                      "price": data[
+                                                          "rentPriceSnapshot"],
+                                                    };
+                                                  }).toList(),
+                                                  services: services.map((doc) {
+                                                    final data = doc.data()
+                                                        as Map<String, dynamic>;
+                                                    return {
+                                                      "name":
+                                                          data["serviceName"],
+                                                      "price":
+                                                          data["priceSnapshot"],
+                                                    };
+                                                  }).toList(),
+                                                  total: grandTotal,
+                                                  paid: paid,
+                                                );
+                                              },
+                                            ),
+                                          ),
 
-            generateInvoice(
-              context,
-              isPreview: true, // 👈 IMPORTANT
-              businessName: profile.businessName,
-              ownerName: profile.ownerName,
-              businessPhone: profile.phone,
-              businessAddress: profile.address,
-              gst: profile.gst,
-              customerName: bookingData["customerName"],
-              customerPhone: bookingData["customerPhone"],
-              customerAddress: bookingData["customerAddress"],
-              eventName: bookingData["eventName"],
-              startDate:
-                  (bookingData["startDate"] as Timestamp).toDate(),
-              endDate:
-                  (bookingData["endDate"] as Timestamp).toDate(),
-              items: items.map((doc) {
-                final data = doc.data() as Map<String, dynamic>;
-                return {
-                  "name": data["itemName"],
-                  "requested": data["requestedQuantity"],
-                  "dispatched": data["dispatchedQuantity"],
-                  "price": data["rentPriceSnapshot"],
-                };
-              }).toList(),
-              services: services.map((doc) {
-                final data = doc.data() as Map<String, dynamic>;
-                return {
-                  "name": data["serviceName"],
-                  "price": data["priceSnapshot"],
-                };
-              }).toList(),
-              total: grandTotal,
-              paid: paid,
-            );
-          },
-        ),
-      ),
+                                          /// 🔹 SEND WHATSAPP BUTTON
+                                          Expanded(
+                                            child: ElevatedButton.icon(
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: Colors.green,
+                                                shape:
+                                                    const RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.only(
+                                                    topRight:
+                                                        Radius.circular(8),
+                                                    bottomRight:
+                                                        Radius.circular(8),
+                                                  ),
+                                                ),
+                                              ),
+                                              icon: const Icon(Icons.send,
+                                                  color: Colors.white),
+                                              label: Text(
+                                                AppLocalizations.of(context)!.send,
+                                                style: TextStyle(
+                                                    color: Colors.white),
+                                              ),
+                                              onPressed: () async {
+                                                final profileService =
+                                                    BusinessProfileService();
+                                                final profile =
+                                                    await profileService
+                                                        .getProfile(
+                                                            widget.businessId);
 
-      /// 🔹 SEND WHATSAPP BUTTON
-      Expanded(
-        child: ElevatedButton.icon(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.green,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.only(
-                topRight: Radius.circular(8),
-                bottomRight: Radius.circular(8),
-              ),
-            ),
-          ),
-          icon: const Icon(Icons.send, color: Colors.white),
-          label: const Text(
-            "Send",
-            style: TextStyle(color: Colors.white),
-          ),
-          onPressed: () async {
-            final profileService = BusinessProfileService();
-            final profile =
-                await profileService.getProfile(widget.businessId);
+                                                if (profile == null) {
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                          AppLocalizations.of(context)!.fillBusinessProfile),
+                                                    ),
+                                                  );
+                                                  return;
+                                                }
 
-            if (profile == null) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content:
-                      Text("Please fill Business Profile first"),
-                ),
-              );
-              return;
-            }
-
-            generateInvoice(
-              context,
-              isPreview: false, // 👈 IMPORTANT
-              businessName: profile.businessName,
-              ownerName: profile.ownerName,
-              businessPhone: profile.phone,
-              businessAddress: profile.address,
-              gst: profile.gst,
-              customerName: bookingData["customerName"],
-              customerPhone: bookingData["customerPhone"],
-              customerAddress: bookingData["customerAddress"],
-              eventName: bookingData["eventName"],
-              startDate:
-                  (bookingData["startDate"] as Timestamp).toDate(),
-              endDate:
-                  (bookingData["endDate"] as Timestamp).toDate(),
-              items: items.map((doc) {
-                final data = doc.data() as Map<String, dynamic>;
-                return {
-                  "name": data["itemName"],
-                  "requested": data["requestedQuantity"],
-                  "dispatched": data["dispatchedQuantity"],
-                  "price": data["rentPriceSnapshot"],
-                };
-              }).toList(),
-              services: services.map((doc) {
-                final data = doc.data() as Map<String, dynamic>;
-                return {
-                  "name": data["serviceName"],
-                  "price": data["priceSnapshot"],
-                };
-              }).toList(),
-              total: grandTotal,
-              paid: paid,
-            );
-          },
-        ),
-      ),
-    ],
-  ),
-),
+                                                generateInvoice(
+                                                  context,
+                                                  isPreview:
+                                                      false, // 👈 IMPORTANT
+                                                  businessName:
+                                                      profile.businessName,
+                                                  ownerName: profile.ownerName,
+                                                  businessPhone: profile.phone,
+                                                  businessAddress:
+                                                      profile.address,
+                                                  gst: profile.gst,
+                                                  customerName: bookingData[
+                                                      "customerName"],
+                                                  customerPhone: bookingData[
+                                                      "customerPhone"],
+                                                  customerAddress: bookingData[
+                                                      "customerAddress"],
+                                                  eventName:
+                                                      bookingData["eventName"],
+                                                  startDate:
+                                                      (bookingData["startDate"]
+                                                              as Timestamp)
+                                                          .toDate(),
+                                                  endDate:
+                                                      (bookingData["endDate"]
+                                                              as Timestamp)
+                                                          .toDate(),
+                                                  items: items.map((doc) {
+                                                    final data = doc.data()
+                                                        as Map<String, dynamic>;
+                                                    return {
+                                                      "name": data["itemName"],
+                                                      "requested": data[
+                                                          "requestedQuantity"],
+                                                      "dispatched": data[
+                                                          "dispatchedQuantity"],
+                                                      "price": data[
+                                                          "rentPriceSnapshot"],
+                                                    };
+                                                  }).toList(),
+                                                  services: services.map((doc) {
+                                                    final data = doc.data()
+                                                        as Map<String, dynamic>;
+                                                    return {
+                                                      "name":
+                                                          data["serviceName"],
+                                                      "price":
+                                                          data["priceSnapshot"],
+                                                    };
+                                                  }).toList(),
+                                                  total: grandTotal,
+                                                  paid: paid,
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ],
                                 ));
                           },
@@ -922,8 +984,8 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                                         BorderRadius.circular(
                                                             6),
                                                   ),
-                                                  child: const Text(
-                                                    "Edit",
+                                                  child: Text(
+                                                    AppLocalizations.of(context)!.edit,
                                                     style:
                                                         TextStyle(fontSize: 12),
                                                   ),
@@ -951,11 +1013,11 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
 
                                   /// SERVICES TITLE
                                   if (services.isNotEmpty)
-                                    const Padding(
+                                    Padding(
                                       padding:
                                           EdgeInsets.symmetric(vertical: 6),
                                       child: Text(
-                                        "Services",
+                                        AppLocalizations.of(context)!.services,
                                         style: TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 15,
@@ -974,10 +1036,10 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                                     builder: (_) => AlertDialog(
                                                       backgroundColor:
                                                           Colors.white,
-                                                      title: const Text(
-                                                          "Remove Service"),
-                                                      content: const Text(
-                                                          "Delete this service from booking?"),
+                                                      title: Text(
+                                                          AppLocalizations.of(context)!.removeService),
+                                                      content: Text(
+                                                          AppLocalizations.of(context)!.deleteServiceConfirm),
                                                       actions: [
                                                         TextButton(
                                                           style: TextButton
@@ -986,8 +1048,8 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                                                 const Color(
                                                                     0xFF1E4FA3),
                                                           ),
-                                                          child: const Text(
-                                                              "Cancel"),
+                                                          child: Text(
+                                                              AppLocalizations.of(context)!.cancel),
                                                           onPressed: () =>
                                                               Navigator.pop(
                                                                   context,
@@ -1000,8 +1062,8 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                                                 const Color(
                                                                     0xFF1E4FA3),
                                                           ),
-                                                          child: const Text(
-                                                              "Delete"),
+                                                          child: Text(
+                                                              AppLocalizations.of(context)!.delete),
                                                           onPressed: () =>
                                                               Navigator.pop(
                                                                   context,

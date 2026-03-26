@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'booking_detail_screen.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TodayPaymentsScreen extends StatelessWidget {
   final String businessId;
@@ -24,7 +25,7 @@ class TodayPaymentsScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Today's Payments"),
+        title: Text(AppLocalizations.of(context)!.todaysPayments),
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: bookingsRef.snapshots(),
@@ -151,8 +152,8 @@ class TodayPaymentsScreen extends StatelessWidget {
                                           borderRadius:
                                               BorderRadius.circular(6),
                                         ),
-                                        child: const Text(
-                                          "PAID TODAY",
+                                        child: Text(
+  AppLocalizations.of(context)!.paidToday,
                                           style: TextStyle(
                                             fontSize: 11,
                                             fontWeight: FontWeight.bold,

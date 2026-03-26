@@ -4,6 +4,8 @@ import 'package:tent_app/auth_wrapper.dart';
 import 'firebase_options.dart';
 import 'screens/login_screen.dart';
 import 'auth_wrapper.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,6 +24,21 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+
+      locale: const Locale('hi'),   // 👈 ADD HERE
+
+  supportedLocales: const [
+    Locale('en'),
+    Locale('hi'),
+  ],
+
+  localizationsDelegates: const [
+    AppLocalizations.delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+  ],
+  
       theme: ThemeData(
         scaffoldBackgroundColor: const Color(0xFFF5F6FA),
         primaryColor: const Color(0xFF1E4FA3),

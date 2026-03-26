@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tent_app/core/config/app_config.dart';
 import 'package:tent_app/features/bookings/models/business_profile_model.dart';
 import 'package:tent_app/features/inventory/services/business_profile_service.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class BusinessProfileScreen extends StatefulWidget {
   const BusinessProfileScreen({super.key});
@@ -58,7 +59,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
     );
 
     ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text("Profile Saved")));
+        .showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.profileSaved)));
   }
 
   @override
@@ -70,7 +71,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Business Profile")),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.businessProfile)),
       body: Container(
         color: Colors.grey.shade200,
         child: Padding(
@@ -79,31 +80,31 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
             children: [
               buildField(
                 icon: Icons.business,
-                hint: "Business Name",
+                hint: AppLocalizations.of(context)!.businessName,
                 controller: businessNameController,
               ),
               const SizedBox(height: 14),
               buildField(
                 icon: Icons.person,
-                hint: "Owner Name",
+                hint: AppLocalizations.of(context)!.ownerName,
                 controller: ownerNameController,
               ),
               const SizedBox(height: 14),
               buildField(
                 icon: Icons.phone,
-                hint: "Phone",
+                hint: AppLocalizations.of(context)!.phone,
                 controller: phoneController,
               ),
               const SizedBox(height: 14),
               buildField(
                 icon: Icons.location_on,
-                hint: "Business Address",
+                hint: AppLocalizations.of(context)!.businessAddress,
                 controller: addressController,
               ),
               const SizedBox(height: 14),
               buildField(
                 icon: Icons.receipt_long,
-                hint: "GST (optional)",
+                hint: AppLocalizations.of(context)!.gst,
                 controller: gstController,
               ),
               const SizedBox(height: 30),
@@ -117,8 +118,8 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text(
-                    "Save Profile",
+                  child: Text(
+                    AppLocalizations.of(context)!.saveProfile,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,

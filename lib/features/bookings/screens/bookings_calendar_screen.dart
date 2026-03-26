@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../../../core/widgets/bookings_calendar_widget.dart';
 import 'booking_detail_screen.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class BookingsCalendarScreen extends StatefulWidget {
   final String businessId;
@@ -98,7 +99,7 @@ class _BookingsCalendarScreenState extends State<BookingsCalendarScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Bookings Calendar"),
+        title: Text(AppLocalizations.of(context)!.bookingsCalendar),
       ),
       body: Column(
         children: [
@@ -119,7 +120,7 @@ class _BookingsCalendarScreenState extends State<BookingsCalendarScreen> {
           ),
           Expanded(
             child: selectedEvents.isEmpty
-                ? const Center(child: Text("No bookings"))
+                ? Center(child: Text(AppLocalizations.of(context)!.noBookings))
                 : ListView.builder(
                     itemCount: selectedEvents.length,
                     itemBuilder: (context, index) {

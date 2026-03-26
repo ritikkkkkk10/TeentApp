@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'booking_detail_screen.dart';
 import 'create_booking_screen.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class BookingsListScreen extends StatefulWidget {
   final String businessId;
@@ -100,8 +101,8 @@ class _BookingsListScreenState extends State<BookingsListScreen>
       appBar: AppBar(
         backgroundColor: const Color(0xFF1E4FA3),
         centerTitle: true,
-        title: const Text(
-          "Bookings",
+        title: Text(
+          AppLocalizations.of(context)!.booking,
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w600,
@@ -130,12 +131,12 @@ class _BookingsListScreenState extends State<BookingsListScreen>
                 unselectedLabelColor: Colors.grey,
                 indicatorColor: const Color(0xFF1E4FA3),
                 indicatorWeight: 2,
-                tabs: const [
-                  Tab(text: "All"),
-                  Tab(text: "Pending"),
-                  Tab(text: "Dispatched"),
-                  Tab(text: "Receiving"),
-                  Tab(text: "History"),
+                tabs: [
+                  Tab(text: AppLocalizations.of(context)!.all),
+                  Tab(text: AppLocalizations.of(context)!.pending),
+                  Tab(text: AppLocalizations.of(context)!.dispatched),
+                  Tab(text: AppLocalizations.of(context)!.receiving),
+                  Tab(text: AppLocalizations.of(context)!.history),
                 ],
               ),
             ),
@@ -147,7 +148,7 @@ class _BookingsListScreenState extends State<BookingsListScreen>
             child: TextField(
               controller: searchController,
               decoration: InputDecoration(
-                hintText: "Search by customer, event or phone",
+                hintText: AppLocalizations.of(context)!.search,
                 prefixIcon: const Icon(Icons.search),
 
                 filled: true,
@@ -359,9 +360,10 @@ class _BookingsListScreenState extends State<BookingsListScreen>
                                         status == "completed") {
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
-                                        const SnackBar(
+                                        SnackBar(
                                           content: Text(
-                                              "Dispatched bookings cannot be deleted"),
+                                              AppLocalizations.of(context)!
+                                                  .cannotDeleteDispatched),
                                         ),
                                       );
 
@@ -371,9 +373,12 @@ class _BookingsListScreenState extends State<BookingsListScreen>
                                           context: context,
                                           builder: (_) => AlertDialog(
                                             backgroundColor: Colors.white,
-                                            title: const Text("Delete Booking"),
-                                            content: const Text(
-                                                "Delete this booking? Inventory will be freed."),
+                                            title: Text(
+                                                AppLocalizations.of(context)!
+                                                    .deleteBooking),
+                                            content: Text(
+                                                AppLocalizations.of(context)!
+                                                    .deleteBookingConfirm),
                                             actions: [
                                               TextButton(
                                                 style: TextButton.styleFrom(
@@ -383,7 +388,9 @@ class _BookingsListScreenState extends State<BookingsListScreen>
                                                 onPressed: () {
                                                   Navigator.pop(context, false);
                                                 },
-                                                child: const Text("Cancel"),
+                                                child: Text(AppLocalizations.of(
+                                                        context)!
+                                                    .cancel),
                                               ),
                                               TextButton(
                                                 style: TextButton.styleFrom(
@@ -393,7 +400,9 @@ class _BookingsListScreenState extends State<BookingsListScreen>
                                                 onPressed: () {
                                                   Navigator.pop(context, true);
                                                 },
-                                                child: const Text("Delete"),
+                                                child: Text(AppLocalizations.of(
+                                                        context)!
+                                                    .delete),
                                               ),
                                             ],
                                           ),

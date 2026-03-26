@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
-
 import '../models/booking_model.dart';
 import '../repository/booking_repository.dart';
 import 'inventory_picker_screen.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CreateBookingScreen extends StatefulWidget {
   const CreateBookingScreen({super.key});
@@ -122,8 +122,8 @@ class _CreateBookingScreenState extends State<CreateBookingScreen> {
             borderRadius: BorderRadius.circular(10),
           ),
         ),
-        child: const Text(
-          "Save & Add Items",
+        child: Text(
+          AppLocalizations.of(context)!.saveAddItems,
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -174,7 +174,7 @@ class _CreateBookingScreenState extends State<CreateBookingScreen> {
   Future<void> saveBooking() async {
     if (startDate == null || endDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Select dates")),
+        SnackBar(content: Text(AppLocalizations.of(context)!.selectDates)),
       );
       return;
     }
@@ -214,7 +214,7 @@ class _CreateBookingScreenState extends State<CreateBookingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Create Booking"),
+        title: Text(AppLocalizations.of(context)!.createBooking),
       ),
       body: Container(
         color: const Color(0xFFF2F3F7),
@@ -223,36 +223,36 @@ class _CreateBookingScreenState extends State<CreateBookingScreen> {
           children: [
             buildInputCard(
               icon: Icons.event,
-              hint: "Event Name",
+              hint: AppLocalizations.of(context)!.eventName,
               controller: eventController,
             ),
             buildInputCard(
               icon: Icons.person,
-              hint: "Customer Name",
+              hint: AppLocalizations.of(context)!.customerName,
               controller: customerController,
             ),
             buildInputCard(
               icon: Icons.phone,
-              hint: "Phone",
+              hint: AppLocalizations.of(context)!.phone,
               controller: phoneController,
             ),
             buildInputCard(
               icon: Icons.location_on,
-              hint: "Customer Address",
+              hint: AppLocalizations.of(context)!.customerAddress,
               controller: addressController,
             ),
             const SizedBox(height: 8),
             buildDateCard(
               icon: Icons.calendar_today,
               text: startDate == null
-                  ? "Select Start Date"
+                  ? AppLocalizations.of(context)!.selectStartDate
                   : startDate!.toLocal().toString().split(" ")[0],
               onTap: () => pickDate(true),
             ),
             buildDateCard(
               icon: Icons.calendar_today,
               text: endDate == null
-                  ? "Select End Date"
+                  ? AppLocalizations.of(context)!.selectEndDate
                   : endDate!.toLocal().toString().split(" ")[0],
               onTap: () => pickDate(false),
             ),

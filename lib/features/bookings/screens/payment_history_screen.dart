@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class PaymentHistoryScreen extends StatelessWidget {
   final String bookingId;
@@ -23,7 +24,7 @@ class PaymentHistoryScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Payment History"),
+        title: Text(AppLocalizations.of(context)!.history),
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: paymentsRef.snapshots(),
@@ -35,8 +36,8 @@ class PaymentHistoryScreen extends StatelessWidget {
           final payments = snapshot.data!.docs;
 
           if (payments.isEmpty) {
-            return const Center(
-              child: Text("No payments yet"),
+            return Center(
+              child: Text(AppLocalizations.of(context)!.noBookings),
             );
           }
 

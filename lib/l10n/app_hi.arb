@@ -96,5 +96,28 @@
 
   "goodToSeeYou": "आपको फिर से देखकर अच्छा लगा",
   "todaysPayments": "आज के भुगतान",
-  "newBooking": "नई बुकिंग"
+  "newBooking": "नई बुकिंग",
+  "paidToday": "आज भुगतान",
+  "noPaymentsToday": "आज कोई भुगतान नहीं हुआ",
+
+  "advanceConfirm": "यह भुगतान शेष राशि से अधिक है।\n\nजारी रखें?",
+  "fillBusinessProfile": "कृपया पहले व्यवसाय प्रोफाइल भरें",
+  "deleteServiceConfirm": "क्या इस सर्विस को बुकिंग से हटाना चाहते हैं?",
+  "cannotDeleteDispatched": "भेजी गई बुकिंग को हटाया नहीं जा सकता",
+  "deleteBookingConfirm": "क्या इस बुकिंग को हटाना चाहते हैं? इन्वेंटरी खाली हो जाएगी।",
+
+  "all": "सभी",
+  "pending": "लंबित",
+  "selectDates": "तारीखें चुनें",
+  "customerAddress": "ग्राहक का पता",
+  "confirmDispatchMessage": "एक बार पुष्टि होने के बाद, डिस्पैच को बदला नहीं जा सकता।\n\nक्या आप वाकई डिस्पैच की पुष्टि करना चाहते हैं?",
+
+  "ordered": "ऑर्डर किया गया: {count}",
+  "alreadyDispatched": "पहले ही भेजा गया: {count}",
+  "remaining": "शेष: {count}",
+  "addManualService": "मैनुअल सर्विस जोड़ें",
+  "pickItems": "सामान चुनें",
+  "manualItem": "मैनुअल सामान",
+  "serviceAdded": "सर्विस जोड़ी गई",
+  "done": "हो गया"
 }
