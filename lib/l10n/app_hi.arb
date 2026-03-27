@@ -126,11 +126,25 @@
   "confirmReceive": "प्राप्ति की पुष्टि करें",
   "confirmReceiveMessage": "पुष्टि के बाद, प्राप्त मात्रा को बदला नहीं जा सकता।",
   "receiveAll": "सभी प्राप्त करें",
+  "selectItems": "सामान चुनें",
+  "deleteItemConfirm": "क्या आप इस सामान को स्थायी रूप से हटाना चाहते हैं?",
+  "more": "और",
+  "addCategory": "श्रेणी जोड़ें",
+  "addItem": "सामान जोड़ें",
+  "selectImage": "चित्र चुनें",
+  "deleteItemConfirmShort": "क्या इस सामान को हटाना है?",
 
   "received": "प्राप्त: {count}",
   "@received": {
   "placeholders": {
   "count": {}
+  }
+  },
+
+  "category": "श्रेणी: {name}",
+  "@category": {
+  "placeholders": {
+  "name": {}
   }
   }
 }

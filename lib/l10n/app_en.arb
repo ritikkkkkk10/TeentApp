@@ -123,6 +123,12 @@
   "confirmReceive": "Confirm Receive",
   "confirmReceiveMessage": "Once confirmed, receive quantities cannot be edited.",
   "receiveAll": "Receive All",
+  "selectItems": "Select Items",
+  "deleteItemConfirm": "Delete this item permanently?",
+  "more": "More",
+  "addCategory": "Add Category",
+  "addItem": "Add Item",
+  "selectImage": "Select Image",
 
   "ordered": "Ordered: {count}",
   "@ordered": {
@@ -148,6 +154,15 @@
   "placeholders": {
   "count": {}
   }
+  },
+
+  "category": "Category: {name}",
+  "@category": {
+  "placeholders": {
+  "name": {}
   }
+  },
+
+  "deleteItemConfirmShort": "Delete this item?"
 
 }

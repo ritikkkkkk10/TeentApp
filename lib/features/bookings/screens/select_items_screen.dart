@@ -90,7 +90,7 @@ class _SelectItemsScreenState extends State<SelectItemsScreen> {
         content: TextField(
           controller: controller,
           keyboardType: TextInputType.number,
-          decoration: const InputDecoration(labelText: "Quantity"),
+          decoration: InputDecoration(labelText: AppLocalizations.of(context)!.quantity),
         ),
         actions: [
           TextButton(
@@ -162,10 +162,10 @@ class _SelectItemsScreenState extends State<SelectItemsScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Select Items")),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.selectItems)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: saveItems,
-        label: const Text("Done"),
+        label: Text(AppLocalizations.of(context)!.done),
       ),
       body: StreamBuilder(
         stream: FirebaseFirestore.instance

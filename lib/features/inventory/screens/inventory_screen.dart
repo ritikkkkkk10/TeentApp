@@ -9,6 +9,7 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import '../../../core/services/cloudinary_service.dart';
 import '../../../core/utils/image_compressor.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class InventoryScreen extends StatefulWidget {
   final String? parentId;
@@ -166,9 +167,9 @@ class _InventoryScreenState extends State<InventoryScreen> {
                             context: context,
                             builder: (_) => AlertDialog(
                               backgroundColor: Colors.white,
-                              title: const Text("Delete"),
-                              content:
-                                  const Text("Delete this item permanently?"),
+                              title: Text(AppLocalizations.of(context)!.delete),
+                              content: Text(AppLocalizations.of(context)!
+                                  .deleteItemConfirm),
                               actions: [
                                 TextButton(
                                   style: TextButton.styleFrom(
@@ -176,14 +177,16 @@ class _InventoryScreenState extends State<InventoryScreen> {
                                   ),
                                   onPressed: () =>
                                       Navigator.pop(context, false),
-                                  child: const Text("Cancel"),
+                                  child: Text(
+                                      AppLocalizations.of(context)!.cancel),
                                 ),
                                 TextButton(
                                   style: TextButton.styleFrom(
                                     foregroundColor: const Color(0xFF1E4FA3),
                                   ),
                                   onPressed: () => Navigator.pop(context, true),
-                                  child: const Text("Delete"),
+                                  child: Text(
+                                      AppLocalizations.of(context)!.delete),
                                 ),
                               ],
                             ),
@@ -238,8 +241,8 @@ class _InventoryScreenState extends State<InventoryScreen> {
                       Icons.expand_more,
                       color: Color(0xFF1E4FA3),
                     ),
-                    title: const Text(
-                      "More",
+                    title: Text(
+                      AppLocalizations.of(context)!.more,
                       style: TextStyle(
                         color: Color(0xFF1E4FA3),
                         fontWeight: FontWeight.w500,
@@ -282,8 +285,8 @@ class _InventoryScreenState extends State<InventoryScreen> {
                   Icons.create_new_folder,
                   color: Color(0xFF1E4FA3),
                 ),
-                title: const Text(
-                  "Add Category",
+                title: Text(
+                  AppLocalizations.of(context)!.addCategory,
                   style: TextStyle(
                     color: Color(0xFF1E4FA3),
                     fontWeight: FontWeight.w500,
@@ -296,7 +299,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
               ),
               ListTile(
                 leading: const Icon(Icons.inventory, color: Color(0xFF1E4FA3)),
-                title: const Text("Add Item",
+                title: Text(AppLocalizations.of(context)!.addItem,
                     style: TextStyle(color: Color(0xFF1E4FA3))),
                 onTap: () {
                   Navigator.pop(context);
@@ -306,7 +309,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
               ListTile(
                 leading: const Icon(Icons.miscellaneous_services,
                     color: Color(0xFF1E4FA3)),
-                title: const Text("Add Service",
+                title: Text(AppLocalizations.of(context)!.addService,
                     style: TextStyle(color: Color(0xFF1E4FA3))),
                 onTap: () {
                   Navigator.pop(context);
@@ -356,8 +359,8 @@ class _InventoryScreenState extends State<InventoryScreen> {
                     bottom: BorderSide(color: Color(0xFFEAEAEA)),
                   ),
                 ),
-                child: const Text(
-                  "New Item",
+                child: Text(
+                  AppLocalizations.of(context)!.newItem,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
@@ -372,7 +375,8 @@ class _InventoryScreenState extends State<InventoryScreen> {
                       controller: name,
                       cursorColor: const Color(0xFF2563EB),
                       style: const TextStyle(color: Colors.black),
-                      decoration: inputStyle("Item Name"),
+                      decoration:
+                          inputStyle(AppLocalizations.of(context)!.itemName),
                     ),
 
                     const SizedBox(height: 14),
@@ -383,7 +387,8 @@ class _InventoryScreenState extends State<InventoryScreen> {
                       keyboardType: TextInputType.number,
                       cursorColor: const Color(0xFF2563EB),
                       style: const TextStyle(color: Colors.black),
-                      decoration: inputStyle("Quantity"),
+                      decoration:
+                          inputStyle(AppLocalizations.of(context)!.quantity),
                     ),
 
                     const SizedBox(height: 14),
@@ -394,7 +399,8 @@ class _InventoryScreenState extends State<InventoryScreen> {
                       keyboardType: TextInputType.number,
                       cursorColor: const Color(0xFF2563EB),
                       style: const TextStyle(color: Colors.black),
-                      decoration: inputStyle("Rent Price"),
+                      decoration:
+                          inputStyle(AppLocalizations.of(context)!.rentPrice),
                     ),
 
                     const SizedBox(height: 14),
@@ -405,7 +411,8 @@ class _InventoryScreenState extends State<InventoryScreen> {
                       maxLines: 3,
                       cursorColor: const Color(0xFF2563EB),
                       style: const TextStyle(color: Colors.black),
-                      decoration: inputStyle("Description"),
+                      decoration:
+                          inputStyle(AppLocalizations.of(context)!.description),
                     ),
 
                     const SizedBox(height: 16),
@@ -437,13 +444,13 @@ class _InventoryScreenState extends State<InventoryScreen> {
                           ),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Row(
+                        child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(Icons.image, color: Colors.white),
                             SizedBox(width: 10),
                             Text(
-                              "Select Image",
+                              AppLocalizations.of(context)!.selectImage,
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w600,
@@ -477,8 +484,8 @@ class _InventoryScreenState extends State<InventoryScreen> {
                     foregroundColor: const Color(0xFF1E4FA3),
                   ),
                   onPressed: () => Navigator.pop(context),
-                  child: const Text(
-                    "Cancel",
+                  child: Text(
+                    AppLocalizations.of(context)!.cancel,
                     style: TextStyle(
                       color: Color(0xFF2563EB),
                       fontWeight: FontWeight.w600,
@@ -524,8 +531,8 @@ class _InventoryScreenState extends State<InventoryScreen> {
                       );
                     }
                   },
-                  child: const Text(
-                    "Save",
+                  child: Text(
+                    AppLocalizations.of(context)!.save,
                     style: TextStyle(
                       color: Color(0xFF2563EB),
                       fontWeight: FontWeight.w600,
@@ -549,11 +556,11 @@ class _InventoryScreenState extends State<InventoryScreen> {
       builder: (_) {
         return AlertDialog(
           backgroundColor: Colors.white,
-          title: const Text("New Category"),
+          title: Text(AppLocalizations.of(context)!.newCategory),
           content: TextField(
             controller: controller,
-            decoration: const InputDecoration(
-              hintText: "Category Name",
+            decoration: InputDecoration(
+              hintText: AppLocalizations.of(context)!.categoryName,
             ),
           ),
           actions: [
@@ -562,7 +569,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                 foregroundColor: const Color(0xFF1E4FA3),
               ),
               onPressed: () => Navigator.pop(context),
-              child: const Text("Cancel"),
+              child: Text(AppLocalizations.of(context)!.cancel),
             ),
             TextButton(
               style: TextButton.styleFrom(
@@ -588,7 +595,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                   );
                 }
               },
-              child: const Text("Create"),
+              child: Text(AppLocalizations.of(context)!.create),
             ),
           ],
         );
@@ -602,8 +609,8 @@ class _InventoryScreenState extends State<InventoryScreen> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF1E4FA3),
         centerTitle: true,
-        title: const Text(
-          "Inventory",
+        title: Text(
+          AppLocalizations.of(context)!.inventory,
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w600,
@@ -640,10 +647,12 @@ class _InventoryScreenState extends State<InventoryScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _filterButton("All", "all"),
-                  _filterButton("Categories", "category"),
-                  _filterButton("Items", "item"),
-                  _filterButton("Services", "service"),
+                  _filterButton(AppLocalizations.of(context)!.all, "all"),
+                  _filterButton(
+                      AppLocalizations.of(context)!.categories, "category"),
+                  _filterButton(AppLocalizations.of(context)!.items, "item"),
+                  _filterButton(
+                      AppLocalizations.of(context)!.services, "service"),
                 ],
               ),
             ),
@@ -666,7 +675,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
               child: TextField(
                 controller: searchController,
                 decoration: InputDecoration(
-                  hintText: "Search inventory",
+                  hintText: AppLocalizations.of(context)!.searchInventory,
                   prefixIcon: const Icon(Icons.search),
 
                   /// CLEAR BUTTON
@@ -726,7 +735,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    "Category: ${widget.title}",
+                    AppLocalizations.of(context)!.category(widget.title),
                     style: const TextStyle(
                       color: Color(0xFF1E4FA3),
                       fontWeight: FontWeight.w600,
@@ -780,8 +789,8 @@ class _InventoryScreenState extends State<InventoryScreen> {
                     }
 
                     if (docs.isEmpty) {
-                      return const Center(
-                        child: Text("No Inventory Yet"),
+                      return Center(
+                        child: Text(AppLocalizations.of(context)!.noInventory),
                       );
                     }
 
@@ -822,8 +831,11 @@ class _InventoryScreenState extends State<InventoryScreen> {
                                     context: context,
                                     builder: (_) => AlertDialog(
                                       backgroundColor: Colors.white,
-                                      title: const Text("Delete"),
-                                      content: const Text("Delete this item?"),
+                                      title: Text(
+                                          AppLocalizations.of(context)!.delete),
+                                      content: Text(
+                                          AppLocalizations.of(context)!
+                                              .deleteItemConfirmShort),
                                       actions: [
                                         TextButton(
                                           style: TextButton.styleFrom(
@@ -833,7 +845,9 @@ class _InventoryScreenState extends State<InventoryScreen> {
                                           onPressed: () {
                                             Navigator.pop(context, false);
                                           },
-                                          child: const Text("Cancel"),
+                                          child: Text(
+                                              AppLocalizations.of(context)!
+                                                  .cancel),
                                         ),
                                         TextButton(
                                           style: TextButton.styleFrom(
@@ -843,7 +857,9 @@ class _InventoryScreenState extends State<InventoryScreen> {
                                           onPressed: () {
                                             Navigator.pop(context, true);
                                           },
-                                          child: const Text("Delete"),
+                                          child: Text(
+                                              AppLocalizations.of(context)!
+                                                  .delete),
                                         ),
                                       ],
                                     ),

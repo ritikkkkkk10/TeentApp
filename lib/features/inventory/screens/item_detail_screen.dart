@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import '../../../core/services/cloudinary_service.dart';
 import '../../../core/utils/image_compressor.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ItemDetailScreen extends StatefulWidget {
   final Map<String, dynamic> itemData;
@@ -42,28 +43,28 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          title: const Text("Edit Item"),
+          title: Text(AppLocalizations.of(context)!.editItem),
           content: SingleChildScrollView(
             child: Column(
               children: [
                 TextField(
                   controller: qty,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: "Quantity",
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.quantity,
                   ),
                 ),
                 TextField(
                   controller: rent,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: "Rent Price",
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.rentPrice,
                   ),
                 ),
                 TextField(
                   controller: desc,
-                  decoration: const InputDecoration(
-                    labelText: "Description",
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.description,
                   ),
                 ),
               ],
@@ -75,7 +76,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                 foregroundColor: const Color(0xFF1E4FA3),
               ),
               onPressed: () => Navigator.pop(context),
-              child: const Text("Cancel"),
+              child: Text(AppLocalizations.of(context)!.cancel),
             ),
             TextButton(
               style: TextButton.styleFrom(
@@ -99,8 +100,8 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
 
                 setState(() {});
               },
-              child: const Text(
-                "Save",
+              child: Text(
+                AppLocalizations.of(context)!.save,
                 style: TextStyle(color: Colors.blue),
               ),
             ),
@@ -122,13 +123,13 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
             borderRadius: BorderRadius.circular(16),
           ),
           title: Text(
-            isAdding ? "Add Stock" : "Remove Stock",
+            isAdding ? AppLocalizations.of(context)!.addStock : AppLocalizations.of(context)!.removeStock,
           ),
           content: TextField(
             controller: qty,
             keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              labelText: "Quantity",
+            decoration: InputDecoration(
+              labelText: AppLocalizations.of(context)!.quantity,
             ),
           ),
           actions: [
@@ -137,8 +138,8 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                 foregroundColor: const Color(0xFF1E4FA3),
               ),
               onPressed: () => Navigator.pop(context),
-              child: const Text(
-                "Cancel",
+              child: Text(
+                AppLocalizations.of(context)!.cancel,
                 style: TextStyle(color: Colors.blue),
               ),
             ),
@@ -159,7 +160,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
 
                 await _updateQuantity(change);
               },
-              child: const Text("Save"),
+              child: Text(AppLocalizations.of(context)!.save),
             ),
           ],
         );
@@ -317,7 +318,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                             elevation: 1,
                           ),
                           icon: const Icon(Icons.image),
-                          label: const Text("Change Image"),
+                          label: Text("Change Image"),
                           onPressed: () {
                             _changeItemImage();
                           },

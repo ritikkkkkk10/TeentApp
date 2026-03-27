@@ -190,8 +190,8 @@ class TodayPaymentsScreen extends StatelessWidget {
           }
 
           if (paymentTiles.isEmpty) {
-            return const Center(
-              child: Text("No payments received today"),
+            return Center(
+              child: Text(AppLocalizations.of(context)!.noPaymentsToday),
             );
           }
 
