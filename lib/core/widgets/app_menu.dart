@@ -4,6 +4,7 @@ import '../../features/bookings/screens/business_profile_screen.dart';
 import '../config/app_config.dart';
 import '../widgets/qr_inventory_dialog.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../main.dart'; // adjust path if needed
 
 class AppMenu extends StatelessWidget {
   const AppMenu({super.key});
@@ -18,7 +19,8 @@ class AppMenu extends StatelessWidget {
           String businessId = await getBusinessId();
 
           /// 🔥 IMPORTANT: CHANGE THIS DOMAIN LATER
-          String url = "https://inventory-web-gte4.onrender.com/?id=" + businessId;
+          String url =
+              "https://inventory-web-gte4.onrender.com/?id=" + businessId;
 
           showDialog(
             context: context,
@@ -37,6 +39,35 @@ class AppMenu extends StatelessWidget {
         if (value == "logout") {
           await FirebaseAuth.instance.signOut();
         }
+
+        if (value == "language") {
+          showDialog(
+            context: context,
+            builder: (_) => AlertDialog(
+              backgroundColor: Colors.white,
+              title: const Text("Select Language"),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ListTile(
+                    title: const Text("English"),
+                    onTap: () {
+                      MyApp.setLocale(context, const Locale('en'));
+                      Navigator.pop(context);
+                    },
+                  ),
+                  ListTile(
+                    title: const Text("हिंदी"),
+                    onTap: () {
+                      MyApp.setLocale(context, const Locale('hi'));
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
       },
       itemBuilder: (context) => [
         PopupMenuItem(
@@ -50,6 +81,10 @@ class AppMenu extends StatelessWidget {
         PopupMenuItem(
           value: "logout",
           child: Text(AppLocalizations.of(context)!.logout),
+        ),
+        PopupMenuItem(
+          value: "language",
+          child: Text(AppLocalizations.of(context)!.language),
         ),
       ],
     );

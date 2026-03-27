@@ -187,6 +187,7 @@
   "descriptionLabel": "विवरण:",
   "generateQr": "QR जनरेट करें",
   "logout": "लॉगआउट",
+  "language": "भाषा",
 
   "grandTotal": "कुल: ₹{amount}",
   "@grandTotal": {

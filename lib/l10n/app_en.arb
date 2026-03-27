@@ -223,6 +223,8 @@
   "placeholders": {
   "amount": {}
   }
-  }
+  },
+
+  "language": "Language"
 
 }

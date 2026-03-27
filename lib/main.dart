@@ -17,28 +17,49 @@ void main() async {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  static void setLocale(BuildContext context, Locale newLocale) {
+    _MyAppState? state =
+        context.findAncestorStateOfType<_MyAppState>();
+    state?.setLocale(newLocale);
+  }
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  Locale _locale = const Locale('en'); // default language
+
+  void setLocale(Locale locale) {
+    setState(() {
+      _locale = locale;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
 
-      locale: const Locale('hi'),   // 👈 ADD HERE
+      // ✅ dynamic locale (REPLACED)
+      locale: _locale,
 
-  supportedLocales: const [
-    Locale('en'),
-    Locale('hi'),
-  ],
+      supportedLocales: const [
+        Locale('en'),
+        Locale('hi'),
+      ],
 
-  localizationsDelegates: const [
-    AppLocalizations.delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-  ],
-  
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+
+      // ✅ YOUR ORIGINAL THEME (UNCHANGED)
       theme: ThemeData(
         scaffoldBackgroundColor: const Color(0xFFF5F6FA),
         primaryColor: const Color(0xFF1E4FA3),
@@ -60,6 +81,7 @@ class MyApp extends StatelessWidget {
           titleLarge: TextStyle(fontWeight: FontWeight.w600),
         ),
       ),
+
       home: const AuthWrapper(),
     );
   }

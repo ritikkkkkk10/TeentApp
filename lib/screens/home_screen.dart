@@ -35,6 +35,80 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {});
   }
 
+  Widget _buildPaymentCard(double todayTotal) {
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => TodayPaymentsScreen(
+              businessId: businessId!,
+            ),
+          ),
+        );
+      },
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1E4FA3).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
+                Icons.payments,
+                color: Color(0xFF1E4FA3),
+                size: 28,
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    AppLocalizations.of(context)!.todaysPayments,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    "₹${todayTotal.toStringAsFixed(2)}",
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: Colors.grey,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _onTabTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -114,117 +188,41 @@ class _HomeScreenState extends State<HomeScreen> {
           /// TODAY PAYMENTS DASHBOARD
           Padding(
             padding: const EdgeInsets.all(12),
-            child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collectionGroup("payments")
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return const SizedBox();
-                }
+  child: StreamBuilder<QuerySnapshot>(
+  stream: FirebaseFirestore.instance
+      .collectionGroup("payments")
+      .snapshots(),
+  builder: (context, snapshot) {
+    if (!snapshot.hasData) {
+      return _buildPaymentCard(0);
+    }
 
-                double todayTotal = 0;
+    double todayTotal = 0;
 
-                DateTime now = DateTime.now();
-                DateTime startOfDay = DateTime(now.year, now.month, now.day);
-                DateTime endOfDay =
-                    DateTime(now.year, now.month, now.day, 23, 59, 59);
+    DateTime now = DateTime.now();
+    DateTime startOfDay = DateTime(now.year, now.month, now.day);
+    DateTime endOfDay =
+        DateTime(now.year, now.month, now.day, 23, 59, 59);
 
-                for (var doc in snapshot.data!.docs) {
-                  String bookingBusinessId =
-                      doc.reference.parent.parent!.parent!.parent!.id;
+    for (var doc in snapshot.data!.docs) {
+      final data = doc.data() as Map<String, dynamic>;
 
-                  if (bookingBusinessId != businessId) continue;
+      // ✅ SAFE FILTER (NO parent traversal)
+      final path = doc.reference.path;
 
-                  final data = doc.data() as Map<String, dynamic>;
+      if (!path.contains("businesses/$businessId")) continue;
 
-                  Timestamp ts = data["timestamp"];
-                  DateTime time = ts.toDate();
+      Timestamp ts = data["timestamp"];
+      DateTime time = ts.toDate();
 
-                  if (time.isAfter(startOfDay) && time.isBefore(endOfDay)) {
-                    todayTotal += (data["amount"] ?? 0).toDouble();
-                  }
-                }
+      if (time.isAfter(startOfDay) && time.isBefore(endOfDay)) {
+        todayTotal += (data["amount"] ?? 0).toDouble();
+      }
+    }
 
-                return InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => TodayPaymentsScreen(
-                          businessId: businessId!,
-                        ),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(14),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        /// ICON
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF1E4FA3).withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Icon(
-                            Icons.payments,
-                            color: Color(0xFF1E4FA3),
-                            size: 28,
-                          ),
-                        ),
-
-                        const SizedBox(width: 14),
-
-                        /// TEXT SECTION
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                AppLocalizations.of(context)!.todaysPayments,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                "₹${todayTotal.toStringAsFixed(2)}",
-                                style: const TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        /// ARROW
-                        const Icon(
-                          Icons.arrow_forward_ios,
-                          size: 16,
-                          color: Colors.grey,
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
+    return _buildPaymentCard(todayTotal);
+  },
+),
           ),
 
           /// ORIGINAL BUTTONS
