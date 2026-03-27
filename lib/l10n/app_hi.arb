@@ -133,9 +133,17 @@
   "addItem": "सामान जोड़ें",
   "selectImage": "चित्र चुनें",
   "deleteItemConfirmShort": "क्या इस सामान को हटाना है?",
+  "changeImage": "चित्र बदलें",
 
   "received": "प्राप्त: {count}",
   "@received": {
+  "placeholders": {
+  "count": {}
+  }
+  },
+
+  "totalQuantity": "कुल मात्रा: {count}",
+  "@totalQuantity": {
   "placeholders": {
   "count": {}
   }
@@ -146,5 +154,21 @@
   "placeholders": {
   "name": {}
   }
+  },
+
+  "rentPriceLabel": "किराया मूल्य: ₹{price}",
+  "@rentPriceLabel": {
+  "placeholders": {
+  "price": {}
   }
+  },
+
+  "addPhotos": "फोटो जोड़ें ({count}/5)",
+  "@addPhotos": {
+  "placeholders": {
+  "count": {}
+  }
+  },
+
+  "descriptionLabel": "विवरण:"
 }

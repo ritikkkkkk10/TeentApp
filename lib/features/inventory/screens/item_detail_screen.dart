@@ -123,7 +123,9 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
             borderRadius: BorderRadius.circular(16),
           ),
           title: Text(
-            isAdding ? AppLocalizations.of(context)!.addStock : AppLocalizations.of(context)!.removeStock,
+            isAdding
+                ? AppLocalizations.of(context)!.addStock
+                : AppLocalizations.of(context)!.removeStock,
           ),
           content: TextField(
             controller: qty,
@@ -318,7 +320,8 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                             elevation: 1,
                           ),
                           icon: const Icon(Icons.image),
-                          label: Text("Change Image"),
+                          label:
+                              Text(AppLocalizations.of(context)!.changeImage),
                           onPressed: () {
                             _changeItemImage();
                           },
@@ -329,7 +332,8 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
 
                       /// TOTAL QUANTITY
                       Text(
-                        "Total Quantity: ${data['quantity']}",
+                        AppLocalizations.of(context)!
+                            .totalQuantity(data['quantity']),
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
@@ -354,8 +358,8 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                               onPressed: () {
                                 _adjustStock(true);
                               },
-                              child: const Text(
-                                "Add Stock",
+                              child: Text(
+                                AppLocalizations.of(context)!.addStock,
                                 style: TextStyle(fontSize: 16),
                               ),
                             ),
@@ -374,8 +378,8 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                               onPressed: () {
                                 _adjustStock(false);
                               },
-                              child: const Text(
-                                "Remove Stock",
+                              child: Text(
+                                AppLocalizations.of(context)!.removeStock,
                                 style: TextStyle(fontSize: 16),
                               ),
                             ),
@@ -387,7 +391,8 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
 
                       /// RENT PRICE
                       Text(
-                        "Rent Price: ₹${data['rentPrice']}",
+                        AppLocalizations.of(context)!
+                            .rentPriceLabel(data['rentPrice']),
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
@@ -397,8 +402,8 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                       const SizedBox(height: 20),
 
                       /// DESCRIPTION TITLE
-                      const Text(
-                        "Description:",
+                     Text(
+                        AppLocalizations.of(context)!.descriptionLabel,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,

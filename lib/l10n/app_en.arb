@@ -129,6 +129,7 @@
   "addCategory": "Add Category",
   "addItem": "Add Item",
   "selectImage": "Select Image",
+  "changeImage": "Change Image",
 
   "ordered": "Ordered: {count}",
   "@ordered": {
@@ -163,6 +164,28 @@
   }
   },
 
-  "deleteItemConfirmShort": "Delete this item?"
+  "totalQuantity": "Total Quantity: {count}",
+  "@totalQuantity": {
+  "placeholders": {
+  "count": {}
+  }
+  },
+
+  "rentPriceLabel": "Rent Price: ₹{price}",
+  "@rentPriceLabel": {
+  "placeholders": {
+  "price": {}
+  }
+  },
+
+  "addPhotos": "Add Photos ({count}/5)",
+  "@addPhotos": {
+  "placeholders": {
+  "count": {}
+  }
+  },
+
+  "deleteItemConfirmShort": "Delete this item?",
+  "descriptionLabel": "Description:"
 
 }

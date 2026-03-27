@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import '../../../core/services/cloudinary_service.dart';
 import '../../../core/utils/image_compressor.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ServiceDetailScreen extends StatefulWidget {
   final Map<String, dynamic> serviceData;
@@ -155,7 +156,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
-        title: const Text("Service Details"),
+        title: Text(AppLocalizations.of(context)!.serviceDetails),
         backgroundColor: Colors.blue.shade600,
       ),
       body: SingleChildScrollView(
@@ -169,8 +170,8 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      "Service Name",
+                    Text(
+                      AppLocalizations.of(context)!.serviceName,
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 15,
@@ -200,8 +201,8 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      "Price",
+                    Text(
+                      AppLocalizations.of(context)!.price,
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 15,
@@ -246,8 +247,8 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      "Description",
+                    Text(
+                      AppLocalizations.of(context)!.description,
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 15,
@@ -396,7 +397,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                     onPressed: pickImage,
                     icon: const Icon(Icons.photo_library),
                     label: Text(
-                      "Add Photos (${imageUrls.length + newImages.length}/5)",
+                      AppLocalizations.of(context)!.addPhotos(imageUrls.length + newImages.length),
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.transparent,
@@ -422,7 +423,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text("Update"),
+                      child: Text(AppLocalizations.of(context)!.update),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -436,7 +437,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text("Delete"),
+                      child: Text(AppLocalizations.of(context)!.delete),
                     ),
                   ),
                 ],
