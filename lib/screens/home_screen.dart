@@ -11,6 +11,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../core/widgets/app_menu.dart';
 import 'package:tent_app/core/widgets/bookings_calendar_widget.dart';
 import 'package:tent_app/features/bookings/screens/create_booking_screen.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -90,7 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 6),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text(
                   "Welcome back!",
                   style: TextStyle(
@@ -100,7 +101,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 SizedBox(height: 2),
                 Text(
-                  "Good to see you again",
+                  AppLocalizations.of(context)!.goodToSeeYou,
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.grey,
@@ -193,8 +194,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                "Today's Payments",
+                              Text(
+                                AppLocalizations.of(context)!.todaysPayments,
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: Colors.grey,
@@ -272,8 +273,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       height: 52,
                       child: ElevatedButton.icon(
                         icon: const Icon(Icons.add),
-                        label: const Text(
-                          "New Booking",
+                        label: Text(
+                          AppLocalizations.of(context)!.newBooking,
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
