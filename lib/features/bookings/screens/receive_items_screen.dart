@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ReceiveItemsScreen extends StatefulWidget {
   final String businessId;
@@ -135,8 +136,11 @@ class _ReceiveItemsScreenState extends State<ReceiveItemsScreen> {
         .collection("bookings")
         .doc(widget.bookingId);
 
-    batch
-        .update(bookingRef, {"status": hasMissing ? "receiving" : "completed"});
+    batch.update(bookingRef, {
+      "status": hasMissing
+          ? AppLocalizations.of(context)!.receiving
+          : AppLocalizations.of(context)!.completed
+    });
 
     await batch.commit();
 
@@ -148,27 +152,26 @@ class _ReceiveItemsScreenState extends State<ReceiveItemsScreen> {
           context: context,
           builder: (_) => AlertDialog(
             backgroundColor: Colors.white,
-            title: const Text("Confirm Receive"),
-            content: const Text(
-                "Once confirmed, receive quantities cannot be edited."),
+            title: Text(AppLocalizations.of(context)!.confirmReceive),
+            content: Text(AppLocalizations.of(context)!.confirmReceiveMessage),
             actions: [
               TextButton(
                 style: TextButton.styleFrom(
-    foregroundColor: const Color(0xFF1E4FA3),
-  ),
+                  foregroundColor: const Color(0xFF1E4FA3),
+                ),
                 onPressed: () {
                   Navigator.pop(context, false);
                 },
-                child: const Text("Cancel"),
+                child: Text(AppLocalizations.of(context)!.cancel),
               ),
               TextButton(
                 style: TextButton.styleFrom(
-    foregroundColor: const Color(0xFF1E4FA3),
-  ),
+                  foregroundColor: const Color(0xFF1E4FA3),
+                ),
                 onPressed: () {
                   Navigator.pop(context, true);
                 },
-                child: const Text("Confirm"),
+                child: Text(AppLocalizations.of(context)!.confirm),
               ),
             ],
           ),
@@ -191,7 +194,7 @@ class _ReceiveItemsScreenState extends State<ReceiveItemsScreen> {
     final bookedItemsRef = bookingRef.collection("bookedItems");
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Receive Items")),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.receiveItems)),
       body: StreamBuilder<QuerySnapshot>(
         stream: bookedItemsRef.snapshots(),
         builder: (context, snapshot) {
@@ -219,8 +222,8 @@ class _ReceiveItemsScreenState extends State<ReceiveItemsScreen> {
                       ),
                     ),
                     onPressed: () => receiveAllItems(docs),
-                    child: const Text(
-                      "Receive All",
+                    child: Text(
+                      AppLocalizations.of(context)!.receiveAll,
                       style: TextStyle(fontWeight: FontWeight.w600),
                     ),
                   ),
@@ -274,10 +277,13 @@ class _ReceiveItemsScreenState extends State<ReceiveItemsScreen> {
                                   ),
                                 ),
                                 const SizedBox(height: 6),
-                                Text("Dispatched: $dispatched"),
-                                Text("Received: $received"),
+                                Text(AppLocalizations.of(context)!
+                                    .alreadyDispatched(dispatched)),
+                                Text(AppLocalizations.of(context)!
+                                    .received(received)),
                                 Text(
-                                  "Remaining: $remaining",
+                                  AppLocalizations.of(context)!
+                                      .remaining(remaining),
                                   style: TextStyle(
                                     color: remaining == 0
                                         ? Colors.green
@@ -401,7 +407,7 @@ class _ReceiveItemsScreenState extends State<ReceiveItemsScreen> {
                             ),
                           ),
                           onPressed: () => saveProgress(docs),
-                          child: const Text("Save Progress"),
+                          child: Text(AppLocalizations.of(context)!.saveProgress),
                         ),
                       ),
                     ),
@@ -417,7 +423,7 @@ class _ReceiveItemsScreenState extends State<ReceiveItemsScreen> {
                             ),
                           ),
                           onPressed: () => confirmReceiveDialog(docs),
-                          child: const Text("Confirm Receive"),
+                          child: Text(AppLocalizations.of(context)!.confirmReceive),
                         ),
                       ),
                     ),

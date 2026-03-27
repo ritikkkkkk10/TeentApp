@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'booking_detail_screen.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class PendingPaymentsScreen extends StatefulWidget {
   final String businessId;
@@ -115,7 +116,7 @@ class _PendingPaymentsScreenState extends State<PendingPaymentsScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Pending Payments"),
+        title: Text(AppLocalizations.of(context)!.pendingPayments),
       ),
       body: Column(
         children: [
@@ -139,11 +140,11 @@ class _PendingPaymentsScreenState extends State<PendingPaymentsScreen>
                 unselectedLabelColor: Colors.black87,
                 indicatorSize: TabBarIndicatorSize.tab,
                 dividerColor: Colors.transparent,
-                tabs: const [
-                  Tab(text: "All"),
-                  Tab(text: "Dispatched"),
-                  Tab(text: "Receiving"),
-                  Tab(text: "Completed"),
+                tabs: [
+                  Tab(text: AppLocalizations.of(context)!.all),
+                  Tab(text: AppLocalizations.of(context)!.dispatched),
+                  Tab(text: AppLocalizations.of(context)!.receiving),
+                  Tab(text: AppLocalizations.of(context)!.completed),
                 ],
               ),
             ),
@@ -378,8 +379,8 @@ class _PendingPaymentsScreenState extends State<PendingPaymentsScreen>
                                       color: Colors.grey.shade200,
                                       borderRadius: BorderRadius.circular(5),
                                     ),
-                                    child: const Text(
-                                      "Remaining",
+                                    child: Text(
+                                      AppLocalizations.of(context)!.remainingLabel,
                                       style: TextStyle(
                                         fontSize: 10,
                                         color: Colors.black54,
@@ -438,8 +439,8 @@ class _PendingPaymentsScreenState extends State<PendingPaymentsScreen>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        "Total Pending",
+                      Text(
+                        AppLocalizations.of(context)!.totalPending,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,

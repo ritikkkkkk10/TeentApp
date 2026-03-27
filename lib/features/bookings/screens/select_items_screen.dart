@@ -5,6 +5,7 @@ import '../../../core/config/app_config.dart';
 import '../repository/booking_repository.dart';
 import '../models/booked_item_model.dart';
 import '../models/temp_selected_item.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SelectItemsScreen extends StatefulWidget {
   final String bookingId;

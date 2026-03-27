@@ -117,6 +117,12 @@
   "manualItem": "Manual Item",
   "serviceAdded": "Service Added",
   "done": "Done",
+  "pendingPayments": "Pending Payments",
+  "remainingLabel": "Remaining",
+  "totalPending": "Total Pending",
+  "confirmReceive": "Confirm Receive",
+  "confirmReceiveMessage": "Once confirmed, receive quantities cannot be edited.",
+  "receiveAll": "Receive All",
 
   "ordered": "Ordered: {count}",
   "@ordered": {
@@ -132,6 +138,13 @@
   },
   "remaining": "Remaining: {count}",
   "@remaining": {
+  "placeholders": {
+  "count": {}
+  }
+  },
+
+  "received": "Received: {count}",
+  "@received": {
   "placeholders": {
   "count": {}
   }

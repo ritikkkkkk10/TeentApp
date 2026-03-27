@@ -119,5 +119,18 @@
   "pickItems": "सामान चुनें",
   "manualItem": "मैनुअल सामान",
   "serviceAdded": "सर्विस जोड़ी गई",
-  "done": "हो गया"
+  "done": "हो गया",
+  "pendingPayments": "लंबित भुगतान",
+  "remainingLabel": "शेष",
+  "totalPending": "कुल लंबित",
+  "confirmReceive": "प्राप्ति की पुष्टि करें",
+  "confirmReceiveMessage": "पुष्टि के बाद, प्राप्त मात्रा को बदला नहीं जा सकता।",
+  "receiveAll": "सभी प्राप्त करें",
+
+  "received": "प्राप्त: {count}",
+  "@received": {
+  "placeholders": {
+  "count": {}
+  }
+  }
 }
