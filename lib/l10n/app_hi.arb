@@ -177,7 +177,7 @@
   }
   },
 
-  "servicesTotal": "सेवाओं का कुल: ₹{amount}",
+  "servicesTotal": "सर्विस का कुल: ₹{amount}",
   "@servicesTotal": {
   "placeholders": {
   "amount": {}
