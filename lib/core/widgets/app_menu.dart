@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../features/bookings/screens/business_profile_screen.dart';
 import '../config/app_config.dart';
 import '../widgets/qr_inventory_dialog.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AppMenu extends StatelessWidget {
   const AppMenu({super.key});
@@ -37,18 +38,18 @@ class AppMenu extends StatelessWidget {
           await FirebaseAuth.instance.signOut();
         }
       },
-      itemBuilder: (context) => const [
+      itemBuilder: (context) => [
         PopupMenuItem(
           value: "qr",
-          child: Text("Generate QR"),
+          child: Text(AppLocalizations.of(context)!.generateQr),
         ),
         PopupMenuItem(
           value: "profile",
-          child: Text("Business Profile"),
+          child: Text(AppLocalizations.of(context)!.businessProfile),
         ),
         PopupMenuItem(
           value: "logout",
-          child: Text("Logout"),
+          child: Text(AppLocalizations.of(context)!.logout),
         ),
       ],
     );

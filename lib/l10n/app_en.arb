@@ -186,6 +186,43 @@
   },
 
   "deleteItemConfirmShort": "Delete this item?",
-  "descriptionLabel": "Description:"
+  "descriptionLabel": "Description:",
+  "generateQr": "Generate QR",
+  "logout": "Logout",
+
+  "itemsTotal": "Items Total: ₹{amount}",
+  "@itemsTotal": {
+  "placeholders": {
+  "amount": {}
+  }
+  },
+
+  "servicesTotal": "Services Total: ₹{amount}",
+  "@servicesTotal": {
+  "placeholders": {
+  "amount": {}
+  }
+  },
+
+  "grandTotal": "Total: ₹{amount}",
+  "@grandTotal": {
+  "placeholders": {
+  "amount": {}
+  }
+  },
+
+  "paid": "Paid: ₹{amount}",
+  "@paid": {
+  "placeholders": {
+  "amount": {}
+  }
+  },
+
+  "remainingAmount": "Remaining: ₹{amount}",
+  "@remainingAmount": {
+  "placeholders": {
+  "amount": {}
+  }
+  }
 
 }

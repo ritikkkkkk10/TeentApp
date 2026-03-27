@@ -170,5 +170,42 @@
   }
   },
 
-  "descriptionLabel": "विवरण:"
+  "itemsTotal": "सामान का कुल: ₹{amount}",
+  "@itemsTotal": {
+  "placeholders": {
+  "amount": {}
+  }
+  },
+
+  "servicesTotal": "सेवाओं का कुल: ₹{amount}",
+  "@servicesTotal": {
+  "placeholders": {
+  "amount": {}
+  }
+  },
+
+  "descriptionLabel": "विवरण:",
+  "generateQr": "QR जनरेट करें",
+  "logout": "लॉगआउट",
+
+  "grandTotal": "कुल: ₹{amount}",
+  "@grandTotal": {
+  "placeholders": {
+  "amount": {}
+  }
+  },
+
+  "paid": "भुगतान: ₹{amount}",
+  "@paid": {
+  "placeholders": {
+  "amount": {}
+  }
+  },
+
+  "remainingAmount": "शेष: ₹{amount}",
+  "@remainingAmount": {
+  "placeholders": {
+  "amount": {}
+  }
+  }
 }

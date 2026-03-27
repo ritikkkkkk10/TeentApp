@@ -45,7 +45,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
           content: TextField(
             controller: controller,
             keyboardType: TextInputType.number,
-            decoration:  InputDecoration(
+            decoration: InputDecoration(
               labelText: AppLocalizations.of(context)!.paymentAmount,
             ),
           ),
@@ -586,24 +586,29 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                     const SizedBox(height: 14),
 
                                     Text(
-                                        "Items Total: ₹${estimatedTotal.toStringAsFixed(2)}"),
+                                      AppLocalizations.of(context)!.itemsTotal(
+                                          estimatedTotal.toStringAsFixed(2)),
+                                    ),
                                     Text(
-                                        "Services Total: ₹${serviceTotal.toStringAsFixed(2)}"),
+                                      AppLocalizations.of(context)!
+                                          .servicesTotal(
+                                              serviceTotal.toStringAsFixed(2)),
+                                    ),
 
                                     const Divider(height: 24),
 
                                     Text(
-                                      "Total: ₹${grandTotal.toStringAsFixed(2)}",
+                                      AppLocalizations.of(context)!.grandTotal(grandTotal.toStringAsFixed(2)),
                                       style: const TextStyle(
                                           fontWeight: FontWeight.bold),
                                     ),
 
                                     const SizedBox(height: 4),
 
-                                    Text("Paid: ₹$paid"),
+                                    Text(AppLocalizations.of(context)!.paid(paid)),
 
                                     Text(
-                                      "Remaining: ₹${(grandTotal - paid).toStringAsFixed(2)}",
+                                      AppLocalizations.of(context)!.remainingAmount((grandTotal - paid).toStringAsFixed(2)),
                                       style: const TextStyle(
                                           fontWeight: FontWeight.w600),
                                     ),
@@ -628,7 +633,8 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                               icon: const Icon(Icons.payments,
                                                   color: Colors.white),
                                               label: Text(
-                                               AppLocalizations.of(context)!.makePayment,
+                                                AppLocalizations.of(context)!
+                                                    .makePayment,
                                                 style: TextStyle(
                                                     color: Colors.white),
                                               ),
@@ -659,8 +665,8 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                               icon: const Icon(Icons.history,
                                                   color: Colors.white),
                                               label: Text(
-                                                AppLocalizations.of(context)!.history
-,
+                                                AppLocalizations.of(context)!
+                                                    .history,
                                                 style: TextStyle(
                                                     color: Colors.white),
                                               ),
@@ -711,8 +717,8 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                               icon: const Icon(Icons.visibility,
                                                   color: Colors.white),
                                               label: Text(
-                                                AppLocalizations.of(context)!.preview
-,
+                                                AppLocalizations.of(context)!
+                                                    .preview,
                                                 style: TextStyle(
                                                     color: Colors.white),
                                               ),
@@ -729,7 +735,9 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                                       .showSnackBar(
                                                     SnackBar(
                                                       content: Text(
-                                                          AppLocalizations.of(context)!.fillBusinessProfile),
+                                                          AppLocalizations.of(
+                                                                  context)!
+                                                              .fillBusinessProfile),
                                                     ),
                                                   );
                                                   return;
@@ -811,7 +819,8 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                               icon: const Icon(Icons.send,
                                                   color: Colors.white),
                                               label: Text(
-                                                AppLocalizations.of(context)!.send,
+                                                AppLocalizations.of(context)!
+                                                    .send,
                                                 style: TextStyle(
                                                     color: Colors.white),
                                               ),
@@ -828,7 +837,9 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                                       .showSnackBar(
                                                     SnackBar(
                                                       content: Text(
-                                                          AppLocalizations.of(context)!.fillBusinessProfile),
+                                                          AppLocalizations.of(
+                                                                  context)!
+                                                              .fillBusinessProfile),
                                                     ),
                                                   );
                                                   return;
@@ -985,7 +996,9 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                                             6),
                                                   ),
                                                   child: Text(
-                                                    AppLocalizations.of(context)!.edit,
+                                                    AppLocalizations.of(
+                                                            context)!
+                                                        .edit,
                                                     style:
                                                         TextStyle(fontSize: 12),
                                                   ),
@@ -1037,9 +1050,13 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                                       backgroundColor:
                                                           Colors.white,
                                                       title: Text(
-                                                          AppLocalizations.of(context)!.removeService),
+                                                          AppLocalizations.of(
+                                                                  context)!
+                                                              .removeService),
                                                       content: Text(
-                                                          AppLocalizations.of(context)!.deleteServiceConfirm),
+                                                          AppLocalizations.of(
+                                                                  context)!
+                                                              .deleteServiceConfirm),
                                                       actions: [
                                                         TextButton(
                                                           style: TextButton
@@ -1049,7 +1066,9 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                                                     0xFF1E4FA3),
                                                           ),
                                                           child: Text(
-                                                              AppLocalizations.of(context)!.cancel),
+                                                              AppLocalizations.of(
+                                                                      context)!
+                                                                  .cancel),
                                                           onPressed: () =>
                                                               Navigator.pop(
                                                                   context,
@@ -1063,7 +1082,9 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                                                     0xFF1E4FA3),
                                                           ),
                                                           child: Text(
-                                                              AppLocalizations.of(context)!.delete),
+                                                              AppLocalizations.of(
+                                                                      context)!
+                                                                  .delete),
                                                           onPressed: () =>
                                                               Navigator.pop(
                                                                   context,
