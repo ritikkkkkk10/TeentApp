@@ -139,6 +139,7 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
                 bookingStartDate: startDate!,
                 bookingEndDate: endDate!,
                 businessId: businessId,
+                bookingId: widget.bookingId,
               );
 
               await repo.addBookedItem(
@@ -237,54 +238,52 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
   /// ✅ FAST DATE-AWARE AVAILABILITY STREAM
   /// =====================================================
   Stream<Map<String, int>> dateAwareBookedItemsStream() {
-    if (startDate == null || endDate == null) {
-      return Stream.value({});
+  if (startDate == null || endDate == null || businessId == null) {
+    return Stream.value({});
+  }
+
+  return FirebaseFirestore.instance
+      .collection("businesses")
+      .doc(businessId)
+      .collection("bookedItems") // ✅ SAFE + FAST
+      .snapshots()
+      .map((snapshot) {
+
+    Map<String, int> bookedMap = {};
+
+    for (var doc in snapshot.docs) {
+      final data = doc.data();
+
+      /// skip manual items
+      if (data["isManual"] == true) continue;
+
+      /// date check
+      if (!data.containsKey("bookingStartDate")) continue;
+
+      DateTime otherStart =
+          (data["bookingStartDate"] as Timestamp).toDate();
+      DateTime otherEnd =
+          (data["bookingEndDate"] as Timestamp).toDate();
+
+      bool overlap =
+          !(otherEnd.isBefore(startDate!) || otherStart.isAfter(endDate!));
+
+      if (!overlap) continue;
+
+      String itemId = data["inventoryItemId"];
+
+      int requested = (data["requestedQuantity"] as num?)?.toInt() ?? 0;
+      int dispatched = (data["dispatchedQuantity"] as num?)?.toInt() ?? 0;
+
+      int effectiveQty = dispatched > 0 ? dispatched : requested;
+
+      bookedMap[itemId] =
+          (bookedMap[itemId] ?? 0) + effectiveQty;
     }
 
-    return FirebaseFirestore.instance
-        .collectionGroup("bookedItems")
-        .snapshots()
-        .map((snapshot) {
-      Map<String, int> bookedMap = {};
-
-      for (var doc in snapshot.docs) {
-        /// ignore other businesses
-        String bookingBusinessId =
-            doc.reference.parent.parent!.parent!.parent!.id;
-
-        if (bookingBusinessId != businessId) continue;
-
-        if (!doc.data().containsKey("bookingStartDate")) {
-          continue;
-        }
-
-        DateTime otherStart = (doc["bookingStartDate"] as Timestamp).toDate();
-        DateTime otherEnd = (doc["bookingEndDate"] as Timestamp).toDate();
-
-        bool overlap =
-            !(otherEnd.isBefore(startDate!) || otherStart.isAfter(endDate!));
-
-        if (!overlap) continue;
-
-        if (doc["isManual"] == true) {
-          continue;
-        }
-
-        String itemId = doc["inventoryItemId"];
-
-        int requested = (doc["requestedQuantity"] as num?)?.toInt() ?? 0;
-        int dispatched = (doc["dispatchedQuantity"] as num?)?.toInt() ?? 0;
-
-        /// if dispatch already happened → use dispatched quantity
-        /// otherwise use requested quantity
-        int effectiveQty = dispatched > 0 ? dispatched : requested;
-
-        bookedMap[itemId] = (bookedMap[itemId] ?? 0) + effectiveQty;
-      }
-
-      return bookedMap;
-    });
-  }
+    return bookedMap;
+  });
+}
 
   /// =====================================================
   /// UI
@@ -873,6 +872,7 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
                 bookingStartDate: startDate!,
                 bookingEndDate: endDate!,
                 businessId: businessId,
+                bookingId: widget.bookingId,
               );
 
               await repo.addBookedItem(

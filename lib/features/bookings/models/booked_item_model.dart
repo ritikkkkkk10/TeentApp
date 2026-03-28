@@ -12,6 +12,7 @@ class BookedItemModel {
   final int shortageQuantity;
 
   final int dispatchedQuantity; // ✅ NEW FIELD
+  final String bookingId; // ✅ ADD THIS
 
   final int receivedQuantity;
   final int missingQuantity;
@@ -38,6 +39,7 @@ class BookedItemModel {
     required this.bookingStartDate,
     required this.bookingEndDate,
     this.businessId,
+    required this.bookingId, // ✅ ADD
     this.dispatchedQuantity = 0,
     this.receivedQuantity = 0,
     this.missingQuantity = 0, // ✅ default
@@ -58,6 +60,9 @@ class BookedItemModel {
       "bookingEndDate": Timestamp.fromDate(bookingEndDate),
       "receivedQuantity": receivedQuantity,
       "missingQuantity": missingQuantity,
+      "bookingId": bookingId, // ✅ ADD
+      "id": id,
+      "businessId": businessId,
     };
   }
 }

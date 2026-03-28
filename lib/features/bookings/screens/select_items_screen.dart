@@ -121,8 +121,13 @@ class _SelectItemsScreenState extends State<SelectItemsScreen> {
   /// SAVE ALL ITEMS
   /// ===============================
   Future<void> saveItems() async {
-    for (var item in selectedItems.values) {
-      await repo.addBookedItem(
+  if (businessId == null) return;
+
+  List<Future> futures = [];
+
+  for (var item in selectedItems.values) {
+    futures.add(
+      repo.addBookedItem(
         bookingId: widget.bookingId,
         item: BookedItemModel(
           id: const Uuid().v4(),
@@ -133,16 +138,19 @@ class _SelectItemsScreenState extends State<SelectItemsScreen> {
           shortageQuantity: 0,
           rentPriceSnapshot: item.rentPrice,
           createdAt: Timestamp.now(),
-
-          /// ✅ ADD THESE
           bookingStartDate: startDate!,
           bookingEndDate: endDate!,
+          bookingId: widget.bookingId,
+          businessId: businessId, // ✅ added
         ),
-      );
-    }
-
-    Navigator.pop(context);
+      ),
+    );
   }
+
+  await Future.wait(futures); // 🚀 FAST
+
+  Navigator.pop(context);
+}
 
   /// ===============================
   /// UI

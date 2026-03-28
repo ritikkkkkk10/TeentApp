@@ -29,10 +29,15 @@ class _AddItemScreenState extends State<AddItemScreen> {
   /// LOAD BOOKING DATES
   /// ===============================
   @override
-  void initState() {
-    super.initState();
-    loadBookingDates();
-  }
+void initState() {
+  super.initState();
+  init();
+}
+
+Future<void> init() async {
+  businessId = await getBusinessId(); // ✅ IMPORTANT
+  await loadBookingDates();
+}
 
   Future<void> loadBookingDates() async {
     final bookingDoc = await FirebaseFirestore.instance
@@ -53,41 +58,48 @@ class _AddItemScreenState extends State<AddItemScreen> {
   /// DATE OVERLAP AVAILABILITY STREAM
   /// ===============================
   Stream<int> bookedQuantityStream(String inventoryItemId) {
-    return FirebaseFirestore.instance
-        .collection("businesses")
-        .doc(businessId!)
-        .collection("bookings")
-        .snapshots()
-        .asyncMap((bookingSnapshot) async {
-      int totalBooked = 0;
-
-      for (var booking in bookingSnapshot.docs) {
-        DateTime otherStart = (booking["startDate"] as Timestamp).toDate();
-
-        DateTime otherEnd = (booking["endDate"] as Timestamp).toDate();
-
-        /// overlap check
-        bool overlap =
-            !(otherEnd.isBefore(startDate!) || otherStart.isAfter(endDate!));
-
-        if (!overlap) continue;
-
-        var items = await booking.reference
-            .collection("bookedItems")
-            .where(
-              "inventoryItemId",
-              isEqualTo: inventoryItemId,
-            )
-            .get();
-
-        for (var item in items.docs) {
-          totalBooked += (item["requestedQuantity"] as num).toInt();
-        }
-      }
-
-      return totalBooked;
-    });
+  if (businessId == null || startDate == null || endDate == null) {
+    return Stream.value(0);
   }
+
+  return FirebaseFirestore.instance
+      .collection("businesses")
+      .doc(businessId)
+      .collection("bookedItems") // ✅ FAST SOURCE
+      .snapshots()
+      .map((snapshot) {
+
+    int totalBooked = 0;
+
+    for (var doc in snapshot.docs) {
+      final data = doc.data();
+
+      if (data["inventoryItemId"] != inventoryItemId) continue;
+
+      /// skip manual
+      if (data["isManual"] == true) continue;
+
+      DateTime otherStart =
+          (data["bookingStartDate"] as Timestamp).toDate();
+      DateTime otherEnd =
+          (data["bookingEndDate"] as Timestamp).toDate();
+
+      bool overlap =
+          !(otherEnd.isBefore(startDate!) || otherStart.isAfter(endDate!));
+
+      if (!overlap) continue;
+
+      int requested = (data["requestedQuantity"] as num?)?.toInt() ?? 0;
+      int dispatched = (data["dispatchedQuantity"] as num?)?.toInt() ?? 0;
+
+      int effectiveQty = dispatched > 0 ? dispatched : requested;
+
+      totalBooked += effectiveQty;
+    }
+
+    return totalBooked;
+  });
+}
 
   /// ===============================
   /// ADD ITEM
@@ -157,7 +169,8 @@ class _AddItemScreenState extends State<AddItemScreen> {
                 shortageQuantity: shortage,
                 rentPriceSnapshot: item["rentPrice"].toDouble(),
                 createdAt: Timestamp.now(),
-
+                bookingId: widget.bookingId,
+                businessId: businessId,
                 /// ✅ ADD THESE
                 bookingStartDate: startDate!,
                 bookingEndDate: endDate!,

@@ -247,6 +247,25 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                       "requestedQuantity": newQty,
                     });
 
+                    String businessId = await widget.businessId;
+
+final globalRef = FirebaseFirestore.instance
+    .collection("businesses")
+    .doc(businessId)
+    .collection("bookedItems");
+
+/// find matching global entries
+final globalDocs = await globalRef
+    .where("bookingId", isEqualTo: widget.bookingId)
+    .where("inventoryItemId", isEqualTo: item["inventoryItemId"])
+    .get();
+
+for (var doc in globalDocs.docs) {
+  await doc.reference.update({
+    "requestedQuantity": newQty,
+  });
+}
+
                     Navigator.pop(context);
                   },
                 )
