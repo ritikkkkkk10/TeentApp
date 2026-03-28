@@ -89,7 +89,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    "₹${todayTotal.toStringAsFixed(2)}",
+                    "Check Here",
                     style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,

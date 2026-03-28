@@ -155,9 +155,7 @@ class _ReceiveItemsScreenState extends State<ReceiveItemsScreen> {
         .doc(widget.bookingId);
 
     batch.update(bookingRef, {
-      "status": hasMissing
-          ? AppLocalizations.of(context)!.receiving
-          : AppLocalizations.of(context)!.completed
+      "status": hasMissing ? "receiving" : "completed"
     });
 
     await batch.commit();
