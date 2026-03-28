@@ -202,7 +202,24 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                   ),
                   child: Text(AppLocalizations.of(context)!.delete),
                   onPressed: () async {
+                    /// 1. DELETE FROM BOOKING
                     await item.reference.delete();
+
+                    /// 2. DELETE FROM GLOBAL bookedItems
+                    final globalRef = FirebaseFirestore.instance
+                        .collection("businesses")
+                        .doc(widget.businessId)
+                        .collection("bookedItems");
+
+                    final globalDocs = await globalRef
+                        .where("bookingId", isEqualTo: widget.bookingId)
+                        .where("inventoryItemId",
+                            isEqualTo: item["inventoryItemId"])
+                        .get();
+
+                    for (var doc in globalDocs.docs) {
+                      await doc.reference.delete();
+                    }
 
                     Navigator.pop(context);
                   },
@@ -247,24 +264,25 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                       "requestedQuantity": newQty,
                     });
 
-                    String businessId = await widget.businessId;
+                    String businessId = widget.businessId;
 
-final globalRef = FirebaseFirestore.instance
-    .collection("businesses")
-    .doc(businessId)
-    .collection("bookedItems");
+                    final globalRef = FirebaseFirestore.instance
+                        .collection("businesses")
+                        .doc(businessId)
+                        .collection("bookedItems");
 
-/// find matching global entries
-final globalDocs = await globalRef
-    .where("bookingId", isEqualTo: widget.bookingId)
-    .where("inventoryItemId", isEqualTo: item["inventoryItemId"])
-    .get();
+                    /// find matching global entries
+                    final globalDocs = await globalRef
+                        .where("bookingId", isEqualTo: widget.bookingId)
+                        .where("inventoryItemId",
+                            isEqualTo: item["inventoryItemId"])
+                        .get();
 
-for (var doc in globalDocs.docs) {
-  await doc.reference.update({
-    "requestedQuantity": newQty,
-  });
-}
+                    for (var doc in globalDocs.docs) {
+                      await doc.reference.update({
+                        "requestedQuantity": newQty,
+                      });
+                    }
 
                     Navigator.pop(context);
                   },
@@ -617,17 +635,21 @@ for (var doc in globalDocs.docs) {
                                     const Divider(height: 24),
 
                                     Text(
-                                      AppLocalizations.of(context)!.grandTotal(grandTotal.toStringAsFixed(2)),
+                                      AppLocalizations.of(context)!.grandTotal(
+                                          grandTotal.toStringAsFixed(2)),
                                       style: const TextStyle(
                                           fontWeight: FontWeight.bold),
                                     ),
 
                                     const SizedBox(height: 4),
 
-                                    Text(AppLocalizations.of(context)!.paid(paid)),
+                                    Text(AppLocalizations.of(context)!
+                                        .paid(paid)),
 
                                     Text(
-                                      AppLocalizations.of(context)!.remainingAmount((grandTotal - paid).toStringAsFixed(2)),
+                                      AppLocalizations.of(context)!
+                                          .remainingAmount((grandTotal - paid)
+                                              .toStringAsFixed(2)),
                                       style: const TextStyle(
                                           fontWeight: FontWeight.w600),
                                     ),
