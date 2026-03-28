@@ -433,6 +433,22 @@ class _BookingsListScreenState extends State<BookingsListScreen>
                                         await doc.reference.delete();
                                       }
 
+                                      /// ✅ DELETE GLOBAL bookedItems
+                                      final globalRef = FirebaseFirestore
+                                          .instance
+                                          .collection("businesses")
+                                          .doc(widget.businessId)
+                                          .collection("bookedItems");
+
+                                      final globalDocs = await globalRef
+                                          .where("bookingId",
+                                              isEqualTo: booking.id)
+                                          .get();
+
+                                      for (var doc in globalDocs.docs) {
+                                        await doc.reference.delete();
+                                      }
+
                                       await bookingRef.delete();
                                     }
                                   },
