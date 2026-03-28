@@ -125,6 +125,24 @@ class _ReceiveItemsScreenState extends State<ReceiveItemsScreen> {
         "missingQuantity": missing,
       });
 
+      /// ✅ UPDATE GLOBAL bookedItems
+      // final globalRef = FirebaseFirestore.instance
+      //     .collection("businesses")
+      //     .doc(widget.businessId)
+      //     .collection("bookedItems");
+
+      // final globalDocs = await globalRef
+      //     .where("bookingId", isEqualTo: widget.bookingId)
+      //     .where("inventoryItemId", isEqualTo: data["inventoryItemId"])
+      //     .get();
+
+      // for (var gDoc in globalDocs.docs) {
+      //   batch.update(gDoc.reference, {
+      //     "receivedQuantity": finalReceived,
+      //     "missingQuantity": missing,
+      //   });
+      // }
+
       if (missing > 0) {
         hasMissing = true;
       }
@@ -407,7 +425,8 @@ class _ReceiveItemsScreenState extends State<ReceiveItemsScreen> {
                             ),
                           ),
                           onPressed: () => saveProgress(docs),
-                          child: Text(AppLocalizations.of(context)!.saveProgress),
+                          child:
+                              Text(AppLocalizations.of(context)!.saveProgress),
                         ),
                       ),
                     ),
@@ -423,7 +442,8 @@ class _ReceiveItemsScreenState extends State<ReceiveItemsScreen> {
                             ),
                           ),
                           onPressed: () => confirmReceiveDialog(docs),
-                          child: Text(AppLocalizations.of(context)!.confirmReceive),
+                          child: Text(
+                              AppLocalizations.of(context)!.confirmReceive),
                         ),
                       ),
                     ),

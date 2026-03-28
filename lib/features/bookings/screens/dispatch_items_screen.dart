@@ -111,6 +111,23 @@ class _DispatchItemsScreenState extends State<DispatchItemsScreen> {
       batch.update(ref, {
         'dispatchedQuantity': previousDispatched + qty,
       });
+
+      /// ✅ UPDATE GLOBAL bookedItems
+      final globalRef = FirebaseFirestore.instance
+          .collection("businesses")
+          .doc(widget.businessId)
+          .collection("bookedItems");
+
+      final globalDocs = await globalRef
+          .where("bookingId", isEqualTo: widget.bookingId)
+          .where("inventoryItemId", isEqualTo: inventoryItemId)
+          .get();
+
+      for (var gDoc in globalDocs.docs) {
+        batch.update(gDoc.reference, {
+          'dispatchedQuantity': previousDispatched + qty,
+        });
+      }
     }
 
     /// Update booking status
@@ -397,7 +414,8 @@ class _DispatchItemsScreenState extends State<DispatchItemsScreen> {
                               onPressed: isDispatched
                                   ? null
                                   : () => saveProgress(docs),
-                              child: Text(AppLocalizations.of(context)!.saveProgress),
+                              child: Text(
+                                  AppLocalizations.of(context)!.saveProgress),
                             ),
                           ),
                         ),
@@ -415,7 +433,8 @@ class _DispatchItemsScreenState extends State<DispatchItemsScreen> {
                               onPressed: isDispatched
                                   ? null
                                   : () => confirmDispatchDialog(docs),
-                              child: Text(AppLocalizations.of(context)!.confirmDispatch),
+                              child: Text(AppLocalizations.of(context)!
+                                  .confirmDispatch),
                             ),
                           ),
                         ),
