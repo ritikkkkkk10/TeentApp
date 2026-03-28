@@ -10,6 +10,7 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../widgets/payment_dialog.dart';
 
 class BookingDetailScreen extends StatefulWidget {
   final String bookingId;
@@ -27,131 +28,6 @@ class BookingDetailScreen extends StatefulWidget {
 
 class _BookingDetailScreenState extends State<BookingDetailScreen> {
   bool isSavingPayment = false;
-
-  void showPaymentDialog(
-    BuildContext context,
-    DocumentReference bookingRef,
-    double currentPaid,
-    double grandTotal,
-  ) {
-    TextEditingController controller = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (_) {
-        return AlertDialog(
-          backgroundColor: Colors.white,
-          title: Text(AppLocalizations.of(context)!.enterPaymentAmount),
-          content: TextField(
-            controller: controller,
-            keyboardType: TextInputType.number,
-            decoration: InputDecoration(
-              labelText: AppLocalizations.of(context)!.paymentAmount,
-            ),
-          ),
-          actions: [
-            TextButton(
-              style: TextButton.styleFrom(
-                foregroundColor: const Color(0xFF1E4FA3),
-              ),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text(AppLocalizations.of(context)!.cancel),
-            ),
-            TextButton(
-              style: TextButton.styleFrom(
-                foregroundColor: const Color(0xFF1E4FA3),
-              ),
-              child: isSavingPayment
-                  ? const SizedBox(
-                      height: 16,
-                      width: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Text(AppLocalizations.of(context)!.save),
-              onPressed: isSavingPayment
-                  ? null
-                  : () async {
-                      if (isSavingPayment) return;
-
-                      setState(() {
-                        isSavingPayment = true;
-                      });
-                      double amount = double.tryParse(controller.text) ?? 0;
-
-                      double remaining = grandTotal - currentPaid;
-
-                      if (amount > remaining) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                                AppLocalizations.of(context)!.paymentExceed),
-                          ),
-                        );
-                        return;
-                      }
-
-                      double newTotalPaid = currentPaid + amount;
-
-                      if (amount > remaining) {
-                        bool confirm = await showDialog(
-                              context: context,
-                              builder: (_) => AlertDialog(
-                                backgroundColor: Colors.white,
-                                title: Text(AppLocalizations.of(context)!
-                                    .advanceExceed),
-                                content: Text(AppLocalizations.of(context)!
-                                    .advanceConfirm),
-                                actions: [
-                                  TextButton(
-                                    style: TextButton.styleFrom(
-                                      foregroundColor: const Color(0xFF1E4FA3),
-                                    ),
-                                    child: Text(
-                                        AppLocalizations.of(context)!.cancel),
-                                    onPressed: () =>
-                                        Navigator.pop(context, false),
-                                  ),
-                                  TextButton(
-                                    style: TextButton.styleFrom(
-                                      foregroundColor: const Color(0xFF1E4FA3),
-                                    ),
-                                    child: Text(
-                                        AppLocalizations.of(context)!.confirm),
-                                    onPressed: () =>
-                                        Navigator.pop(context, true),
-                                  ),
-                                ],
-                              ),
-                            ) ??
-                            false;
-
-                        if (!confirm) return;
-                      }
-
-                      await bookingRef.update({
-                        "totalPaid": newTotalPaid,
-                      });
-
-                      await bookingRef.collection("payments").add({
-                        "amount": amount,
-                        "type": "payment",
-                        "timestamp": Timestamp.now(),
-                      });
-
-                      Navigator.pop(context);
-
-                      setState(() {
-                        isSavingPayment = false;
-                      });
-                    },
-            ),
-          ],
-        );
-      },
-    );
-  }
 
   void editQuantity(
       BuildContext context, DocumentSnapshot item, bool isManual) {
