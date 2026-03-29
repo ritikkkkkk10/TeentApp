@@ -75,47 +75,50 @@ class _BulkAddInventoryScreenState extends State<BulkAddInventoryScreen> {
               children: [
                 Expanded(
                   child: DropdownButtonHideUnderline(
- child: DropdownButton<String>(
-  value: entry.type,
-  isExpanded: true,
-  dropdownColor: Colors.white,
-  iconEnabledColor: Colors.white,
+                      child: DropdownButton<String>(
+                    value: entry.type,
+                    isExpanded: true,
+                    dropdownColor: Colors.white,
+                    iconEnabledColor: Colors.white,
 
-  /// ✅ FIXED — clean selected view (no layout break)
-  selectedItemBuilder: (context) {
-    return ["item", "service", "category"].map((value) {
-      return Align(
-        alignment: Alignment.centerLeft, // ✅ fixes weird spacing
-        child: Text(
-          value[0].toUpperCase() + value.substring(1),
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      );
-    }).toList();
-  },
+                    /// ✅ FIXED — clean selected view (no layout break)
+                    selectedItemBuilder: (context) {
+                      return ["item", "service", "category"].map((value) {
+                        return Align(
+                          alignment:
+                              Alignment.centerLeft, // ✅ fixes weird spacing
+                          child: Text(
+                            value[0].toUpperCase() + value.substring(1),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        );
+                      }).toList();
+                    },
 
-  /// ✅ dropdown menu text color
-  style: const TextStyle(
-    color: Colors.black,
-    fontSize: 14,
-  ),
+                    /// ✅ dropdown menu text color
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 14,
+                    ),
 
-  items: const [
-    DropdownMenuItem(value: "item", child: Text("Item")),
-    DropdownMenuItem(value: "service", child: Text("Service")),
-    DropdownMenuItem(value: "category", child: Text("Category")),
-  ],
+                    items: const [
+                      DropdownMenuItem(value: "item", child: Text("Item")),
+                      DropdownMenuItem(
+                          value: "service", child: Text("Service")),
+                      DropdownMenuItem(
+                          value: "category", child: Text("Category")),
+                    ],
 
-  onChanged: (val) {
-    setState(() {
-      entry.type = val!;
-    });
-  },
-)),
+                    onChanged: (val) {
+                      setState(() {
+                        entry.type = val!;
+                      });
+                    },
+                  )),
                 ),
                 IconButton(
                   onPressed: () => removeRow(index),

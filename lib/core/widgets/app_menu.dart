@@ -20,7 +20,7 @@ class AppMenu extends StatelessWidget {
 
           /// 🔥 IMPORTANT: CHANGE THIS DOMAIN LATER
           String url =
-              "https://inventory-web-gte4.onrender.com/?id=" + businessId;
+              "https://eventivo.in/?id=" + businessId;
 
           showDialog(
             context: context,
