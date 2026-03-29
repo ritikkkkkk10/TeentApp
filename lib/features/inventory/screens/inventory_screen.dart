@@ -12,6 +12,8 @@ import '../../../core/utils/image_compressor.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../widgets/add_category_dialog.dart';
 import '../widgets/add_item_dialog.dart';
+import '../widgets/build_all_sections.dart';
+import '../../../core/utils/input_decoration.dart';
 
 class InventoryScreen extends StatefulWidget {
   final String? parentId;
@@ -37,29 +39,6 @@ class _InventoryScreenState extends State<InventoryScreen> {
   bool showAllServices = false;
   bool showAllCategories = false;
 
-  InputDecoration inputStyle(String label) {
-    return InputDecoration(
-      labelText: label,
-      floatingLabelBehavior: FloatingLabelBehavior.auto,
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(
-          color: Color(0xFF2563EB),
-          width: 2,
-        ),
-      ),
-      labelStyle: const TextStyle(color: Colors.grey),
-      floatingLabelStyle: const TextStyle(
-        color: Color(0xFF2563EB),
-        fontWeight: FontWeight.w500,
-      ),
-    );
-  }
-
   Widget _filterButton(String label, String mode) {
     bool selected = filterMode == mode;
 
@@ -82,36 +61,6 @@ class _InventoryScreenState extends State<InventoryScreen> {
             fontWeight: FontWeight.w500,
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildAllSections(List docs) {
-    List items = docs
-        .where((d) =>
-            (d.data() as Map)["type"] == "item" &&
-            (d.data() as Map)["parentId"] == widget.parentId)
-        .toList();
-
-    List services = docs
-        .where((d) =>
-            (d.data() as Map)["type"] == "service" &&
-            (d.data() as Map)["parentId"] == widget.parentId)
-        .toList();
-
-    List categories = docs
-        .where((d) =>
-            (d.data() as Map)["type"] == "category" &&
-            (d.data() as Map)["parentId"] == widget.parentId)
-        .toList();
-
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          _section("Items", "item", items, showAllItems),
-          _section("Services", "service", services, showAllServices),
-          _section("Categories", "category", categories, showAllCategories)
-        ],
       ),
     );
   }
@@ -309,7 +258,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                     context,
                     widget.parentId,
                     defaultItemImage,
-                    inputStyle,
+                    inputStyle, // still works (now imported)
                   );
                 },
               ),
@@ -530,7 +479,14 @@ class _InventoryScreenState extends State<InventoryScreen> {
                     }
 
                     if (filterMode == "all" && searchText.isEmpty) {
-                      return _buildAllSections(docs);
+                      return buildAllSections(
+                        docs: docs,
+                        parentId: widget.parentId,
+                        showAllItems: showAllItems,
+                        showAllServices: showAllServices,
+                        showAllCategories: showAllCategories,
+                        sectionBuilder: _section,
+                      );
                     }
 
                     return ListView.builder(
