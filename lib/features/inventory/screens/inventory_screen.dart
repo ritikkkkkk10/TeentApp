@@ -11,6 +11,7 @@ import '../../../core/services/cloudinary_service.dart';
 import '../../../core/utils/image_compressor.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../widgets/add_category_dialog.dart';
+import '../widgets/add_item_dialog.dart';
 
 class InventoryScreen extends StatefulWidget {
   final String? parentId;
@@ -304,7 +305,12 @@ class _InventoryScreenState extends State<InventoryScreen> {
                     style: TextStyle(color: Color(0xFF1E4FA3))),
                 onTap: () {
                   Navigator.pop(context);
-                  _showAddItemDialog(context);
+                  showAddItemDialog(
+                    context,
+                    widget.parentId,
+                    defaultItemImage,
+                    inputStyle,
+                  );
                 },
               ),
               ListTile(
@@ -327,222 +333,6 @@ class _InventoryScreenState extends State<InventoryScreen> {
               ),
             ],
           ),
-        );
-      },
-    );
-  }
-
-  /// ADD ITEM
-  void _showAddItemDialog(BuildContext context) {
-    TextEditingController name = TextEditingController();
-    TextEditingController qty = TextEditingController();
-    TextEditingController rent = TextEditingController();
-    TextEditingController description = TextEditingController();
-
-    File? selectedImage;
-
-    showDialog(
-      context: context,
-      builder: (_) {
-        return StatefulBuilder(
-          builder: (context, setStateDialog) {
-            return AlertDialog(
-              backgroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              titlePadding: EdgeInsets.zero,
-              title: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                decoration: const BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(color: Color(0xFFEAEAEA)),
-                  ),
-                ),
-                child: Text(
-                  AppLocalizations.of(context)!.newItem,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              content: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    /// ITEM NAME
-                    TextField(
-                      controller: name,
-                      cursorColor: const Color(0xFF2563EB),
-                      style: const TextStyle(color: Colors.black),
-                      decoration:
-                          inputStyle(AppLocalizations.of(context)!.itemName),
-                    ),
-
-                    const SizedBox(height: 14),
-
-                    /// QUANTITY
-                    TextField(
-                      controller: qty,
-                      keyboardType: TextInputType.number,
-                      cursorColor: const Color(0xFF2563EB),
-                      style: const TextStyle(color: Colors.black),
-                      decoration:
-                          inputStyle(AppLocalizations.of(context)!.quantity),
-                    ),
-
-                    const SizedBox(height: 14),
-
-                    /// RENT PRICE
-                    TextField(
-                      controller: rent,
-                      keyboardType: TextInputType.number,
-                      cursorColor: const Color(0xFF2563EB),
-                      style: const TextStyle(color: Colors.black),
-                      decoration:
-                          inputStyle(AppLocalizations.of(context)!.rentPrice),
-                    ),
-
-                    const SizedBox(height: 14),
-
-                    /// DESCRIPTION
-                    TextField(
-                      controller: description,
-                      maxLines: 3,
-                      cursorColor: const Color(0xFF2563EB),
-                      style: const TextStyle(color: Colors.black),
-                      decoration:
-                          inputStyle(AppLocalizations.of(context)!.description),
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    /// IMAGE PICKER CARD
-                    InkWell(
-                      onTap: () async {
-                        final picker = ImagePicker();
-
-                        final picked = await picker.pickImage(
-                          source: ImageSource.gallery,
-                        );
-
-                        if (picked != null) {
-                          setStateDialog(() {
-                            selectedImage = File(picked.path);
-                          });
-                        }
-                      },
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [
-                              Color(0xFF3B82F6),
-                              Color(0xFF2563EB),
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.image, color: Colors.white),
-                            SizedBox(width: 10),
-                            Text(
-                              AppLocalizations.of(context)!.selectImage,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    if (selectedImage != null)
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Image.file(
-                          selectedImage!,
-                          height: 100,
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-
-              /// ACTIONS (Toolbar style)
-              actionsPadding:
-                  const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-              actions: [
-                TextButton(
-                  style: TextButton.styleFrom(
-                    foregroundColor: const Color(0xFF1E4FA3),
-                  ),
-                  onPressed: () => Navigator.pop(context),
-                  child: Text(
-                    AppLocalizations.of(context)!.cancel,
-                    style: TextStyle(
-                      color: Color(0xFF2563EB),
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-                TextButton(
-                  style: TextButton.styleFrom(
-                    foregroundColor: const Color(0xFF1E4FA3),
-                  ),
-                  onPressed: () async {
-                    try {
-                      final service = InventoryService();
-
-                      String? imageUrl = defaultItemImage;
-
-                      if (selectedImage != null) {
-                        final compressed = await compressImage(selectedImage!);
-
-                        if (compressed != null) {
-                          imageUrl =
-                              await CloudinaryService.uploadImage(compressed);
-                        }
-                      }
-
-                      await service.addItem(
-                        name: name.text,
-                        quantity: int.parse(qty.text),
-                        rentPrice: double.parse(rent.text),
-                        parentId: widget.parentId,
-                        description: description.text,
-                        imageUrl: imageUrl,
-                      );
-
-                      Navigator.pop(context);
-                    } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            e.toString().replaceAll("Exception:", "").trim(),
-                          ),
-                        ),
-                      );
-                    }
-                  },
-                  child: Text(
-                    AppLocalizations.of(context)!.save,
-                    style: TextStyle(
-                      color: Color(0xFF2563EB),
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
         );
       },
     );
@@ -813,7 +603,8 @@ class _InventoryScreenState extends State<InventoryScreen> {
 
                               if (!confirm) return;
 
-                              await InventoryService().deleteNodeRecursive(docs[index].id);
+                              await InventoryService()
+                                  .deleteNodeRecursive(docs[index].id);
                             },
                             onTap: () {
                               if (data['type'] == 'category') {
