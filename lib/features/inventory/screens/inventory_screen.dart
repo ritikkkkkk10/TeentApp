@@ -10,6 +10,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../core/services/cloudinary_service.dart';
 import '../../../core/utils/image_compressor.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../widgets/add_category_dialog.dart';
 
 class InventoryScreen extends StatefulWidget {
   final String? parentId;
@@ -294,7 +295,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                 ),
                 onTap: () {
                   Navigator.pop(context);
-                  _showAddCategoryDialog(context);
+                  showAddCategoryDialog(context, widget.parentId);
                 },
               ),
               ListTile(
@@ -542,62 +543,6 @@ class _InventoryScreenState extends State<InventoryScreen> {
               ],
             );
           },
-        );
-      },
-    );
-  }
-
-  /// ADD CATEGORY
-  void _showAddCategoryDialog(BuildContext context) {
-    TextEditingController controller = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (_) {
-        return AlertDialog(
-          backgroundColor: Colors.white,
-          title: Text(AppLocalizations.of(context)!.newCategory),
-          content: TextField(
-            controller: controller,
-            decoration: InputDecoration(
-              hintText: AppLocalizations.of(context)!.categoryName,
-            ),
-          ),
-          actions: [
-            TextButton(
-              style: TextButton.styleFrom(
-                foregroundColor: const Color(0xFF1E4FA3),
-              ),
-              onPressed: () => Navigator.pop(context),
-              child: Text(AppLocalizations.of(context)!.cancel),
-            ),
-            TextButton(
-              style: TextButton.styleFrom(
-                foregroundColor: const Color(0xFF1E4FA3),
-              ),
-              onPressed: () async {
-                try {
-                  final service = InventoryService();
-
-                  await service.addCategory(
-                    name: controller.text,
-                    parentId: widget.parentId,
-                  );
-
-                  Navigator.pop(context);
-                } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        e.toString().replaceAll("Exception:", "").trim(),
-                      ),
-                    ),
-                  );
-                }
-              },
-              child: Text(AppLocalizations.of(context)!.create),
-            ),
-          ],
         );
       },
     );
