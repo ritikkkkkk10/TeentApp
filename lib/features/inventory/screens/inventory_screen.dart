@@ -14,6 +14,7 @@ import '../widgets/add_category_dialog.dart';
 import '../widgets/add_item_dialog.dart';
 import '../widgets/build_all_sections.dart';
 import '../../../core/utils/input_decoration.dart';
+import '../widgets/inventory_search_bar.dart';
 
 class InventoryScreen extends StatefulWidget {
   final String? parentId;
@@ -341,72 +342,23 @@ class _InventoryScreenState extends State<InventoryScreen> {
               ),
             ),
           ),
+          InventorySearchBar(
+            controller: searchController,
+            onChanged: (value) {
+              setState(() {
+                searchText = value.toLowerCase();
+              });
+            },
+            onClear: () {
+              searchController.clear();
 
-          /// SEARCH BAR
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 6,
-                  )
-                ],
-              ),
-              child: TextField(
-                controller: searchController,
-                decoration: InputDecoration(
-                  hintText: AppLocalizations.of(context)!.searchInventory,
-                  prefixIcon: const Icon(Icons.search),
+              setState(() {
+                searchText = "";
+              });
 
-                  /// CLEAR BUTTON
-                  suffixIcon: searchController.text.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.close),
-                          onPressed: () {
-                            searchController.clear();
-
-                            setState(() {
-                              searchText = "";
-                            });
-
-                            FocusScope.of(context).unfocus(); // closes keyboard
-                          },
-                        )
-                      : null,
-
-                  contentPadding: const EdgeInsets.symmetric(
-                    vertical: 10,
-                    horizontal: 12,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
-                      color: Color(0xFF1E4FA3),
-                      width: 1,
-                    ),
-                  ),
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    searchText = value.toLowerCase();
-                  });
-                },
-              ),
-            ),
+              FocusScope.of(context).unfocus();
+            },
           ),
-
           if (widget.parentId != null)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -428,7 +380,6 @@ class _InventoryScreenState extends State<InventoryScreen> {
                 ],
               ),
             ),
-
           Expanded(
             child: FutureBuilder(
               future: getBusinessId(),
