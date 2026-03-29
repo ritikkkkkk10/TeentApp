@@ -36,6 +36,32 @@ class InventoryService {
   return false;
 }
 
+Future<void> deleteNodeRecursive(String nodeId) async {
+    String businessId = await getBusinessId();
+
+    final nodeRef = FirebaseFirestore.instance
+        .collection('businesses')
+        .doc(businessId)
+        .collection('inventoryNodes')
+        .doc(nodeId);
+
+    /// find children
+    final children = await FirebaseFirestore.instance
+        .collection('businesses')
+        .doc(businessId)
+        .collection('inventoryNodes')
+        .where("parentId", isEqualTo: nodeId)
+        .get();
+
+    /// delete children first
+    for (var child in children.docs) {
+      await deleteNodeRecursive(child.id);
+    }
+
+    /// delete this node
+    await nodeRef.delete();
+  }
+
   /// ADD CATEGORY
   Future<void> addCategory({
   required String name,

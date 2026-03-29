@@ -195,7 +195,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
 
                       if (!confirm) return;
 
-                      await deleteNodeRecursive(doc.id);
+                      await InventoryService().deleteNodeRecursive(doc.id);
                     },
                     onTap: () {
                       if (type == "category") {
@@ -868,7 +868,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
 
                               if (!confirm) return;
 
-                              await deleteNodeRecursive(docs[index].id);
+                              await InventoryService().deleteNodeRecursive(docs[index].id);
                             },
                             onTap: () {
                               if (data['type'] == 'category') {
@@ -915,31 +915,5 @@ class _InventoryScreenState extends State<InventoryScreen> {
         ],
       ),
     );
-  }
-
-  Future<void> deleteNodeRecursive(String nodeId) async {
-    String businessId = await getBusinessId();
-
-    final nodeRef = FirebaseFirestore.instance
-        .collection('businesses')
-        .doc(businessId)
-        .collection('inventoryNodes')
-        .doc(nodeId);
-
-    /// find children
-    final children = await FirebaseFirestore.instance
-        .collection('businesses')
-        .doc(businessId)
-        .collection('inventoryNodes')
-        .where("parentId", isEqualTo: nodeId)
-        .get();
-
-    /// delete children first
-    for (var child in children.docs) {
-      await deleteNodeRecursive(child.id);
-    }
-
-    /// delete this node
-    await nodeRef.delete();
   }
 }
