@@ -26,8 +26,7 @@ class BulkAddInventoryScreen extends StatefulWidget {
   });
 
   @override
-  State<BulkAddInventoryScreen> createState() =>
-      _BulkAddInventoryScreenState();
+  State<BulkAddInventoryScreen> createState() => _BulkAddInventoryScreenState();
 }
 
 class _BulkAddInventoryScreenState extends State<BulkAddInventoryScreen> {
@@ -49,72 +48,135 @@ class _BulkAddInventoryScreenState extends State<BulkAddInventoryScreen> {
   Widget buildRow(int index) {
     final entry = entries[index];
 
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          children: [
-            /// TYPE + DELETE
-            Row(
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 6,
+          )
+        ],
+      ),
+      child: Column(
+        children: [
+          /// 🔷 HEADER (THINNER + PURE BLUE)
+          Container(
+            height: 40, // ✅ thinner bar
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1E4FA3), // ✅ pure blue
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
               children: [
                 Expanded(
-                  child: DropdownButtonFormField<String>(
-                    value: entry.type,
-                    items: const [
-                      DropdownMenuItem(value: "item", child: Text("Item")),
-                      DropdownMenuItem(value: "service", child: Text("Service")),
-                      DropdownMenuItem(value: "category", child: Text("Category")),
-                    ],
-                    onChanged: (val) {
-                      setState(() {
-                        entry.type = val!;
-                      });
-                    },
-                  ),
+                  child: DropdownButtonHideUnderline(
+ child: DropdownButton<String>(
+  value: entry.type,
+  isExpanded: true,
+  dropdownColor: Colors.white,
+  iconEnabledColor: Colors.white,
+
+  /// ✅ FIXED — clean selected view (no layout break)
+  selectedItemBuilder: (context) {
+    return ["item", "service", "category"].map((value) {
+      return Align(
+        alignment: Alignment.centerLeft, // ✅ fixes weird spacing
+        child: Text(
+          value[0].toUpperCase() + value.substring(1),
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      );
+    }).toList();
+  },
+
+  /// ✅ dropdown menu text color
+  style: const TextStyle(
+    color: Colors.black,
+    fontSize: 14,
+  ),
+
+  items: const [
+    DropdownMenuItem(value: "item", child: Text("Item")),
+    DropdownMenuItem(value: "service", child: Text("Service")),
+    DropdownMenuItem(value: "category", child: Text("Category")),
+  ],
+
+  onChanged: (val) {
+    setState(() {
+      entry.type = val!;
+    });
+  },
+)),
                 ),
                 IconButton(
                   onPressed: () => removeRow(index),
-                  icon: const Icon(Icons.delete, color: Colors.red),
+                  icon: const Icon(Icons.delete, color: Colors.white, size: 18),
                 )
               ],
             ),
+          ),
 
-            const SizedBox(height: 8),
+          const SizedBox(height: 2),
 
-            /// NAME
-            TextField(
-              controller: entry.nameController,
-              decoration: const InputDecoration(labelText: "Name"),
+          /// 🔽 FIELDS (VERY COMPACT)
+          TextField(
+            controller: entry.nameController,
+            style: const TextStyle(fontSize: 14),
+            decoration: const InputDecoration(
+              labelText: "Name",
+              isDense: true,
+              contentPadding: EdgeInsets.symmetric(vertical: 2),
             ),
+          ),
 
-            const SizedBox(height: 8),
+          const SizedBox(height: 2),
 
-            /// ITEM
-            if (entry.type == "item") ...[
-              TextField(
-                controller: entry.qtyController,
-                decoration: const InputDecoration(labelText: "Quantity"),
-                keyboardType: TextInputType.number,
+          if (entry.type == "item") ...[
+            TextField(
+              controller: entry.qtyController,
+              keyboardType: TextInputType.number,
+              style: const TextStyle(fontSize: 14),
+              decoration: const InputDecoration(
+                labelText: "Quantity",
+                isDense: true,
+                contentPadding: EdgeInsets.symmetric(vertical: 2),
               ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: entry.rentController,
-                decoration: const InputDecoration(labelText: "Rent Price"),
-                keyboardType: TextInputType.number,
+            ),
+            const SizedBox(height: 2),
+            TextField(
+              controller: entry.rentController,
+              keyboardType: TextInputType.number,
+              style: const TextStyle(fontSize: 14),
+              decoration: const InputDecoration(
+                labelText: "Rent Price",
+                isDense: true,
+                contentPadding: EdgeInsets.symmetric(vertical: 2),
               ),
-            ],
-
-            /// SERVICE
-            if (entry.type == "service") ...[
-              TextField(
-                controller: entry.servicePriceController,
-                decoration: const InputDecoration(labelText: "Service Price"),
-                keyboardType: TextInputType.number,
-              ),
-            ],
+            ),
           ],
-        ),
+
+          if (entry.type == "service") ...[
+            TextField(
+              controller: entry.servicePriceController,
+              keyboardType: TextInputType.number,
+              style: const TextStyle(fontSize: 14),
+              decoration: const InputDecoration(
+                labelText: "Service Price",
+                isDense: true,
+                contentPadding: EdgeInsets.symmetric(vertical: 2),
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }
@@ -134,8 +196,7 @@ class _BulkAddInventoryScreenState extends State<BulkAddInventoryScreen> {
       }
 
       if (e.type == "item") {
-        if (e.qtyController.text.isEmpty ||
-            e.rentController.text.isEmpty) {
+        if (e.qtyController.text.isEmpty || e.rentController.text.isEmpty) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text("Fill all fields for item: $name")),
           );
@@ -157,14 +218,12 @@ class _BulkAddInventoryScreenState extends State<BulkAddInventoryScreen> {
     final seen = <String>{};
 
     for (var e in entries) {
-      final key =
-          "${e.type}_${e.nameController.text.trim().toLowerCase()}";
+      final key = "${e.type}_${e.nameController.text.trim().toLowerCase()}";
 
       if (seen.contains(key)) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text(
-                  "Duplicate in list: ${e.nameController.text}")),
+              content: Text("Duplicate in list: ${e.nameController.text}")),
         );
         return;
       }
@@ -238,6 +297,7 @@ class _BulkAddInventoryScreenState extends State<BulkAddInventoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F7FB),
       appBar: AppBar(
         title: const Text("Quick Add Multiple"),
       ),
@@ -249,25 +309,56 @@ class _BulkAddInventoryScreenState extends State<BulkAddInventoryScreen> {
               itemBuilder: (_, index) => buildRow(index),
             ),
           ),
-
-          /// ADD ROW
           Padding(
-            padding: const EdgeInsets.all(10),
-            child: ElevatedButton.icon(
-              onPressed: addRow,
-              icon: const Icon(Icons.add),
-              label: const Text("Add Row"),
-            ),
-          ),
-
-          /// SAVE
-          Padding(
-            padding: const EdgeInsets.all(10),
-            child: ElevatedButton(
-              onPressed: isLoading ? null : saveAll,
-              child: isLoading
-                  ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text("Save All"),
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              children: [
+                Expanded(
+                  child: SizedBox(
+                    height: 42, // ✅ thin button
+                    child: ElevatedButton.icon(
+                      onPressed: addRow,
+                      icon: const Icon(Icons.add, size: 18),
+                      label: const Text("Add Row"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF1E4FA3),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: EdgeInsets.zero,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: SizedBox(
+                    height: 42, // ✅ thin button
+                    child: ElevatedButton(
+                      onPressed: isLoading ? null : saveAll,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF1E4FA3),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: EdgeInsets.zero,
+                      ),
+                      child: isLoading
+                          ? const SizedBox(
+                              height: 18,
+                              width: 18,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : const Text("Save All"),
+                    ),
+                  ),
+                ),
+              ],
             ),
           )
         ],
