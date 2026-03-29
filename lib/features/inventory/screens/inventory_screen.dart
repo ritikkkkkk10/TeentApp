@@ -15,6 +15,7 @@ import '../widgets/add_item_dialog.dart';
 import '../widgets/build_all_sections.dart';
 import '../../../core/utils/input_decoration.dart';
 import '../widgets/inventory_search_bar.dart';
+import 'bulk_add_inventory_screen.dart';
 
 class InventoryScreen extends StatefulWidget {
   final String? parentId;
@@ -275,6 +276,26 @@ class _InventoryScreenState extends State<InventoryScreen> {
                     context,
                     MaterialPageRoute(
                       builder: (_) => AddServiceScreen(
+                        parentId: widget.parentId,
+                      ),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                leading:
+                    const Icon(Icons.playlist_add, color: Color(0xFF1E4FA3)),
+                title: Text(
+                  "Quick Add Multiple",
+                  style: TextStyle(color: Color(0xFF1E4FA3)),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => BulkAddInventoryScreen(
                         parentId: widget.parentId,
                       ),
                     ),
