@@ -41,6 +41,40 @@ class _InventoryScreenState extends State<InventoryScreen> {
   bool showAllServices = false;
   bool showAllCategories = false;
 
+  Widget _inventoryThumbnail(
+    Map<String, dynamic> data,
+    String type,
+  ) {
+    final imageUrl = data['imageUrl']?.toString().trim() ?? '';
+    final fallbackIcon = type == 'category'
+        ? Icons.folder
+        : type == 'service'
+            ? Icons.miscellaneous_services
+            : Icons.inventory;
+
+    return CircleAvatar(
+      radius: 22,
+      backgroundColor: const Color(0xFFE8EEF8),
+      child: type == 'item' && imageUrl.isNotEmpty
+          ? ClipOval(
+              child: Image.network(
+                imageUrl,
+                width: 44,
+                height: 44,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Icon(
+                  fallbackIcon,
+                  color: const Color(0xFF1E4FA3),
+                ),
+              ),
+            )
+          : Icon(
+              fallbackIcon,
+              color: const Color(0xFF1E4FA3),
+            ),
+    );
+  }
+
   Widget _filterButton(String label, String mode) {
     bool selected = filterMode == mode;
 
@@ -106,14 +140,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                   final data = doc.data() as Map<String, dynamic>;
 
                   return ListTile(
-                    leading: Icon(
-                      type == "category"
-                          ? Icons.folder
-                          : type == "service"
-                              ? Icons.miscellaneous_services
-                              : Icons.inventory,
-                      color: const Color(0xFF1E4FA3),
-                    ),
+                    leading: _inventoryThumbnail(data, type),
                     title: Text(data["name"]),
                     onLongPress: () async {
                       bool confirm = await showDialog(
@@ -475,13 +502,9 @@ class _InventoryScreenState extends State<InventoryScreen> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: ListTile(
-                            leading: Icon(
-                              data['type'] == 'category'
-                                  ? Icons.folder
-                                  : data['type'] == 'service'
-                                      ? Icons.miscellaneous_services
-                                      : Icons.inventory,
-                              color: const Color(0xFF1E4FA3),
+                            leading: _inventoryThumbnail(
+                              data,
+                              data['type']?.toString() ?? 'item',
                             ),
                             title: Text(
                               data['name'],

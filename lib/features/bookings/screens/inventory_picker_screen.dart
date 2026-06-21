@@ -42,6 +42,33 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
 
   String selectedManualType = "";
 
+  Widget _itemThumbnail(DocumentSnapshot node) {
+    final data = node.data() as Map<String, dynamic>;
+    final imageUrl = data['imageUrl']?.toString().trim() ?? '';
+
+    return CircleAvatar(
+      radius: 22,
+      backgroundColor: const Color(0xFFE8EEF8),
+      child: imageUrl.isNotEmpty
+          ? ClipOval(
+              child: Image.network(
+                imageUrl,
+                width: 44,
+                height: 44,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => const Icon(
+                  Icons.inventory,
+                  color: Color(0xFF1E4FA3),
+                ),
+              ),
+            )
+          : const Icon(
+              Icons.inventory,
+              color: Color(0xFF1E4FA3),
+            ),
+    );
+  }
+
   /// =====================================================
   /// LOAD BOOKING DATES
   /// =====================================================
@@ -714,7 +741,7 @@ class _InventoryPickerScreenState extends State<InventoryPickerScreen> {
                                           bookedItemIds.contains(node.id);
 
                                       return ListTile(
-                                        leading: const Icon(Icons.inventory),
+                                        leading: _itemThumbnail(node),
                                         title: Text(node["name"]),
                                         subtitle: Text("${AppLocalizations.of(context)!.available} $available"),
                                         trailing: isBooked

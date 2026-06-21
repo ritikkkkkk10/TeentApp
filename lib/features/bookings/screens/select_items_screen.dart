@@ -26,6 +26,33 @@ class _SelectItemsScreenState extends State<SelectItemsScreen> {
   String? businessId;
   final BookingRepository repo = BookingRepository();
 
+  Widget _itemThumbnail(DocumentSnapshot item) {
+    final data = item.data() as Map<String, dynamic>;
+    final imageUrl = data['imageUrl']?.toString().trim() ?? '';
+
+    return CircleAvatar(
+      radius: 22,
+      backgroundColor: const Color(0xFFE8EEF8),
+      child: imageUrl.isNotEmpty
+          ? ClipOval(
+              child: Image.network(
+                imageUrl,
+                width: 44,
+                height: 44,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => const Icon(
+                  Icons.inventory,
+                  color: Color(0xFF1E4FA3),
+                ),
+              ),
+            )
+          : const Icon(
+              Icons.inventory,
+              color: Color(0xFF1E4FA3),
+            ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -197,6 +224,7 @@ class _SelectItemsScreenState extends State<SelectItemsScreen> {
               int qty = selectedItems[item.id]?.quantity ?? 0;
 
               return ListTile(
+                leading: _itemThumbnail(item),
                 title: Text(item["name"]),
                 subtitle: Text("Qty: $qty"),
                 trailing: ElevatedButton(
