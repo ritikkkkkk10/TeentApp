@@ -263,6 +263,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
               }
 
               final data = snap.data!.data()!;
+              final imageUrl = (data['imageUrl'] ?? '').toString();
 
               return SingleChildScrollView(
                 child: Padding(
@@ -272,15 +273,17 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                     children: [
                       /// IMAGE CARD
                       GestureDetector(
-                        onTap: () {
-                          showDialog(
+                        onTap: imageUrl.isEmpty
+                          ? null
+                          : () {
+                              showDialog(
                             context: context,
                             builder: (_) => Dialog(
                               backgroundColor: Colors.black,
                               insetPadding: const EdgeInsets.all(10),
                               child: InteractiveViewer(
                                 child: Image.network(
-                                  data['imageUrl'],
+                                  imageUrl,
                                   fit: BoxFit.contain,
                                 ),
                               ),
@@ -296,9 +299,17 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                           ),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(16),
-                            child: Image.network(
-                              data['imageUrl'],
+                            child: imageUrl.isNotEmpty
+                          ? Image.network(
+                              imageUrl,
                               fit: BoxFit.cover,
+                            )
+                          : const Center(
+                              child: Icon(
+                                Icons.inventory,
+                                size: 80,
+                                color: Colors.grey,
+                              ),
                             ),
                           ),
                         ),
@@ -402,7 +413,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                       const SizedBox(height: 20),
 
                       /// DESCRIPTION TITLE
-                     Text(
+                    Text(
                         AppLocalizations.of(context)!.descriptionLabel,
                         style: TextStyle(
                           fontSize: 16,
